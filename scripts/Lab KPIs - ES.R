@@ -1,0 +1,98 @@
+#check directory =====
+getwd()
+
+# Check if the package pacman is installed
+if (!require("pacman")) {install.packages("pacman")} 
+library("pacman")
+
+# Load packages =====
+#RODBC to be able to work with microsoft access databases, allowing R to connect to Open Database Connectivity (ODBC) APIs
+p_load(tidyverse, RODBC,gt, gtExtras)
+
+#Give the path to the ES database
+Specify_the_period <- "WEEK 1 - 18, 2024"
+path_ES_2024 = "data/es_2024_wk18.mdb"
+
+# Connect to the Microsoft Access database ====
+ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
+                           .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
+                                              DBQ=", path_ES_2024))
+# load data in R =====
+# Retrieve all data from the AFP database
+EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
+  as_tibble() |>
+  mutate(Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "INRB" = "RDC", "IPD SEN" = "SEN",
+                                         "IPM, MAD" = "MAD", "IPM,MAD" = "MAD", "KEMRI" = "KEN", "IBD, Nigeria" = "IBD",
+                                         "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM")),
+         date_result_to_lab = if_else(is.na(Dateresultstolab), 
+                                      Datefinalcultureresult, Dateresultstolab)
+          )
+
+# Analysis of databases =====
+EStables2024 |>
+  #distinct(IDNumber, .keep_all = "TRUE") |>
+  group_by(Labname) |>
+  summarise(workload_by_lab = n()) |>
+  ungroup() |>
+  # samples arrived in good conditions in the lab
+  left_join (
+    EStables2024 |>
+      filter(EStables2024$Samplecondition == "1-Good") |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(Labname) |>
+      summarise(Sample_good_cond = n()), 
+    by = "Labname") |>
+  ungroup() |>
+  mutate(Prop_sample_good_cond = round( Sample_good_cond / workload_by_lab * 100, 0) ) |>
+  # total cell culture results =====
+left_join(
+  EStables2024 |>
+    filter(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult)) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(Labname) |>
+    summarise(culture_results = n()), 
+  by = "Labname" ) |>
+  # Cell culture results in less than 14 days
+  left_join(
+    EStables2024 |>
+      filter(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult) &
+               (Datefinalcultureresult - Datesampleinlab) < 15 & 
+               (Datefinalcultureresult - Datesampleinlab) >= 0 ) |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(Labname) |>
+      summarise(culture_results_14days = n()), 
+    by = "Labname" ) |>
+  mutate(Prop_culture_results_14days = round(culture_results_14days / culture_results * 100, 0) ) |>
+  # all ITD results
+  left_join(
+    EStables2024 |>
+      filter((str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"))) |>
+      #  !is.na(FinalcombinedrRTPCRresults) & !is.nan(FinalcombinedrRTPCRresults) & !is.null(FinalcombinedrRTPCRresults)) |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(Labname) |>
+      summarise(ITD_results = n()), 
+    by = "Labname" ) |>
+  # ITD results in less than 7 days from reception in lab ====
+left_join(
+  EStables2024 |>
+    filter((str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
+             (as.Date(EStables2024$DateFinalCombinedResult) - as.Date(EStables2024$date_result_to_lab)) < 8 & 
+             (as.Date(EStables2024$DateFinalCombinedResult) - as.Date(EStables2024$date_result_to_lab)) >= 0 ) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(Labname) |>
+    summarise(ITD_results_7days = n()), 
+  by = "Labname" ) |>
+  mutate(Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0)) |>
+  # specimen with final lab results < 21 days =====
+left_join(
+  EStables2024 |>
+    filter(!is.na(FinalcombinedrRTPCRresults) & !is.nan(FinalcombinedrRTPCRresults) & !is.null(FinalcombinedrRTPCRresults) &
+             (DateFinalCombinedResult - Datesampleinlab) < 22 & 
+             (DateFinalCombinedResult - Datesampleinlab) >= 0 ) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(Labname) |>
+    summarise(ITD_results_21days = n()), 
+  by = "Labname" ) |>
+  mutate(Prop_ITD_21days = round( ITD_results_21days / ITD_results * 100, 0) ) |> 
+  dplyr::select(Labname, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days,
+                Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) 
