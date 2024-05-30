@@ -73,3 +73,6 @@ Show_lqas_result <- function(data, all_countries, all_provinces, all_districts,R
   ggsave("GBT.png", plot = plot8, width = 8, height = 8, bg = "white")
   
 }
+
+Show_lqas_result(data = data, all_countries = all_countries, all_provinces = all_provinces, 
+                 all_districts = all_districts, Responce_Code = "Rnd1", Rnd = "Rnd1", Annee = 2024) #run the function with values
