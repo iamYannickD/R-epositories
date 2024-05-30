@@ -25,11 +25,11 @@ Response_code <- "GNBnOPV" ##### added response code and response in the select
 Show_lqas_result <- function(data, all_countries, all_provinces, all_districts,Responce_Code,Rnd,Annee){
   #filter afro countries and provinces
   country_layer <-all_countries |>
-    filter(WHO_REGION == "AFRO")
+                    filter(WHO_REGION == "AFRO")
   province_layer <-all_provinces |>
-    filter(WHO_REGION == "AFRO")
+                    filter(WHO_REGION == "AFRO")
   district_layer <-all_districts |>
-    filter(WHO_REGION == "AFRO")
+                    filter(WHO_REGION == "AFRO")
   
   #LQAS level of performance 
   LQAS  <- data |> 
@@ -51,8 +51,8 @@ Show_lqas_result <- function(data, all_countries, all_provinces, all_districts,R
       Very_poor = mean(Very_poor, na.rm = T))
   #join the spatial layer of provinces
   LQAS_Performance <- left_join(LQAS, province_layer, ##### changed the X to be the LQAS file and Y to be the province
-                                by=c("Country" = "ADM0_NAME", "Region" = "ADM1_NAME")) |> ##### changed country with Country (C in upper case)
-                                                                                          ##### changed WHO_CODE with ADM0_NAME
+                                by=c("Country" = "ADM0_NAME", "Region" = "ADM1_NAME")) |> 
+                                                                                          
     filter(Hight != "NA",Moderate!="NA",Poor!="NA",Very_poor!="NA") ##### changer Very_ppoor with Very_poor
     
   #plot the result of the analysis, 
