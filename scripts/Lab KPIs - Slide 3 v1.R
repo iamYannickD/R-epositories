@@ -142,4 +142,98 @@ AFPtables_gt <-
     rows = everything(),
     missing_text = "-"
     #missing_text = "---"
-      ) 
+      ) |>
+  #color the table based on the values in those cells
+  # For sample conditions ====
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_sample_good_cond,
+      rows = Prop_sample_good_cond >= 80)
+  )  |>
+  tab_style(
+    style = cell_fill(color = "yellow"),
+    locations = cells_body(
+      columns = Prop_sample_good_cond,
+      rows = Prop_sample_good_cond < 80)
+  ) |> 
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_sample_good_cond,
+      rows = Prop_sample_good_cond == 100)
+  ) |>
+  # for pv isolation time 14 days
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_culture_results_14days,
+      rows = Prop_culture_results_14days >= 80)
+  )  |>
+  tab_style(
+    style = cell_fill(color = "yellow"),
+    locations = cells_body(
+      columns = Prop_culture_results_14days,
+      rows = Prop_culture_results_14days < 80)
+  ) |> 
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_culture_results_14days,
+      rows = Prop_culture_results_14days == 100)
+  ) |>
+  # for ITD 7 days
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_ITD_7days,
+      rows = Prop_ITD_7days >= 80)
+  )  |>
+  tab_style(
+    style = cell_fill(color = "yellow"),
+    locations = cells_body(
+      columns = Prop_ITD_7days,
+      rows = Prop_ITD_7days < 80)
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_culture_results_14days,
+      rows = Prop_culture_results_14days == 100)
+  ) |>
+    # for ITD 21 days
+    tab_style(
+      style = cell_fill(color = "#00B050"),
+      locations = cells_body(
+        columns = Prop_ITD_21days,
+        rows = Prop_ITD_21days >= 80)
+    )  |>
+    tab_style(
+      style = cell_fill(color = "yellow"),
+      locations = cells_body(
+        columns = Prop_ITD_21days,
+        rows = Prop_ITD_21days < 80)
+    ) |>
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_ITD_21days,
+      rows = Prop_ITD_21days == 100)
+  ) |>
+  # for no data
+  tab_style(
+    style = cell_fill(color = "gray"),
+    locations = cells_body(
+      columns = Prop_ITD_21days,
+      rows = is.na(Prop_ITD_21days))
+  ) |>
+  tab_style(
+    style = cell_fill(color = "gray"),
+    locations = cells_body(
+      columns = Prop_ITD_7days,
+      rows = is.na(Prop_ITD_7days))
+  ) |>
+  
+  # Color in gray the table and beautify the formating
+  opt_stylize(style = 6, color = 'gray') |>
+  
