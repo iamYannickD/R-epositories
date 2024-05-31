@@ -276,6 +276,20 @@ gtsave(AFPtables_gt, "output/AFPtables.html")
 webshot::webshot("output/AFPtables.html", "output/AFPtables.png")
 
 
+# open the table of our presentation
+Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
+
+# Insert the image in a new slide
+#Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 3), external_img("output/AFPtables.png"), location = ph_location_fullsize())
+
+# add the table in the 4th slide of the presentation
+Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 4), external_img("output/AFPtables.png"), 
+                    location = ph_location(left = 1, top = 1, width = 12, height = 8))
+
+# Save the updated presentation
+print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
+
+
 
 
 
