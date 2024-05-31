@@ -270,6 +270,12 @@ AFPtables_gt <-
   )
 
 
+# export my table
+gtsave(AFPtables_gt, "output/AFPtables.html")
+# Convert HTML to PNG
+webshot::webshot("output/AFPtables.html", "output/AFPtables.png")
+
+
 
 
 
