@@ -107,4 +107,39 @@ AFPtables_gt <-
   dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
                 Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
 
-  
+  gt() |>
+  #edit some columns names
+  cols_label(
+    "workload_by_lab" = "# of Stool specimens",
+    "culture_results" = "# culture Result",
+    "culture_results_14days" = "# of culture results in 14 days",
+    "ITD_results_7days" = "# of ITD Results in 7 days",
+    "ITD_results" = "# ITD results",
+    "Prop_sample_good_cond" = "Samples in Good Condition",
+    "Prop_culture_results_14days" = "PV Isolation Results on Time",
+    "Prop_ITD_7days" = "ITD Results in 7 days of receipt of Isolate",
+    "ITD_results_21days" = "# of ITD Results in 21 days",
+    "Prop_ITD_21days" = "Final lab results availaible in 21 days of receipt"
+  ) |>
+  #center the values in the defined columns
+  cols_align(
+    align = "center",
+    columns = c(1:11)
+  ) |>
+  #give a header to the table as well as a sub title
+  tab_header(
+    title = md(paste0("**AFP : SUMMARY OF AFRO LABORATORY KEY PERFORMANCE INDICATORS (KPIs)** ")),
+    subtitle = md(paste0("**",Specify_the_period,"**") ) ) |>
+  # add percentage in cells
+  fmt_number(
+    columns = c(`Prop_sample_good_cond`, `Prop_culture_results_14days`,
+                `Prop_ITD_7days`, `Prop_ITD_21days`),
+    decimals = 0,
+    pattern = "{x} %"
+    ) |>
+  sub_missing(
+    columns = 2:11,
+    rows = everything(),
+    missing_text = "-"
+    #missing_text = "---"
+      ) 
