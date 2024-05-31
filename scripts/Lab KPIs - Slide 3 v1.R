@@ -252,7 +252,25 @@ AFPtables_gt <-
     # Color each country in the group
     style = cell_fill(color = "lightgray"),
     locations = cells_row_groups(groups = everything()) 
-  ) 
+  ) |>
+  opt_css(
+    css = "
+    .cell-output-display {
+      overflow-x: unset !important;
+    }
+    div#two {
+      overflow-x: unset !important;
+      overflow-y: unset !important;
+    }
+    #two .gt_col_heading {
+      position: sticky !important;
+      top: 0 !important;
+    }
+    "
+  )
+
+
+
 
 
 
