@@ -84,13 +84,27 @@ AFPtables_gt <-
              & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult)) 
             # & between((AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD), ymd_hms(0), ymd_hms(700000)) ) |>
             & (AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD) >= 0
-            & (as.Date(AFPtables$DateFinalrRTPCRResults) - as.Date(AFPtables$proxy_date_infor_itd)) < 8) 
+            & (as.Date(AFPtables$DateFinalrRTPCRResults) - as.Date(AFPtables$proxy_date_infor_itd)) < 8) |>
+      #filter(LabName == "SOA") |>
+      
+      #select(ICLabID, LabName, proxy_date_infor_itd, DateFinalrRTPCRResults) |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(LabName) |>
+      summarise(ITD_results_7days = n()), 
+    by = "LabName" ) |>
+  mutate(Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0)) |>
+  # specimen with final lab results < 21 days =====
+  left_join(
+    AFPtables |>
+      filter(!is.na(AFPtables$FinalITDResult) & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult) &
+               (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) < 22 & 
+               (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) >= 0 ) |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(LabName) |>
+      summarise(ITD_results_21days = n()), 
+    by = "LabName" ) |>
+  mutate(Prop_ITD_21days = round( ITD_results_21days / ITD_results * 100, 0) ) |> 
+  dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
+                Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
 
-
-
-
-
-
-
-
-
+  
