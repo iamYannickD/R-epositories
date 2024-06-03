@@ -28,3 +28,19 @@ search_ids_in_excel <-
     }
     return(results)
   }
+
+# Example usage
+# Define your list of IDs
+ids <- c("a", "b", "...", "z")
+
+# Specify the path to your Excel file
+excel_file <- "data/data_matching/Resolved_01.xlsx"
+
+excel_file2 <- "data/data_matching/AFP_Contact_02.xlsx"
+
+# Call the function and get the results
+results1 <- search_ids_in_excel(ids, excel_file) |> as.tibble() 
+
+results2 <- search_ids_in_excel(ids, excel_file2) |> as.tibble() 
+
+results
