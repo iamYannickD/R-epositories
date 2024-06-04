@@ -290,7 +290,7 @@ Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 4), external_img("output/AFPtable
 print(Pres_ppt, target = paste0("data/AFRO polio labs bulletin week 1-", Specify_the_period, "_2024.pptx"))
 
 
-
+Oga Kabore
 
 
 
