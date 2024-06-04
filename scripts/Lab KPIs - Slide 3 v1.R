@@ -12,7 +12,7 @@ p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 webshot::install_phantomjs()
 
 #Give the path to the AFP database
-path_AFP <- "data/afp_wk18.mdb" 
+path_AFP <- "../data/dbs/afp_wk21.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -22,12 +22,12 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(proxy_date_infor_itd = if_else(is.na(DateIsolateinforITD), DateLarmIsolateRec, DateIsolateinforITD)
-                ) |>
+  ) |>
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 5) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
 AFPtables_gt <- 
@@ -40,23 +40,23 @@ AFPtables_gt <-
   ungroup() |>
   # samples arrived in good conditions in the lab
   left_join (
-      AFPtables |>
-        #filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat", "2-Bad", "2-Inadéquat") | is.na(AFPtables$StoolCondition)) |>
-        filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat")) |>
-        #distinct(ICLabID, .keep_all = "TRUE") |>
-        group_by(LabName) |>
-        summarise(Sample_good_cond = n()), 
-      by = "LabName") |>
-      ungroup() |>
-  mutate(Prop_sample_good_cond = round( Sample_good_cond / workload_by_lab * 100, 0) ) |>
-  # total cell culture results =====
-  left_join(
     AFPtables |>
-      filter(!is.na(AFPtables$FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) & !is.null(AFPtables$FinalCellCultureResult)) |>
+      #filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat", "2-Bad", "2-Inadéquat") | is.na(AFPtables$StoolCondition)) |>
+      filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat")) |>
       #distinct(ICLabID, .keep_all = "TRUE") |>
       group_by(LabName) |>
-      summarise(culture_results = n()), 
-    by = "LabName" ) |>
+      summarise(Sample_good_cond = n()), 
+    by = "LabName") |>
+  ungroup() |>
+  mutate(Prop_sample_good_cond = round( Sample_good_cond / workload_by_lab * 100, 0) ) |>
+  # total cell culture results =====
+left_join(
+  AFPtables |>
+    filter(!is.na(AFPtables$FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) & !is.null(AFPtables$FinalCellCultureResult)) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(LabName) |>
+    summarise(culture_results = n()), 
+  by = "LabName" ) |>
   # Cell culture results in less than 14 days
   left_join(
     AFPtables |>
@@ -78,35 +78,35 @@ AFPtables_gt <-
       summarise(ITD_results = n()), 
     by = "LabName" ) |>
   # ITD results in less than 7 days from reception in lab ====
-  left_join(
-    AFPtables |>
-      filter(((str_detect(AFPtables$FinalCellCultureResult, "^1") | str_detect(AFPtables$FinalCellCultureResult, "^4"))
-             & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult)) 
-            # & between((AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD), ymd_hms(0), ymd_hms(700000)) ) |>
-            & (AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD) >= 0
-            & (as.Date(AFPtables$DateFinalrRTPCRResults) - as.Date(AFPtables$proxy_date_infor_itd)) < 8) |>
-      #filter(LabName == "SOA") |>
-      
-      #select(ICLabID, LabName, proxy_date_infor_itd, DateFinalrRTPCRResults) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(ITD_results_7days = n()), 
-    by = "LabName" ) |>
+left_join(
+  AFPtables |>
+    filter(((str_detect(AFPtables$FinalCellCultureResult, "^1") | str_detect(AFPtables$FinalCellCultureResult, "^4"))
+            & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult)) 
+           # & between((AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD), ymd_hms(0), ymd_hms(700000)) ) |>
+           & (AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD) >= 0
+           & (as.Date(AFPtables$DateFinalrRTPCRResults) - as.Date(AFPtables$proxy_date_infor_itd)) < 8) |>
+    #filter(LabName == "SOA") |>
+    
+    #select(ICLabID, LabName, proxy_date_infor_itd, DateFinalrRTPCRResults) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(LabName) |>
+    summarise(ITD_results_7days = n()), 
+  by = "LabName" ) |>
   mutate(Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0)) |>
   # specimen with final lab results < 21 days =====
-  left_join(
-    AFPtables |>
-      filter(!is.na(AFPtables$FinalITDResult) & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult) &
-               (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) < 22 & 
-               (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) >= 0 ) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(ITD_results_21days = n()), 
-    by = "LabName" ) |>
+left_join(
+  AFPtables |>
+    filter(!is.na(AFPtables$FinalITDResult) & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult) &
+             (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) < 22 & 
+             (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) >= 0 ) |>
+    #distinct(ICLabID, .keep_all = "TRUE") |>
+    group_by(LabName) |>
+    summarise(ITD_results_21days = n()), 
+  by = "LabName" ) |>
   mutate(Prop_ITD_21days = round( ITD_results_21days / ITD_results * 100, 0) ) |> 
   dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
                 Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
-
+  
   gt() |>
   #edit some columns names
   cols_label(
@@ -136,21 +136,21 @@ AFPtables_gt <-
                 `Prop_ITD_7days`, `Prop_ITD_21days`),
     decimals = 0,
     pattern = "{x} %"
-    ) |>
+  ) |>
   sub_missing(
     columns = 2:11,
     rows = everything(),
     missing_text = "-"
     #missing_text = "---"
-      ) |>
+  ) |>
   #color the table based on the values in those cells
   # For sample conditions ====
-  tab_style(
-    style = cell_fill(color = "#00B050"),
-    locations = cells_body(
-      columns = Prop_sample_good_cond,
-      rows = Prop_sample_good_cond >= 80)
-  )  |>
+tab_style(
+  style = cell_fill(color = "#00B050"),
+  locations = cells_body(
+    columns = Prop_sample_good_cond,
+    rows = Prop_sample_good_cond >= 80)
+)  |>
   tab_style(
     style = cell_fill(color = "yellow"),
     locations = cells_body(
@@ -201,19 +201,19 @@ AFPtables_gt <-
       columns = Prop_culture_results_14days,
       rows = Prop_culture_results_14days == 100)
   ) |>
-    # for ITD 21 days
-    tab_style(
-      style = cell_fill(color = "#00B050"),
-      locations = cells_body(
-        columns = Prop_ITD_21days,
-        rows = Prop_ITD_21days >= 80)
-    )  |>
-    tab_style(
-      style = cell_fill(color = "yellow"),
-      locations = cells_body(
-        columns = Prop_ITD_21days,
-        rows = Prop_ITD_21days < 80)
-    ) |>
+  # for ITD 21 days
+  tab_style(
+    style = cell_fill(color = "#00B050"),
+    locations = cells_body(
+      columns = Prop_ITD_21days,
+      rows = Prop_ITD_21days >= 80)
+  )  |>
+  tab_style(
+    style = cell_fill(color = "yellow"),
+    locations = cells_body(
+      columns = Prop_ITD_21days,
+      rows = Prop_ITD_21days < 80)
+  ) |>
   tab_style(
     style = cell_fill(color = "#00B050"),
     locations = cells_body(
@@ -239,7 +239,7 @@ AFPtables_gt <-
   #call that theme
   #other themes gt_theme_excel()  |>gt_theme_pff() |>
   gt_theme_excel() |>
-
+  
   opt_align_table_header(align = "center") |>
   #reshape the table
   tab_options(
@@ -287,7 +287,7 @@ Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 4), external_img("output/AFPtable
                     location = ph_location(left = 1, top = 1, width = 12, height = 8))
 
 # Save the updated presentation
-print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
+print(Pres_ppt, target = paste0("data/AFRO polio labs bulletin week 1-", Specify_the_period, "_2024.pptx"))
 
 
 
@@ -301,13 +301,13 @@ print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
 
 
 
-  
-  
-  
 
-  
-  
-  
+
+
+
+
+
+
 
 
 
