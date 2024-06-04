@@ -54,6 +54,31 @@ AFP_plot <-
   theme_classic()
 
 
+ES_plot <-
+  EStables2024 |>
+  dplyr::mutate(
+    Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "IBD, Nigeria" = "IBD",
+                                         "INRB" = "RDC", "IPD SEN" = "SEN", "IPM,MAD" = "MAD",
+                                         "IPM, MAD" = "MAD", "MDG, Nigeria" = "MDG", 
+                                         "KEMRI" = "KEN", "ZAM-UTH" = "ZAM", "ZAM UTH" = "ZAM")
+    ) ) |>
+  arrange(Labname) |>
+  distinct(IDNumber, .keep_all = "TRUE") |>
+  group_by(Labname) |>
+  summarise(es_workload_by_lab = n()) |>
+  ungroup() |>
+  ggplot() +
+  geom_bar(aes(x = Labname, y = es_workload_by_lab, fill = "orange"), fill = "orange", stat = "identity") + 
+  geom_text(aes(x = Labname, y = es_workload_by_lab, label = es_workload_by_lab), vjust = -0.5, size = 3) +
+  #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
+  labs(x = "AFRO Polio Labs", y = "Number of ES Specimens", title = "ES Samples" ) +
+  theme_classic()
+
+
+  
+
+
+
 
 
 
