@@ -26,7 +26,32 @@ ESdb2024 <- DBI::dbConnect(odbc::odbc(),
 Specify_the_period <- paste0("WEEK 1 - ", 
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
+# load data in R
+# Retrieve all data from the AFP database
+AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
+  tibble() |>
+  # select samples collected in 2024 only
+  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
+EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
+  as_tibble()
+
+# bar chart of samples processed by labs
+AFP_plot <-
+  AFPtables |>
+  #filter( AFPtables$LabName != "CDC" & year(AFPtables$DateOfOnset) > 2023 ) |>
+  filter( AFPtables$LabName != "CDC") |>
+  distinct(ICLabID, .keep_all = "TRUE") |>
+  group_by(LabName) |>
+  summarise(afp_workload_by_lab = n()) |>
+  ungroup() |>
+  #summarise(total_workload = sum(workload_by_lab)) |>
+  ggplot() +
+  geom_bar(aes(x = LabName, y = afp_workload_by_lab, fill = "darkblue"), fill = "darkblue", stat = "identity") + 
+  geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), vjust = -0.5, size = 3) +
+  #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
+  labs(x = "AFRO Polio Labs", y = "Number of AFP Specimens", title = "AFP and other Human Samples" ) +
+  theme_classic()
 
 
 
