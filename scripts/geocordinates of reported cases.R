@@ -43,6 +43,30 @@ afro_Adm1 <- read_rds("../data/global.prov.rds") |>filter(WHO_REGION == "AFRO")
 afro_Adm2 <- read_rds("../data/global.dist.rds") |> 
   filter(WHO_REGION == "AFRO")
 
+# add geocordinates on afp samples and randomize if more than 1 sample was collected in the same district
+#In this section, i generate a coordinate for all AFP cases based on their epid number (country code, province code, district code)
+#then for each sample i have the geometry of the district were they are in, then i generate a random point inside that district polygon
+#so that if more than a sample is collected in the same district, they are not on top of each other
+afp_virus <- 
+  viruses_isolated |>
+  filter(SOURCE != "ENV") |>
+  mutate(
+    PROVINCE = str_replace_all(PROVINCE, "HAUT-KATANGA", "HAUT KATANGA"),
+    DISTRICT = str_replace_all(DISTRICT, "TUDUN", "TUDUN WADA")
+  ) |>
+  left_join(y = afro_Adm2, by = c("COUNTRY" = "ADM0_NAME", "PROVINCE" = "ADM1_NAME", "DISTRICT" = "ADM2_NAME"),
+            relationship = "many-to-many") |>
+  dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY, PROVINCE, DISTRICT, `ES SITE NAME`, `ONSET/ COLLECTION`,
+                Lat_Y = CENTER_LAT, Long_X =  CENTER_LON, SHAPE)
+
+# Function to generate random points within a polygon
+generate_random_point <- function(polygon) {
+  bbox <- as(extent(polygon), "SpatialPolygons")
+  random_point <- spsample(bbox, 1, type = "random")
+  return(random_point)
+}
+
+
 
 
 
