@@ -81,7 +81,7 @@ plot_AFP <-
                   point.padding = 0, position = position_nudge_repel(y = 2000)) +
   #color = "white",bg.color = "grey30", bg.r = 0.15, direction = "y" +
   
-  labs(title = "Workload Analysis for AFP", x = "Year", y = "# of Samples")  +
+  labs(title = paste0("Workload Analysis for AFP as of ", Specify_the_period), x = "Year", y = "# of Samples")  +
   theme_minimal()
 
 plot_ES <-
@@ -97,10 +97,11 @@ plot_ES <-
                   point.padding = 0, position = position_nudge_repel(y = 500)) +
   #color = "white",bg.color = "grey30", bg.r = 0.15, direction = "y" +
   
-  labs(title = "Workload Analysis for ES", x = "Year", y = "# of Samples")  +
+  labs(title = paste0("Workload Analysis for ES as of ", Specify_the_period), x = "Year", y = "# of Samples")  +
   theme_minimal()
 
-
+combined <- plot_AFP / plot_ES
+combined
 
 
 
