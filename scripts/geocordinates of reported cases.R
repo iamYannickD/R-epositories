@@ -93,7 +93,25 @@ es_virus <-
   dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY = COUNTRY.x, PROVINCE = PROVINCE.x, 
                 DISTRICT, `ES SITE NAME`,  `ONSET/ COLLECTION`, Lat_Y, Long_X) 
 
+# merge the 2 viruses tables
+virus <-
+  bind_rows(afp_virus, es_virus)
 
+
+epidemiology_map <- 
+  ggplot(data = virus) +
+  geom_sf(data = afro_Adm0, fill = "gray", color = "white") +
+  geom_sf(data = afro_cntries, fill = "black", color = "white") +
+  geom_point(shape = 16, size = 3, stroke = 2,  aes(x = Long_X, y = Lat_Y, color = VIRUS, fill = "black"), fill = "black") +
+  scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
+  labs(x = "Longitude", y = "Latitude", color = "Virus", 
+       title = "Geolocation of reported viruses") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
+
+
+# saving the plot as image png  
+ggsave("Reported_cases.png", epidemiology_map, path = "output/")  #export population map + es sites
 
 
 
