@@ -35,3 +35,24 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 
 Specify_the_period <- paste0("WEEK 1 - ", 
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+
+# count samples processed by labs
+#Sum of AFP samples
+afp_total_samples <- 
+  AFPtables |>
+  filter(LabName != "CDC") |>
+  distinct(ICLabID, .keep_all = TRUE) |>
+  group_by(LabName) |>
+  summarise(afp_workload_by_lab = n()) |>
+  ungroup() |>
+  summarise(afp_total = sum(afp_workload_by_lab)) 
+
+#Sum of AFP samples
+es_total_samples <- 
+  #bind_rows(EStables2023, EStables2024) |>
+  EStables2024 |>
+  distinct(IDNumber, .keep_all = TRUE) |>
+  group_by(Labname) |>
+  summarise(es_workload_by_lab = n()) |>
+  ungroup() |>
+  summarise(es_total = sum(es_workload_by_lab))
