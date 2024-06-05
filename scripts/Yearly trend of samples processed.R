@@ -56,3 +56,35 @@ es_total_samples <-
   summarise(es_workload_by_lab = n()) |>
   ungroup() |>
   summarise(es_total = sum(es_workload_by_lab))
+
+
+# New rows to add
+dynamic_rows <- tibble(
+  TYPE = c("AFP", "ES"),
+  YEAR = 2024,
+  `# of Samples` = c( as.integer(afp_total_samples), as.integer(es_total_samples))
+)
+
+# Bind the new rows to the original tibble
+afro_workload <- bind_rows(workload, dynamic_rows)
+
+plot_AFP <-
+  afro_workload |>
+  filter(TYPE == "AFP") |>
+  ggplot() +
+  geom_line( aes(x = YEAR, y = `# of Samples`), color = "orange2", size = 2) +
+  geom_ribbon(aes(x = YEAR, ymin = 0, ymax = `# of Samples`, xmin = 2018.75, xmax = 2024.5),
+              fill = "orange4", alpha = 0.3) +
+  geom_point(aes(x = YEAR, y = `# of Samples`), size = 3, color = "black") +
+  geom_text_repel(aes(x = YEAR, y = `# of Samples`, label = `# of Samples` ),
+                  min.segment.length = Inf, seed = 42, box.padding = 0.5,
+                  point.padding = 0, position = position_nudge_repel(y = 2000)) +
+  #color = "white",bg.color = "grey30", bg.r = 0.15, direction = "y" +
+  
+  labs(title = "Workload Analysis for AFP", x = "Year", y = "# of Samples")  +
+  theme_minimal()
+
+
+
+
+
