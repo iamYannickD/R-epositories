@@ -22,3 +22,16 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
                            .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
                                               DBQ=", path_ES_2024))
+
+# load data in R
+# Retrieve all data from the AFP database
+AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
+  tibble() |>
+  # select samples collected in 2024 only
+  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+
+EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
+  as_tibble()
+
+Specify_the_period <- paste0("WEEK 1 - ", 
+                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
