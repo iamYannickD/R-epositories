@@ -66,6 +66,33 @@ generate_random_point <- function(polygon) {
   return(random_point)
 }
 
+# Generate random points for each row
+for (i in 1:nrow(afp_virus)) {
+  district <- afp_virus$DISTRICT[i]
+  district_polygon <- afro_Adm2 |>
+    filter(afro_Adm2$ADM2_NAME == district) |>
+    st_geometry() |>
+    st_as_sf() 
+  random_point <- generate_random_point(district_polygon)
+  afp_virus$Long_X[i] <- random_point@coords[1]
+  afp_virus$Lat_Y[i] <- random_point@coords[2]
+}
+
+# ES virus
+es_virus <-
+  viruses_isolated |>
+  filter(SOURCE == "ENV") |>
+  mutate(
+    epid_match = str_sub(`EPID NUMBER`, 1, 19)
+  ) |>
+  mutate(
+    epid_match = str_replace_all(epid_match, "ENV-ALG-TMR-TMR-RLV", "ENV-ALG-TAM-TAM-REL"),
+    epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
+  ) |>
+  left_join(y = masterlist, by = c("epid_match" = "SITE_CODE")) |>
+  dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY = COUNTRY.x, PROVINCE = PROVINCE.x, 
+                DISTRICT, `ES SITE NAME`,  `ONSET/ COLLECTION`, Lat_Y, Long_X) 
+
 
 
 
