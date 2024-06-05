@@ -84,6 +84,22 @@ plot_AFP <-
   labs(title = "Workload Analysis for AFP", x = "Year", y = "# of Samples")  +
   theme_minimal()
 
+plot_ES <-
+  afro_workload |>
+  filter(TYPE == "ES") |>
+  ggplot() +
+  geom_line( aes(x = YEAR, y = `# of Samples`), color = "blue4", size = 2) +
+  geom_ribbon(aes(x = YEAR, ymin = 0, ymax = `# of Samples`, xmin = 2018.75, xmax = 2024.5),
+              fill = "lightblue", alpha = 0.3) +
+  geom_point(aes(x = YEAR, y = `# of Samples`), size = 3, color = "black") +
+  geom_text_repel(aes(x = YEAR, y = `# of Samples`, label = `# of Samples` ),
+                  min.segment.length = Inf, seed = 42, box.padding = 0.5,
+                  point.padding = 0, position = position_nudge_repel(y = 500)) +
+  #color = "white",bg.color = "grey30", bg.r = 0.15, direction = "y" +
+  
+  labs(title = "Workload Analysis for ES", x = "Year", y = "# of Samples")  +
+  theme_minimal()
+
 
 
 
