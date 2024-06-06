@@ -121,4 +121,70 @@ AFPkpis <-
     "pending_culture_15_30" = "15 - 30 days",
     "pending_culture_30_60" = "31 - 60 days",
     "pending_culture_more_60" = "> 60 days"
+  ) |>
+  #center the values in the defined columns
+  cols_align(
+    align = "center",
+    columns = c(2:14)
+  ) |>
+  tab_spanner(
+    label = md('**Culture +ve for PV**'),
+    columns = 3:4) |>
+  tab_spanner(
+    label = md('**Culture +ve for PV & NPEV**'),
+    columns = 5:6) |>
+  tab_spanner(
+    label = md('**NPEV**'),
+    columns = 7:8) |>
+  tab_spanner(
+    label = md('**Negative**'),
+    columns = 9:10) |>
+  #add the title that covers the columns in the 3th and 10th row
+  tab_spanner(
+    label = md('**PRIMARY VIRUS ISOLATION RESULTS**'),
+    columns = 3:10) |>
+  #add the title that covers the columns in the 7th and 8th row
+  tab_spanner(
+    label = md('**Pending Samples**'),
+    columns = 11:14) |>
+  #give a header to the table as well as a sub title
+  tab_header(
+    title = md(paste0("**AFP : Timeliness and Results of Primary Isolation (14 days)** ")),
+    subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
+  sub_missing(
+    columns = 2:14,
+    rows = everything(),
+    missing_text = 0
+    #missing_text = "---"
+  ) |>
+  # add percentage in cells
+  fmt_number(
+    columns = c(1:14),
+    decimals = 0,
+    pattern = "{x}"
+  ) |>
+  fmt_number(
+    columns = c(prop_pv_positive, prop_pv_positive_and_npent, prop_npent, prop_negative ),
+    decimals = 1,
+    pattern = "{x} %"
+  ) |>
+  #color the table based on the values in those cells
+  # For sample conditions ====
+tab_style(
+  style = cell_fill(color = "pink"),
+  locations = cells_body(
+    columns = pending_culture_results,
+    rows = pending_culture_results >= 15)
+)  |>
+  tab_style(
+    style = cell_fill(color = "red2"),
+    locations = cells_body(
+      columns = pending_culture_results,
+      rows = pending_culture_results >= 31)
+  ) |> 
+  tab_style(
+    style = cell_fill(color = "red4"),
+    locations = cells_body(
+      columns = pending_culture_results,
+      rows = pending_culture_results >= 61)
   )
