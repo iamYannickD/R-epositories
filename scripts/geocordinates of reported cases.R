@@ -54,7 +54,7 @@ afp_virus <-
     PROVINCE = str_replace_all(PROVINCE, "HAUT-KATANGA", "HAUT KATANGA"),
     DISTRICT = str_replace_all(DISTRICT, "TUDUN", "TUDUN WADA")
   ) |>
-  left_join(y = afro_Adm2, by = c("COUNTRY" = "ADM0_NAME", "PROVINCE" = "ADM1_NAME", "DISTRICT" = "ADM2_NAME"),
+  left_join(y = afro_Adm2, by = c("COUNTRY" = str_to_upper("ADM0_NAME"), "PROVINCE" = str_to_upper("ADM1_NAME"), "DISTRICT" = str_to_upper("ADM2_NAME")),
             relationship = "many-to-many") |>
   dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY, PROVINCE, DISTRICT, `ES SITE NAME`, `ONSET/ COLLECTION`,
                 Lat_Y = CENTER_LAT, Long_X =  CENTER_LON, SHAPE)
