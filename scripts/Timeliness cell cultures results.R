@@ -105,3 +105,20 @@ AFPkpis <-
       summarise(pending_culture_more_60 = n()), 
     by = "LabName" ) |>
   ungroup() |>
+  gt() |>
+  #edit some columns names
+  cols_label(
+    "samples_with_results" = "# of Specimens with Results",
+    "pv_positive" = "Culture +ve for PV",
+    "prop_pv_positive" = "Prop Culture +ve for PV",
+    "pv_positive_and_npent" = "Culture +ve for PV & NPEV",
+    "prop_pv_positive_and_npent" = "Prop Culture +ve for PV & NPEV",
+    "npent" = "NPEV",
+    "prop_npent" = "Prop NPEV",
+    "negative" = "Negative",
+    "prop_negative" = "Prop Negative",
+    "pending_culture_results" = "Total Pending",
+    "pending_culture_15_30" = "15 - 30 days",
+    "pending_culture_30_60" = "31 - 60 days",
+    "pending_culture_more_60" = "> 60 days"
+  )
