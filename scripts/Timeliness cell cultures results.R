@@ -187,4 +187,45 @@ tab_style(
     locations = cells_body(
       columns = pending_culture_results,
       rows = pending_culture_results >= 61)
+  ) |>
+  data_color(
+    #method = "numeric",
+    columns = pending_culture_results,
+    rows = pending_culture_results >= 15,
+    palette = "ggsci::red_material"
+  )  |>
+  # Color in gray the table and beautify the formating
+  opt_stylize(style = 6, color = 'gray') |>
+  #call that theme
+  #other themes gt_theme_excel()  |>gt_theme_pff() |>
+  gt_theme_538() |>
+  
+  opt_align_table_header(align = "center") |>
+  #reshape the table
+  tab_options(
+    data_row.padding = px(2),
+    summary_row.padding = px(3), # A bit more padding for summaries
+    row_group.padding = px(4)    # And even more for our groups
+  ) |>
+  tab_style(
+    #style = cell_text(weight = "bold"),
+    # Color each country in the group
+    style = cell_fill(color = "lightgray"),
+    locations = cells_row_groups(groups = everything()) 
+  ) |>
+  opt_css(
+    css = "
+    .cell-output-display {
+      overflow-x: unset !important;
+    }
+    div#two {
+      overflow-x: unset !important;
+      overflow-y: unset !important;
+    }
+    #two .gt_col_heading {
+      position: sticky !important;
+      top: 0 !important;
+    }
+    "
   )
+
