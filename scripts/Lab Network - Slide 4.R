@@ -52,9 +52,11 @@ virus_isolation_map <-
                                    "RDC" =  "#ec7014", "ETH" =  "#fdbf6f", "KEN" =  "lightgreen", "MAD" =  "#66bd63",
                                    "IBD, MDG" =  "#01665e", "ZAM" =  "#cab2d6", "ZIM" =  "#7fcdbb"), na.value = "grey50",
                         labels = virus_label) +
-      
+      scale_shape_manual(name = "Polio Labs", values = rep(8, 10)) +
       labs(fill = " ") + # remove the old legend name - Virus Isolation/ ITD Labs
-      theme_bw() #+
+      theme_bw() +
+      theme(legend.position = c(0.93, 0.5),
+        legend.background = element_rect(fill = NA, color = NA)) #+
       #theme(legend.position = "bottom") +
       #guides(fill = guide_legend(nrow = 1), color = guide_legend(nrow = 1))
   
@@ -68,7 +70,9 @@ sequencing_map <-
                                        "IPP" =  "#984ea3", "GHA" =  "#ff7f00"), na.value = "grey50",
                             labels = vec_labs_Seq) +
           labs(fill = " ") + # remove the old legend name
-      theme_bw() #+ 
+      theme_bw() + 
+      theme(legend.position = c(0.93, 0.5),
+        legend.background = element_rect(fill = NA, color = NA))
       #theme(legend.position = "bottom")
   
 # plots
