@@ -38,9 +38,9 @@ virus_isolation_map <-
                                                "NIE" =  "#01665e", "ZAM" =  "orange", "ZIM" =  "#00683784"), na.value = "grey50")
                                       ) +
       labs(fill = " ") + # remove the old legend name - Virus Isolation/ ITD Labs
-      theme_bw()
-
-virus_isolation_map
+      theme_bw() #+
+      #theme(legend.position = "bottom") +
+      #guides(fill = guide_legend(nrow = 1), color = guide_legend(nrow = 1))
   
   # Sequencing labs =====
 sequencing_map <-
@@ -52,7 +52,8 @@ sequencing_map <-
           scale_color_manual(values = c("CDC" =  "#01665e", "NICD" =  "pink", 
                                         "IPP" =  "#fdae61", "GHA" =  "#ffffbf"), na.value = "grey50") +
           labs(fill = " ") + # remove the old legend name
-      theme_bw()
+      theme_bw() #+ 
+      #theme(legend.position = "bottom")
   
 # plots
 virus_isolation_map
@@ -60,8 +61,8 @@ sequencing_map
 
 
 # saving the plot as image png  
-ggsave("virus_isolation.png", virus_isolation_map, path = "output/") 
-ggsave("sequencing_map.png", sequencing_map, path = "output/") 
+ggsave("virus_isolation.png", virus_isolation_map, path = "../data/outputs/") 
+ggsave("sequencing_map.png", sequencing_map, path = "../data/outputs/") 
 
 
 # open the table of our presentation
