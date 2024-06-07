@@ -9,7 +9,10 @@ p_load(tidyverse, sf)
 
 # Virus isolation/ITD laboratories in Afro =====
 virus_isolation <- read_csv("../data/data/polio_lab_network_afro.csv")
+polio_labs <- read_csv("../data/data/Geocoordinates of Labs in African region.csv")
 # Sequencing laboratories in Afro
+
+# virus count by lab
 
 # load administrative boundaries =====
 afro_Adm0 <- 
@@ -27,16 +30,12 @@ virus_isolation_map <-
     ggplot() +
       geom_sf(data = afro_Adm0, aes(fill = "gray"), fill = "gray", color = "white") +
       geom_sf(data = afro_cntries, aes(fill = `Virus Isolation`), color = "black", size = 2) +
+      geom_point(data = polio_labs, aes(x = `X (LONG)` , y = `Y (LAT)`), color = "black", size = 3, shape = 8) +
       scale_fill_manual(values = c("ALG" =  "#a6cee3", "SOA" =  "#1f78b4", "GHA" =  "#b2df8a", "SEN" =  "#33a02c", 
                                    "UGA" =  "#fb9a99", "CAE" =  "#ffff99", "CAF" =  "#f768a1", "CIV" =  "cyan", 
                                    "RDC" =  "#ec7014", "ETH" =  "#fdbf6f", "KEN" =  "lightgreen", "MAD" =  "#66bd63",
                                    "NIE" =  "#01665e", "ZAM" =  "#cab2d6", "ZIM" =  "#7fcdbb"), na.value = "grey50") +
       
-      scale_color_manual(values = c(values = c("ALG" =  "darkblue", "SOA" =  "#d73027", "GHA" =  "#f46d43", "SEN" =  "#fdae61", 
-                                               "UGA" =  "#fee08b", "CAE" =  "#ffffbf", "CAF" =  "#d9ef8b", "CIV" =  "cyan", 
-                                               "RDC" =  "#1a9850", "ETH" =  "purple", "KEN" =  "lightgreen", "MAD" =  "#66bd63",
-                                               "NIE" =  "#01665e", "ZAM" =  "orange", "ZIM" =  "#00683784"), na.value = "grey50")
-                                      ) +
       labs(fill = " ") + # remove the old legend name - Virus Isolation/ ITD Labs
       theme_bw() #+
       #theme(legend.position = "bottom") +
@@ -47,10 +46,9 @@ sequencing_map <-
       ggplot() +
           geom_sf(data = afro_Adm0, aes(fill = "gray"), fill = "gray", color = "white") +
           geom_sf(data = afro_cntries, aes(fill = `Sequencing Lab`), color = "black", size = 2) +
+          #geom_point(data = polio_labs, aes(x = `X (LONG)` , y = `Y (LAT)`), color = "black", size = 3, shape = 10) +
           scale_fill_manual(values = c("CDC" =  "#377eb8", "NICD" =  "#4daf4a", 
                                        "IPP" =  "#984ea3", "GHA" =  "#ff7f00"), na.value = "grey50") +
-          scale_color_manual(values = c("CDC" =  "#01665e", "NICD" =  "pink", 
-                                        "IPP" =  "#fdae61", "GHA" =  "#ffffbf"), na.value = "grey50") +
           labs(fill = " ") + # remove the old legend name
       theme_bw() #+ 
       #theme(legend.position = "bottom")
