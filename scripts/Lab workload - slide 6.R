@@ -50,7 +50,7 @@ AFP_plot <-
   geom_bar(aes(x = LabName, y = afp_workload_by_lab, fill = "darkblue"), fill = "darkblue", stat = "identity") + 
   geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3.5, fontface = "bold", vjust = -0.5) +
   #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
-  labs(x = "AFRO Polio Labs", y = "Number of AFP Samples", title = "AFP and other Human Samples" ) +
+  labs(x = " ", y = "Number of AFP Samples", title = "AFP and other Human Samples" ) +
   theme_classic() + 
   theme(
     axis.text = element_text(face = "bold", size = 10, color = "black"),
