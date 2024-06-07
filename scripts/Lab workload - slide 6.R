@@ -11,8 +11,8 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP = "data/afp.mdb" 
-path_ES_2024 = "data/es_2024.mdb"
+path_AFP = "../data/dbs/afp_wk21.mdb" 
+path_ES_2024 = "../data/dbs/es_2024.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -48,10 +48,14 @@ AFP_plot <-
   #summarise(total_workload = sum(workload_by_lab)) |>
   ggplot() +
   geom_bar(aes(x = LabName, y = afp_workload_by_lab, fill = "darkblue"), fill = "darkblue", stat = "identity") + 
-  geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), vjust = -0.5, size = 3) +
+  geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3.5, fontface = "bold", vjust = -0.5) +
   #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
-  labs(x = "AFRO Polio Labs", y = "Number of AFP Specimens", title = "AFP and other Human Samples" ) +
-  theme_classic()
+  labs(x = "AFRO Polio Labs", y = "Number of AFP Samples", title = "AFP and other Human Samples" ) +
+  theme_classic() + 
+  theme(
+    axis.text = element_text(face = "bold", size = 10, color = "black"),
+    axis.title = element_text(face = "bold", size = 12, color = "black")
+  )
 
 
 ES_plot <-
@@ -69,10 +73,14 @@ ES_plot <-
   ungroup() |>
   ggplot() +
   geom_bar(aes(x = Labname, y = es_workload_by_lab, fill = "orange"), fill = "orange", stat = "identity") + 
-  geom_text(aes(x = Labname, y = es_workload_by_lab, label = es_workload_by_lab), vjust = -0.5, size = 3) +
+  geom_text(aes(x = Labname, y = es_workload_by_lab, label = es_workload_by_lab), size = 3.5, fontface = "bold", vjust = -0.5) +
   #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
-  labs(x = "AFRO Polio Labs", y = "Number of ES Specimens", title = "ES Samples" ) +
-  theme_classic()
+  labs(x = "AFRO Polio Labs", y = "Number of ES Samples", title = "ES Samples" ) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(face = "bold", size = 10, color = "black"),
+    axis.title = element_text(face = "bold", size = 12, color = "black")
+  )
 
 
 #patch the 2 visuals (combine them together, on top of each other)
@@ -81,7 +89,7 @@ combined_plots
 
 
 # saving the plot as image png  
-ggsave("combined_plot.png", combined_plots, path = "output/") 
+ggsave("combined_plot.png", combined_plots, path = "../data/outputs/") 
 
 # open the table of our presentation
 Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
