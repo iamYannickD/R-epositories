@@ -28,78 +28,42 @@ AFPkpis <-
   AFPtables |>
   select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
-  filter( AFPtables$LabName != "CDC" & !is.na(FinalCellCultureResult)) |>
+  filter( AFPtables$LabName != "CDC" & !is.na(FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) 
+          & !is.null(AFPtables$FinalCellCultureResult)) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(LabName) |>
-  mutate(samples_with_results = n()) |>
-  ungroup() |>
-      # starts with 1
-      filter(str_detect(FinalCellCultureResult, "^1")) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      mutate(pv_positive = n()) |>
-      ungroup() |>
-      mutate(prop_pv_positive = 100 * pv_positive /samples_with_results) |>
-
-      filter(str_detect(FinalCellCultureResult, "^4")) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      mutate(pv_positive_and_npent = n()) |>
-  ungroup() |>
-  mutate(prop_pv_positive_and_npent = 100 * pv_positive_and_npent /samples_with_results ) |>
-  left_join (
-    AFPtables |>
-      filter(str_detect(FinalCellCultureResult, "^3")) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(npent = n()), 
-    by = "LabName") |>
-  ungroup() |>
-  mutate(prop_npent = 100 * npent /samples_with_results ) |>
-  left_join (
-    AFPtables |>
-      filter(str_detect(FinalCellCultureResult, "^2")) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(negative = n()), 
-    by = "LabName") |>
-  ungroup() |>
-  mutate(prop_negative = 100 * negative /samples_with_results ) |>
-  left_join(
-    AFPtables |>
-      filter((is.na(AFPtables$FinalCellCultureResult) | is.nan(AFPtables$FinalCellCultureResult) | is.null(AFPtables$FinalCellCultureResult)) 
-             & (as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) >= 15) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(pending_culture_results = n()), 
-    by = "LabName" ) |>
-  ungroup() |>
-  left_join(
-    AFPtables |>
-      filter((is.na(AFPtables$FinalCellCultureResult) | is.nan(AFPtables$FinalCellCultureResult) | is.null(AFPtables$FinalCellCultureResult)) 
-             & ( as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) >= 15 & (as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) <= 30) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(pending_culture_15_30 = n()), 
-    by = "LabName" ) |>
-  ungroup() |>
-  left_join(
-    AFPtables |>
-      filter((is.na(AFPtables$FinalCellCultureResult) | is.nan(AFPtables$FinalCellCultureResult) | is.null(AFPtables$FinalCellCultureResult)) 
-             & (as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) > 30 & (as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) <= 60) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(pending_culture_30_60 = n()), 
-    by = "LabName" ) |>
-  ungroup() |>
-  left_join(
-    AFPtables |>
-      filter((is.na(AFPtables$FinalCellCultureResult) | is.nan(AFPtables$FinalCellCultureResult) | is.null(AFPtables$FinalCellCultureResult)) 
-             & (as.Date(ymd_hms(AFPtables$DateUpdated)) - ymd(AFPtables$DateStoolReceivedinLab)) > 60 ) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(pending_culture_more_60 = n()), 
-    by = "LabName" ) |>
+  mutate(is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
+         is_pv_positive_and_npent = if_else((FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
+         is_pv_negative = if_else((FinalCellCultureResult == "2-Negative"), 1, 0),
+         is_npent = if_else((FinalCellCultureResult == "3-NPENT"), 1, 0),
+         
+         DateStoolReceivedinLab = as.Date(ymd(DateStoolReceivedinLab)),
+         DateUpdated = as.Date(ymd_hms(DateUpdated)),
+         days_to_results = (DateUpdated - DateStoolReceivedinLab),
+         is_pending_culture_results = if_else(is.na(FinalCellCultureResult) & days_to_results >= 15, 1, 0),
+         is_pending_culture_15_30 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 15 & days_to_results < 30, 1, 0),
+         is_pending_culture_30_60 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 30 & days_to_results < 60, 1, 0),
+         is_pending_culture_more_60 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 60, 1, 0)
+             ) |> 
+  summarise(
+         samples_with_results = n(),
+         pv_positive = sum(is_pv_positive),
+         prop_pv_positive = 100 * pv_positive / samples_with_results,
+         
+         pv_positive_and_npent = sum(is_pv_positive_and_npent),
+         prop_pv_positive_and_npent = 100 * pv_positive_and_npent / samples_with_results,
+         
+         npent = sum(is_npent), 
+         prop_npent = 100 * npent / samples_with_results,
+         
+         pv_negative = sum(is_pv_negative),
+         prop_negative = 100 * pv_negative / samples_with_results,
+         
+         pending_culture_results = sum(is_pending_culture_results),
+         pending_culture_15_30 = sum(is_pending_culture_15_30),
+         pending_culture_30_60 = sum(is_pending_culture_30_60),
+         pending_culture_more_60 = sum(is_pending_culture_more_60)
+         ) |>
   ungroup() |>
   gt() |>
   #edit some columns names
