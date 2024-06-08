@@ -28,35 +28,35 @@ AFPkpis <-
   AFPtables |>
   select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
-  filter( AFPtables$LabName != "CDC" & !is.na(FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) 
-          & !is.null(AFPtables$FinalCellCultureResult)) |>
+  filter( AFPtables$LabName != "CDC") |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(LabName) |>
-  mutate(is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
+  mutate(is_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
+         is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
          is_pv_positive_and_npent = if_else((FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
          is_pv_negative = if_else((FinalCellCultureResult == "2-Negative"), 1, 0),
          is_npent = if_else((FinalCellCultureResult == "3-NPENT"), 1, 0),
          
          DateStoolReceivedinLab = as.Date(ymd(DateStoolReceivedinLab)),
          DateUpdated = as.Date(ymd_hms(DateUpdated)),
-         days_to_results = (DateUpdated - DateStoolReceivedinLab),
+         days_to_results = as.numeric(difftime(DateUpdated, DateStoolReceivedinLab, units = "days")),
          is_pending_culture_results = if_else(is.na(FinalCellCultureResult) & days_to_results >= 15, 1, 0),
-         is_pending_culture_15_30 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 15 & days_to_results < 30, 1, 0),
-         is_pending_culture_30_60 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 30 & days_to_results < 60, 1, 0),
+         is_pending_culture_15_30 = if_else(is.na(FinalCellCultureResult) & (days_to_results >= 15 & days_to_results < 30), 1, 0),
+         is_pending_culture_30_60 = if_else(is.na(FinalCellCultureResult) & (days_to_results >= 30 & days_to_results < 60), 1, 0),
          is_pending_culture_more_60 = if_else(is.na(FinalCellCultureResult) & days_to_results >= 60, 1, 0)
              ) |> 
   summarise(
-         samples_with_results = n(),
-         pv_positive = sum(is_pv_positive),
+         samples_with_results = sum(is_result, na.rm = TRUE),
+         pv_positive = sum(is_pv_positive, na.rm = TRUE),
          prop_pv_positive = 100 * pv_positive / samples_with_results,
          
-         pv_positive_and_npent = sum(is_pv_positive_and_npent),
+         pv_positive_and_npent = sum(is_pv_positive_and_npent, na.rm = TRUE),
          prop_pv_positive_and_npent = 100 * pv_positive_and_npent / samples_with_results,
          
-         npent = sum(is_npent), 
+         npent = sum(is_npent, na.rm = TRUE), 
          prop_npent = 100 * npent / samples_with_results,
          
-         pv_negative = sum(is_pv_negative),
+         pv_negative = sum(is_pv_negative, na.rm = TRUE),
          prop_negative = 100 * pv_negative / samples_with_results,
          
          pending_culture_results = sum(is_pending_culture_results),
@@ -75,7 +75,7 @@ AFPkpis <-
     "prop_pv_positive_and_npent" = "Prop Culture +ve for PV & NPEV",
     "npent" = "NPEV",
     "prop_npent" = "Prop NPEV",
-    "negative" = "Negative",
+    "pv_negative" = "Negative",
     "prop_negative" = "Prop Negative",
     "pending_culture_results" = "Total Pending",
     "pending_culture_15_30" = "15 - 30 days",
