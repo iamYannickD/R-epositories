@@ -26,29 +26,25 @@ Specify_the_period <- paste0("WEEK 1 - ",
 # Analysis of databases =====
 AFPkpis <- 
   AFPtables |>
-  #filter( AFPtables$LabName != "CDC" & year(AFPtables$DateOfOnset) > 2023 ) |>
+  select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateUpdated) |>
+  mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   filter( AFPtables$LabName != "CDC" & !is.na(FinalCellCultureResult)) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(LabName) |>
-  summarise(samples_with_results = n()) |>
+  mutate(samples_with_results = n()) |>
   ungroup() |>
-  left_join (
-    AFPtables |>
       # starts with 1
       filter(str_detect(FinalCellCultureResult, "^1")) |>
       #distinct(ICLabID, .keep_all = "TRUE") |>
       group_by(LabName) |>
-      summarise(pv_positive = n()), 
-    by = "LabName") |>
-  ungroup() |>
-  mutate(prop_pv_positive = 100 * pv_positive /samples_with_results ) |>
-  left_join (
-    AFPtables |>
+      mutate(pv_positive = n()) |>
+      ungroup() |>
+      mutate(prop_pv_positive = 100 * pv_positive /samples_with_results) |>
+
       filter(str_detect(FinalCellCultureResult, "^4")) |>
       #distinct(ICLabID, .keep_all = "TRUE") |>
       group_by(LabName) |>
-      summarise(pv_positive_and_npent = n()), 
-    by = "LabName") |>
+      mutate(pv_positive_and_npent = n()) |>
   ungroup() |>
   mutate(prop_pv_positive_and_npent = 100 * pv_positive_and_npent /samples_with_results ) |>
   left_join (
