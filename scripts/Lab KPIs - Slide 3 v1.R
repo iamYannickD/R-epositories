@@ -1,6 +1,3 @@
-#check directory =====
-getwd()
-
 # Check if the package pacman is installed
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
@@ -8,8 +5,6 @@ library("pacman")
 # Load packages =====
 #RODBC to be able to work with microsoft access databases, allowing R to connect to Open Database Connectivity (ODBC) APIs
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
-#to convert the web image into an image
-webshot::install_phantomjs()
 
 #Give the path to the AFP database
 path_AFP <- "../data/dbs/afp_wk21.mdb" 
@@ -30,24 +25,27 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-AFPtables_gt <- 
+#AFPtables_gt <- 
   AFPtables |>
-  #filter( AFPtables$LabName != "CDC" & year(AFPtables$DateOfOnset) > 2023 ) |>
-  filter( AFPtables$LabName != "CDC") |>
+  filter(LabName != "CDC") |>
+  select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
+         FinalITDResult, DateFinalrRTPCRResults) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
+  mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   group_by(LabName) |>
-  summarise(workload_by_lab = n()) |>
-  ungroup() |>
-  # samples arrived in good conditions in the lab
-  left_join (
-    AFPtables |>
-      #filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat", "2-Bad", "2-Inadéquat") | is.na(AFPtables$StoolCondition)) |>
-      filter(AFPtables$StoolCondition %in% c("1-Good", "1-Adéquat")) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(Sample_good_cond = n()), 
-    by = "LabName") |>
-  ungroup() |>
+  mutate(workload_by_lab = n(),
+         is_good = if_else(StoolCondition == "1-Good", 1, 0), 
+         
+         #Sample_good_cond = sum(is_good)
+         Prop_sample_good_cond = 100 * sum(is_good) / workload_by_lab,
+         
+         
+         
+         ) |>
+  
+  select(6:10)
+    
+
   mutate(Prop_sample_good_cond = round( Sample_good_cond / workload_by_lab * 100, 0) ) |>
   # total cell culture results =====
 left_join(
