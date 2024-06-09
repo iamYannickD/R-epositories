@@ -16,8 +16,11 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # load data in R =====
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble() |>  mutate(proxy_date_infor_itd = if_else(is.na(DateIsolateinforITD), DateLarmIsolateRec, DateIsolateinforITD)
-  ) |>
+  tibble() |>  mutate(proxy_date_infor_itd = if_else(is.na(DateIsolateinforITD),
+                                if_else(is.na(DateLarmIsolateRec), DateRarmIsolateSentforITD, DateLarmIsolateRec),
+                                DateIsolateinforITD
+                               )
+         ) |>
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
@@ -29,66 +32,49 @@ Specify_the_period <- paste0("WEEK 1 - ",
   AFPtables |>
   filter(LabName != "CDC") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
-         FinalITDResult, DateFinalrRTPCRResults) |>
+         proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
+  mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
-         is_good = if_else(StoolCondition == "1-Good", 1, 0), 
+         # sample conditions
+         is_good = if_else( (StoolCondition == "1-Good" | StoolCondition == "1-Bonne"), 1, 0), 
+         
+         # cell culture < 14 days
          is_culture_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
          time_culture_results = as.numeric(difftime(DateFinalCellCultureResults, DateStoolReceivedinLab, units = "days")),
          is_culture_results_14days = if_else( (!is.na(FinalCellCultureResult) & time_culture_results < 15 & time_culture_results > 0), 1, 0),
          
-         #Sample_good_cond = sum(is_good)
-         Prop_sample_good_cond = 100 * sum(is_good) / workload_by_lab,
+         is_itd = if_else( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
+         time_itd_results_7days = as.numeric(difftime(DateFinalrRTPCRResults, proxy_date_infor_itd, units = "days")),
+         time_itd_results_21days = as.numeric(difftime(DateFinalrRTPCRResults, DateStoolReceivedinLab, units = "days")),
+         
          culture_results = sum(is_culture_result),
          culture_results_14days = sum(is_culture_results_14days),
-         Prop_culture_results_14days = 100 * culture_results_14days / culture_results
          
+         ITD_results = sum(is_itd),
+         is_itd_7days = if_else( 
+           ( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT") &
+           !is.na(FinalITDResult) & time_itd_results_7days < 8 & time_itd_results_7days >= 0), 1, 0),
+         ITD_results_7days = sum(is_itd_7days),
          
-         
-         
-         
-         ) |>
-  
-  select(12:16)
-    
-  # all ITD results
-  left_join(
-    AFPtables |>
-      filter((str_detect(AFPtables$FinalCellCultureResult, "^1") | str_detect(AFPtables$FinalCellCultureResult, "^4"))
-             & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult)) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(ITD_results = n()), 
-    by = "LabName" ) |>
-  # ITD results in less than 7 days from reception in lab ====
-left_join(
-  AFPtables |>
-    filter(((str_detect(AFPtables$FinalCellCultureResult, "^1") | str_detect(AFPtables$FinalCellCultureResult, "^4"))
-            & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult)) 
-           # & between((AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD), ymd_hms(0), ymd_hms(700000)) ) |>
-           & (AFPtables$DateFinalrRTPCRResults - AFPtables$DateIsolateinforITD) >= 0
-           & (as.Date(AFPtables$DateFinalrRTPCRResults) - as.Date(AFPtables$proxy_date_infor_itd)) < 8) |>
-    #filter(LabName == "SOA") |>
-    
-    #select(ICLabID, LabName, proxy_date_infor_itd, DateFinalrRTPCRResults) |>
-    #distinct(ICLabID, .keep_all = "TRUE") |>
-    group_by(LabName) |>
-    summarise(ITD_results_7days = n()), 
-  by = "LabName" ) |>
-  mutate(Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0)) |>
-  # specimen with final lab results < 21 days =====
-left_join(
-  AFPtables |>
-    filter(!is.na(AFPtables$FinalITDResult) & !is.nan(AFPtables$FinalITDResult) & !is.null(AFPtables$FinalITDResult) &
-             (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) < 22 & 
-             (AFPtables$DateFinalrRTPCRResults - AFPtables$DateStoolReceivedinLab) >= 0 ) |>
-    #distinct(ICLabID, .keep_all = "TRUE") |>
-    group_by(LabName) |>
-    summarise(ITD_results_21days = n()), 
-  by = "LabName" ) |>
-  mutate(Prop_ITD_21days = round( ITD_results_21days / ITD_results * 100, 0) ) |> 
+         is_itd_21days = if_else( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT") &
+           (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0),
+         ITD_results_21days = sum(is_itd_21days)
+            ) |>
+  summarize(
+    workload_by_lab = n(),
+    Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / workload_by_lab,
+    culture_results = sum(is_culture_result, na.rm = TRUE),
+    culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
+    Prop_culture_results_14days = 100 * culture_results_14days / culture_results,
+    ITD_results = sum(is_itd, na.rm = TRUE),
+    ITD_results_7days = sum(is_itd_7days, na.rm = TRUE),
+    Prop_ITD_7days = 100 * ITD_results_7days / ITD_results,
+    ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
+    Prop_ITD_21days = 100 * ITD_results_21days / ITD_results
+  ) |>
   dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
                 Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
   
