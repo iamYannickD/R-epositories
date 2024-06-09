@@ -35,37 +35,24 @@ Specify_the_period <- paste0("WEEK 1 - ",
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
          is_good = if_else(StoolCondition == "1-Good", 1, 0), 
+         is_culture_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
+         time_culture_results = as.numeric(difftime(DateFinalCellCultureResults, DateStoolReceivedinLab, units = "days")),
+         is_culture_results_14days = if_else( (!is.na(FinalCellCultureResult) & time_culture_results < 15 & time_culture_results > 0), 1, 0),
          
          #Sample_good_cond = sum(is_good)
          Prop_sample_good_cond = 100 * sum(is_good) / workload_by_lab,
+         culture_results = sum(is_culture_result),
+         culture_results_14days = sum(is_culture_results_14days),
+         Prop_culture_results_14days = 100 * culture_results_14days / culture_results
+         
+         
          
          
          
          ) |>
   
-  select(6:10)
+  select(12:16)
     
-
-  mutate(Prop_sample_good_cond = round( Sample_good_cond / workload_by_lab * 100, 0) ) |>
-  # total cell culture results =====
-left_join(
-  AFPtables |>
-    filter(!is.na(AFPtables$FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) & !is.null(AFPtables$FinalCellCultureResult)) |>
-    #distinct(ICLabID, .keep_all = "TRUE") |>
-    group_by(LabName) |>
-    summarise(culture_results = n()), 
-  by = "LabName" ) |>
-  # Cell culture results in less than 14 days
-  left_join(
-    AFPtables |>
-      filter(!is.na(AFPtables$FinalCellCultureResult) & !is.nan(AFPtables$FinalCellCultureResult) & !is.null(AFPtables$FinalCellCultureResult) &
-               (AFPtables$DateFinalCellCultureResults - AFPtables$DateStoolReceivedinLab) < 15 & 
-               (AFPtables$DateFinalCellCultureResults - AFPtables$DateStoolReceivedinLab) >= 0 ) |>
-      #distinct(ICLabID, .keep_all = "TRUE") |>
-      group_by(LabName) |>
-      summarise(culture_results_14days = n()), 
-    by = "LabName" ) |>
-  mutate(Prop_culture_results_14days = round(culture_results_14days / culture_results * 100, 0) ) |>
   # all ITD results
   left_join(
     AFPtables |>
