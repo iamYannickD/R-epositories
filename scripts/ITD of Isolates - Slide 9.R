@@ -5,7 +5,7 @@ library("pacman")
 
 # Load packages =====
 #RODBC to be able to work with microsoft access databases, allowing R to connect to Open Database Connectivity (ODBC) APIs
-p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
+p_load(tidyverse, RODBC,gt, gtExtras, officer)
 
 #Give the path to the AFP database
 path_AFP <- "../data/dbs/afp_wk21.mdb" 
@@ -28,7 +28,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 
 # Analysis of databases =====
 #AFPtables_gt <- 
-tempAFP2 <-
+#tempAFP2 <-
 AFPtables |>
   filter(LabName != "CDC") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
@@ -41,8 +41,7 @@ AFPtables |>
          ITD_results = sum(is_itd),
          is_itd_more_7days = if_else( 
            ( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT") &
-               is.na(FinalITDResult) & time_itd_results_7days >= 8 ), 1, 0),
-         ITD_pending_7days = sum(is_itd_more_7days),
+               is.na(FinalITDResult) & time_itd_results_7days >= 8 ), 1, 0)
       ) |>
   mutate(virus_cat = 
           case_when(
@@ -58,12 +57,15 @@ AFPtables |>
             FinalITDResult == "1-PV1 NSL" ~ "Type 1 Discordant",
             FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
             !is.na(FinalITDResult) ~ "check" # missed/unexpected results
-        ))
-  # summarize(
-  #   ITD_results = sum(is_itd, na.rm = TRUE),
-  #   ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
-  #     ) |>
-  # dplyr::select(LabName, ITD_results, ITD_pending_7days) 
+        )) |>
+  #filter(!is.na(virus_cat)) |>
+  #count(virus_cat)
+  summarize(
+    ITD_results = sum(is_itd, na.rm = TRUE),
+    ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
+    numb_viruses = n()
+      ) #|>
+  #dplyr::select(LabName, ITD_results, ITD_pending_7days)
 
 
 
