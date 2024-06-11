@@ -35,14 +35,6 @@ AFPtables |>
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
-  group_by(LabName) |>
-  mutate(is_itd = if_else( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
-         time_itd_results_7days = as.numeric(difftime(DateUpdated, proxy_date_infor_itd, units = "days")),
-         ITD_results = sum(is_itd),
-         is_itd_more_7days = if_else( 
-           ( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT") &
-               is.na(FinalITDResult) & time_itd_results_7days >= 8 ), 1, 0)
-      ) |>
   mutate(virus_cat = 
           case_when(
             (is.na(FinalITDResult) | FinalITDResult == "9-Invalid") ~ NA,
@@ -58,13 +50,48 @@ AFPtables |>
             FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
             !is.na(FinalITDResult) ~ "check" # missed/unexpected results
         )) |>
-  #filter(!is.na(virus_cat)) |>
-  #count(virus_cat)
-  summarize(
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
-    numb_viruses = n()
-      ) #|>
+  filter(!is.na(virus_cat)) |>
+  group_by(LabName, virus_cat) |>
+  summarise(n = n()) |>
+  pivot_wider(names_from = virus_cat, values_from = n) |>
+  left_join(AFPtables |>
+      filter(LabName != "CDC") |>
+      select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
+             proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, DateUpdated) |>
+      mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected")) |>
+      #distinct(ICLabID, .keep_all = "TRUE") |>
+      group_by(LabName) |>
+      mutate(
+        is_itd = if_else(FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT"), 1, 0),
+        time_itd_results_7days = as.numeric(difftime(DateUpdated, proxy_date_infor_itd, units = "days")),
+        is_itd_more_7days = if_else(
+          FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT") &
+            is.na(FinalITDResult) & time_itd_results_7days >= 8, 1, 0
+        )
+      ) |>
+      summarize(
+        ITD_results = sum(is_itd, na.rm = TRUE),
+        ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE)
+      ), by = c("LabName" = "LabName")) |>
+  select(Labs = LabName, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	`Type 1 Discordant`,	
+         `Type 3 Discordant`,	PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days)
+
+  
+
+# 
+  
+
+
+  
+
+  
+    
+
+
+  # summarize(
+  #   ITD_results = sum(is_itd, na.rm = TRUE),
+  #   ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
+  #     ) #|>
   #dplyr::select(LabName, ITD_results, ITD_pending_7days)
 
 
