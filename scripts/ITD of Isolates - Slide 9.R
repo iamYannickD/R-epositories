@@ -1,4 +1,5 @@
 # Check if the package pacman is installed
+# rm(list = ls())
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
 
@@ -27,6 +28,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 
 # Analysis of databases =====
 #AFPtables_gt <- 
+tempAFP2 <-
 AFPtables |>
   filter(LabName != "CDC") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
@@ -42,11 +44,26 @@ AFPtables |>
                is.na(FinalITDResult) & time_itd_results_7days >= 8 ), 1, 0),
          ITD_pending_7days = sum(is_itd_more_7days),
       ) |>
-  summarize(
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
-      ) |>
-  dplyr::select(LabName, ITD_results, ITD_pending_7days) 
+  mutate(virus_cat = 
+          case_when(
+            (is.na(FinalITDResult) | FinalITDResult == "9-Invalid") ~ NA,
+            (FinalITDResult %in% c("16-nOPV2", "PV2+/nOPV2+") ) ~ "nOPV2",
+            (FinalITDResult %in% c("15-PV2", "PV2+/nOPV2-", "12-PV2+/nOPV2-", "5-PV2 SL")) ~ "PV2",
+            (FinalITDResult %in% c("4-PV1-SL", "4-PV1 SL")) ~ "Sabin Type 1",
+            FinalITDResult == "6-PV3 SL" ~ "Sabin Type 3",
+            FinalITDResult == "7-NPEV" ~ "NPEV",
+            FinalITDResult == "8-NEV" ~ "NEV",
+            FinalITDResult == "10-Mixture" ~ "Mixture",
+            FinalITDResult == "12-PV1 SL Discordant" ~ "Mixture",
+            FinalITDResult == "1-PV1 NSL" ~ "Type 1 Discordant",
+            FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
+            !is.na(FinalITDResult) ~ "check" # missed/unexpected results
+        ))
+  # summarize(
+  #   ITD_results = sum(is_itd, na.rm = TRUE),
+  #   ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE),
+  #     ) |>
+  # dplyr::select(LabName, ITD_results, ITD_pending_7days) 
 
 
 
