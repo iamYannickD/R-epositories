@@ -258,3 +258,7 @@ tab_style(
     }
     "
   )
+
+
+# export my table
+gtsave(EStables2024, "../data/outputs/ESTables.html")
