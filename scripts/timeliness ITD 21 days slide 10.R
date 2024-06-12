@@ -38,20 +38,30 @@ AFPtables |>
   mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
-
-         is_itd = if_else( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
          time_itd_results_21days = as.numeric(difftime(DateFinalrRTPCRResults, DateStoolReceivedinLab, units = "days")),
-         
-         ITD_results = sum(is_itd),
-         is_itd_21days = if_else( (FinalCellCultureResult == "1-Suspected Poliovirus" | FinalCellCultureResult == "4-Suspected Poliovirus + NPENT") &
+
+         is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
+         is_itd_positive = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT") &
+                                       (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") )), 1, 0),
+            
+           
+         is_itd_21days = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
                                  (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0),
-         ITD_results_21days = sum(is_itd_21days)
+         is_itd_21days_positive_sample = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
+                                                    # filter ITD results not in the list of results below
+                                                     (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) & 
+                                                     (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0),
+         
+         ITD_results = sum(is_itd, na.rm = TRUE),
+         ITD_results_positive_sample = sum(is_itd_positive, na.rm = TRUE),
+         ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
+         ITD_results_21days_positive_sample = sum(is_itd_21days_positive_sample, na.rm = TRUE)
   ) |>
   summarize(
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
-    Prop_ITD_21days = 100 * ITD_results_21days / ITD_results
+    Prop_ITD_21days = 100 * ITD_results_21days / ITD_results,
+    Prop_ITD_21days_positive_sample = 100 * ITD_results_21days_positive_sample / ITD_results_positive_sample
        )
-  #  |>
+
+  #  #|>
   # dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
   #               Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) 
