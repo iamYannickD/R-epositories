@@ -19,8 +19,7 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
   tibble() |>  mutate(proxy_date_infor_itd = if_else(is.na(DateIsolateinforITD),
                                                      if_else(is.na(DateLarmIsolateRec), DateRarmIsolateSentforITD, DateLarmIsolateRec),
                                                      DateIsolateinforITD
-  )
-  ) |>
+                                                   )    ) |>
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
@@ -35,7 +34,6 @@ AFPtables |>
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
-  mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
          time_itd_results_21days = as.numeric(difftime(DateFinalrRTPCRResults, DateStoolReceivedinLab, units = "days")),
@@ -50,18 +48,51 @@ AFPtables |>
          is_itd_21days_positive_sample = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
                                                     # filter ITD results not in the list of results below
                                                      (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) & 
-                                                     (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0),
-         
-         ITD_results = sum(is_itd, na.rm = TRUE),
-         ITD_results_positive_sample = sum(is_itd_positive, na.rm = TRUE),
-         ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
-         ITD_results_21days_positive_sample = sum(is_itd_21days_positive_sample, na.rm = TRUE)
-  ) |>
+                                                     (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0)
+         ) |>
   summarize(
+    ITD_results = sum(is_itd, na.rm = TRUE),
+    ITD_results_positive_sample = sum(is_itd_positive, na.rm = TRUE),
+    ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
+    ITD_results_21days_positive_sample = sum(is_itd_21days_positive_sample, na.rm = TRUE),
     Prop_ITD_21days = 100 * ITD_results_21days / ITD_results,
     Prop_ITD_21days_positive_sample = 100 * ITD_results_21days_positive_sample / ITD_results_positive_sample
-       )
+        ) |>
+    dplyr::select(LabName, Prop_ITD_21days, Prop_ITD_21days_positive_sample)  |>
+    pivot_longer(
+    cols = starts_with("Prop"),
+    names_to = "Metric",
+    values_to = "Value" ) |> # drop_na(Value) |>
+    ggplot() +
+    geom_bar(aes(x = LabName, y = Value, fill = Metric), stat = "identity", position = position_dodge(), width = .9, color = "black") +
+    scale_fill_manual(
+      values = c("Prop_ITD_21days" = "gold", "Prop_ITD_21days_positive_sample" = "darkblue"),
+      labels = c("Prop_ITD_21days" = "Among all samples (with results)", "Prop_ITD_21days_positive_sample" = "Among positive samples")
+      ) +
+    labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ITD Results by Lab") +
+    theme_minimal() +
+    geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
+    scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text = element_text(face = "bold", size = 10, color = "black"),
+    axis.title = element_text(face = "bold", size = 12, color = "black"),
+    axis.line = element_line(color = "black", size = 0.8),
+    axis.ticks = element_line(color = "black", size = 0.8), 
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+    )
+      
+    
+    
 
-  #  #|>
-  # dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
-  #               Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) 
+
+
+
+
+  
