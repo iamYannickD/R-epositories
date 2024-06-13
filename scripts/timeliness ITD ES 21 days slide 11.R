@@ -52,4 +52,29 @@ EStables2024 |>
     Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0),
     Prop_ITD_21days_positive = round(ITD_results_21days_positive / ITD_results_positive * 100, 0)
     ) |>
-  select(Labname, ITD_results, ITD_results_21days, ITD_results_21days_positive, Prop_ITD_21days, Prop_ITD_21days_positive)
+  select(Labname, Prop_ITD_21days, Prop_ITD_21days_positive) |>
+  pivot_longer(cols = c(Prop_ITD_21days, Prop_ITD_21days_positive), names_to = "Proportions", values_to = "Values") |>
+  ggplot() +
+  geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
+  scale_fill_manual(
+    values = c("Prop_ITD_21days" = "gold", "Prop_ITD_21days_positive" = "darkblue"),
+    labels = c("Prop_ITD_21days" = "Among all samples (with results)", "Prop_ITD_21days_positive" = "Among positive samples")
+  ) +
+  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ITD Results by Lab") +
+  theme_minimal() +
+  geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
+  scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text = element_text(face = "bold", size = 10, color = "black"),
+    axis.title = element_text(face = "bold", size = 12, color = "black"),
+    axis.line = element_line(color = "black", size = 0.8),
+    axis.ticks = element_line(color = "black", size = 0.8), 
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  )
