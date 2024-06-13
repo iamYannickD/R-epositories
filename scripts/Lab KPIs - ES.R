@@ -31,6 +31,8 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 
 EStables2024 |>
   group_by(Labname) |>
+  mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )
+     ) |>
   summarize(
     workload_by_lab = n(),
     Sample_good_cond = sum(Samplecondition == "1-Good", na.rm = TRUE),
@@ -48,8 +50,8 @@ EStables2024 |>
                               (as.Date(DateFinalCombinedResult) - as.Date(date_result_to_lab)) >= 0, na.rm = TRUE),
     Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0),
     
-    ITD_results_21days = sum(!is.na(FinalcombinedrRTPCRresults) & !is.nan(FinalcombinedrRTPCRresults) & !is.null(FinalcombinedrRTPCRresults) &
-                               (DateFinalCombinedResult - Datesampleinlab) < 22 & 
+    ITD_results_21days = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
+                                 !is.na(FinalcombinedrRTPCRresults) & (DateFinalCombinedResult - Datesampleinlab) < 22 & 
                                (DateFinalCombinedResult - Datesampleinlab) >= 0, na.rm = TRUE),
     Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0)
       ) |>
