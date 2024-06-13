@@ -1,6 +1,3 @@
-#check directory =====
-getwd()
-
 # Check if the package pacman is installed
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
@@ -10,8 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 18, 2024"
-path_ES_2024 = "data/es_2024_wk18.mdb"
+path_ES_2024 = "../data/dbs/es_2024.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -27,6 +23,9 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
          date_result_to_lab = if_else(is.na(Dateresultstolab), 
                                       Datefinalcultureresult, Dateresultstolab)
           )
+
+Specify_the_period <- paste0("WEEK 1 - ", 
+                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
 EStables2024 |>
