@@ -17,10 +17,9 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(
-    proxy_date_infor_itd = if_else(is.na(DateIsolateinforITD),
-                                                     if_else(is.na(DateLarmIsolateRec), DateRarmIsolateSentforITD, DateLarmIsolateRec),
-                                                     DateIsolateinforITD),
-    proxy_date_itd_result = if_else(is.na(DateFinalrRTPCRResults), DateFinalResultsSentReflabEPI, DateFinalrRTPCRResults)
+    proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD),
+    proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI)
+    
     ) |>
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
