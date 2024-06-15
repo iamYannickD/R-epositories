@@ -36,7 +36,7 @@ EStables2024 |>
                                             "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
                          Countrycode %in% c( "ANG", "CAE", "CAF", "CHA",  "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
                          Countrycode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
-                                             "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = Countrycode) |>
+                                             "SOA", "SWZ", "SYC", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = Countrycode) |>
   group_by(IST, Countrycode) |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" ),
          Labname = if_else(Countryname == "Angola", "SOA", Labname)
@@ -45,28 +45,25 @@ EStables2024 |>
     workload_by_lab = n(),
     
     ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
-    ITD_results_positive = sum(
-      (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
-        (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")), na.rm = TRUE),
-    
     
     ITD_results_21days = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
-                                !is.na(FinalcombinedrRTPCRresults) & (date_itd_result - Datesampleinlab) < 22 & 
-                                (date_itd_result - Datesampleinlab) >= 0, na.rm = TRUE),
-    ITD_results_21days_positive = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
-                                         (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")) &
-                                         !is.na(FinalcombinedrRTPCRresults) & (date_itd_result - Datesampleinlab) < 22 & 
-                                         (date_itd_result - Datesampleinlab) >= 0, na.rm = TRUE),
-    Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0),
-    Prop_ITD_21days_positive = round(ITD_results_21days_positive / ITD_results_positive * 100, 0)
+                                !is.na(FinalcombinedrRTPCRresults) & (date_itd_result - Dateofcollection) < 36 & 
+                                (date_itd_result - Dateofcollection) >= 0, na.rm = TRUE),
+    Prop_ITD_35days = round(ITD_results_21days / ITD_results * 100, 0),
   ) |>
-  select(IST, Countrycode, Prop_ITD_21days, Prop_ITD_21days_positive) |>
-  pivot_longer(cols = c(Prop_ITD_21days, Prop_ITD_21days_positive), names_to = "Proportions", values_to = "Values") |>
+  select(IST, Countrycode, Prop_ITD_35days) |>
+  filter(!is.na(Prop_ITD_35days), Prop_ITD_35days > 0) |>
+
+  pivot_longer(cols = c(Prop_ITD_35days), names_to = "Proportions", values_to = "Values") |>
   ggplot() +
-  geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
+  geom_bar(aes(x =  interaction(Countrycode, IST), y = Values, fill = IST), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
-    values = c("Prop_ITD_21days" = "gold", "Prop_ITD_21days_positive" = "darkblue"),
-    labels = c("Prop_ITD_21days" = "Among all samples (with results)", "Prop_ITD_21days_positive" = "Among positive samples")
+    values = c("Prop_ITD_35days" = "gold", "Prop_ITD_35days" = "darkblue"),
+    labels = c("Prop_ITD_35days" = "Among all samples (with results)", "Prop_ITD_35days" = "Among positive samples")
+  ) +
+  scale_fill_manual(
+    values = c("WEST" = "darkblue", "CENTRAL" = "orange", "ESA" = "gold"),
+    labels = c("WEST" = "West Africa", "CENTRAL" = "Central Africa", "ESA" = "East and Southern Africa")
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ES - ITD Results by Lab in 21 days") +
   theme_minimal() +
@@ -85,7 +82,7 @@ EStables2024 |>
     legend.position = "bottom",
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 10)
-  )
+  ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
 
 
