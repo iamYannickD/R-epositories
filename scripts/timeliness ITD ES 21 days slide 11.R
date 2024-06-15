@@ -30,7 +30,7 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 # Analysis of databases =====
 
 EStables2024 |> 
-  filter(Countryname != "Djibouti" & Countryname != "Somalia") |> # removed djibouti and Somalia
+  filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia
   group_by(Labname) |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )
   ) |>

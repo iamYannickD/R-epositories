@@ -31,7 +31,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 #AFPtables_gt <- 
 AFPtables |>
   filter(LabName != "CDC", !is.na(DateOfOnset)) |>
-  #filter(substr(EpidNumber, start = 1, stop = 3) != c("DJI", "SOM") ) |> #remove somalia and djibouti
+  #filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
   select(LabName, DateOfOnset, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
   mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
