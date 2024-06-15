@@ -24,7 +24,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-AFPkpis <- 
+AFPkpis <-
   AFPtables |>
   select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
