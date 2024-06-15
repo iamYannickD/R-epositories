@@ -17,7 +17,8 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec,
-                                                      DateRarmIsolateSentforITD, DateFinalCellCultureResults)   ) |>
+                                                      DateRarmIsolateSentforITD, DateFinalCellCultureResults),
+                      proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI)) |>
   
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
@@ -31,12 +32,12 @@ AFPtables |>
   filter(LabName != "CDC") |>
   #filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F) |> #remove somalia and djibouti
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
-         proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
+         proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
-         time_itd_results_21days = as.numeric(difftime(DateFinalrRTPCRResults, DateStoolReceivedinLab, units = "days")),
+         time_itd_results_21days = as.numeric(difftime(proxy_date_itd_result, DateStoolReceivedinLab, units = "days")),
 
          is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
          is_itd_positive = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT") &
