@@ -32,8 +32,9 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 EStables2024 |> 
   filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia
   group_by(Labname) |>
-  mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )
-  ) |>
+  mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" ),
+         Labname = if_else(Countryname == "Angola", "SOA", Labname)
+    ) |>
   summarize(
     workload_by_lab = n(),
     
@@ -61,7 +62,7 @@ EStables2024 |>
     values = c("Prop_ITD_21days" = "gold", "Prop_ITD_21days_positive" = "darkblue"),
     labels = c("Prop_ITD_21days" = "Among all samples (with results)", "Prop_ITD_21days_positive" = "Among positive samples")
   ) +
-  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ITD Results by Lab") +
+  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ITD Results by Lab in 21 days") +
   theme_minimal() +
   geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
