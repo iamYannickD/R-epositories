@@ -26,3 +26,75 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
 
 Specify_the_period <- paste0("WEEK 1 - ", 
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+
+
+# Analysis of databases =====
+#AFPtables_gt22 <- 
+AFPtables |>
+  filter(LabName != "CDC", !is.na(DateOfOnset)) |>
+  filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
+  mutate(CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName) |>
+  mutate(IST = case_when(CountryCode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
+                                            "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
+                         CountryCode %in% c( "ANG", "CAE", "CAF", "CHA",  "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
+                         CountryCode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
+                                              "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
+  filter( !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("CIV", "MAD", "RDC", "UGA", "ZAM", "ZIM")) ) |> # remove sequencing data
+  select(IST, CountryCode, LabName, DateOfOnset, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
+         proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
+  mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
+  #distinct(ICLabID, .keep_all = "TRUE") |>
+  group_by(IST, CountryCode) |>
+  mutate(workload_by_lab = n(),
+         time_itd_results_35days = as.numeric(difftime(proxy_date_itd_result, DateOfOnset, units = "days")),
+         
+         is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
+         
+         is_itd_35days = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
+                                    (!is.na(FinalITDResult) & time_itd_results_35days < 36 & time_itd_results_35days >= 0), 1, 0)
+  ) |>
+  summarize(
+    ITD_results = sum(is_itd, na.rm = TRUE),
+    ITD_results_35days = sum(is_itd_35days, na.rm = TRUE),
+    Prop_ITD_35days = 100 * ITD_results_35days / ITD_results,
+  ) |>
+  filter(!is.na(Prop_ITD_35days) & Prop_ITD_35days > 0) |>
+  dplyr::select(IST, CountryCode, Prop_ITD_35days)  |>
+  pivot_longer(
+    cols = starts_with("Prop"),
+    names_to = "Metric",
+    values_to = "Value" ) |> # drop_na(Value) |>
+  ggplot() +
+  geom_bar(aes(x = interaction(CountryCode, IST), y = Value, fill = IST), stat = "identity", position = position_dodge(), width = .9, color = "black") +
+  scale_fill_manual(
+    values = c("Prop_ITD_35days" = "gold"),
+    labels = c("Prop_ITD_35days" = "Among all samples (with results)")
+  ) +
+  scale_fill_manual(
+    values = c("WEST" = "darkblue", "CENTRAL" = "orange", "ESA" = "gold"),
+    labels = c("WEST" = "West Africa", "CENTRAL" = "Central Africa", "ESA" = "East and Southern Africa")
+  ) +
+  labs(x = "Country Code", y = "% Samples with results", fill = "", title = "ITD Results by Lab on ES Isolates") +
+  theme_minimal() +
+  geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
+  scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text = element_text(face = "bold", size = 10, color = "black"),
+    axis.title = element_text(face = "bold", size = 12, color = "black"),
+    axis.line = element_line(color = "black", size = 0.8),
+    axis.ticks = element_line(color = "black", size = 0.8), 
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 10)
+  ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
+
+
+
+
+
+
