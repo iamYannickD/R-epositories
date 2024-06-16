@@ -51,7 +51,7 @@ EStables2024 |>
   ggplot() +
   geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
-    values = c("Prop_ITD_21days" = "blue4"),
+    values = c("Prop_ITD_21days" = "cyan4"),
     labels = c("Prop_ITD_21days" = "Among all samples (with results)")
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ES - ITD Results by Lab in 35 days") +
