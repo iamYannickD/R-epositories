@@ -9,15 +9,13 @@ p_load(tidyverse, officer)
 #Give the path to the csv error file
 AFP_errors <- read.xlsx("../data/data/data_errors.xlsx", sheet = 1)
 
+#data1 <-
 AFP_errors |>
-  pivot_longer(cols = !Cat.errors, names_to = "Months", values_to = "Proportion")
-
-
-ggplot(AFP_errors, aes(x = Months, y = Proportion, color = Cat.errors, group = Cat.errors)) +
-  geom_line(size = 1) +
-  geom_point(size = 3) +
-  geom_text(aes(label = scales::percent(Proportion / 100, accuracy = 0.1)), 
-            vjust = -0.5, size = 3.5) +
+  pivot_longer(cols = !Cat.errors, names_to = "Months", values_to = "Proportion") |>
+  ggplot() +
+  geom_line(aes(x = Months, y = Proportion, color = Cat.errors, group = Cat.errors), size = 1) +
+  geom_point(aes(x = Months, y = Proportion), size = 3) +
+  geom_text(aes(x = Months, y = Proportion, label = scales::percent(Proportion / 100, accuracy = 0.1)), vjust = -0.5, size = 3.5) +
   theme_minimal() +
   labs(x = "Month", y = "Proportion of Errors (%)", title = "Proportion of Errors Over Time") +
   theme(axis.title.x = element_text(face = "bold", family = "Arial Black"),
@@ -28,4 +26,6 @@ ggplot(AFP_errors, aes(x = Months, y = Proportion, color = Cat.errors, group = C
   scale_y_continuous(labels = scales::percent_format(accuracy = 1))
 
 
+
+  
 
