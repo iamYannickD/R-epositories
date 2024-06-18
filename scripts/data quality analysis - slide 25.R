@@ -10,7 +10,7 @@ p_load(tidyverse, officer)
 AFP_errors <- read.xlsx("../data/data/data_errors.xlsx", sheet = 1)
 
 #data1 <-
-AFP_errors |>
+AFP_errors_old |>
   pivot_longer(cols = !Cat.errors, names_to = "Months", values_to = "Proportion") |>
   ggplot() +
   geom_line(aes(x = Months, y = Proportion, color = Cat.errors, group = Cat.errors), size = 1) +
@@ -26,10 +26,6 @@ AFP_errors |>
   scale_y_continuous(labels = scales::percent_format(accuracy = 1))
 
 
-
-  
-
-  
   # Define the order of the months
   month_order <- c("February_23", "March_23", "April_23", "May_23", "June_23", "July_23", "August_23", "September_23",
                    "October_23", "November_23", "December_23", "January_24", "February_24")
@@ -40,7 +36,7 @@ AFP_errors |>
     mutate(Months = factor(Months, levels = month_order))
   
   # Create the plot
-  ggplot(AFP_errors_long, aes(x = Months, y = Proportion / 100, color = Cat.errors, group = Cat.errors)) +
+    ggplot(AFP_errors_long, aes(x = Months, y = Proportion / 100, color = Cat.errors, group = Cat.errors)) +
     geom_line(size = 1) +
     geom_point(size = 3) +
     geom_text(aes(label = scales::percent(Proportion / 100, accuracy = 0.01)), 
