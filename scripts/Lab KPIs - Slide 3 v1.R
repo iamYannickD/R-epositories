@@ -62,6 +62,7 @@ AFPtables_gt <-
             ) |>
   summarize(
     workload_by_lab = n(),
+    samples_good_cond = sum(is_good, na.rm = TRUE),
     Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / workload_by_lab,
     culture_results = sum(is_culture_result, na.rm = TRUE),
     culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
@@ -72,13 +73,14 @@ AFPtables_gt <-
     ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
     Prop_ITD_21days = 100 * ITD_results_21days / ITD_results
   ) |>
-  dplyr::select(LabName, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days, 
+  dplyr::select(LabName, workload_by_lab, samples_good_cond, Prop_sample_good_cond, culture_results, culture_results_14days,
                 Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
   
   gt() |>
   #edit some columns names
   cols_label(
     "workload_by_lab" = "# of Stool specimens",
+    "samples_good_cond" = "# samples good conditions",
     "culture_results" = "# culture Result",
     "culture_results_14days" = "# of culture results in 14 days",
     "ITD_results_7days" = "# of ITD Results in 7 days",
@@ -92,7 +94,7 @@ AFPtables_gt <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(1:11)
+    columns = c(1:12)
   ) |>
   #give a header to the table as well as a sub title
   tab_header(
@@ -106,7 +108,7 @@ AFPtables_gt <-
     pattern = "{x} %"
   ) |>
   sub_missing(
-    columns = 2:11,
+    columns = 2:12,
     rows = everything(),
     missing_text = "-"
     #missing_text = "---"
