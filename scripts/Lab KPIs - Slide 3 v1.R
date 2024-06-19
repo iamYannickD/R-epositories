@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk_24/testAFP.mdb" 
+path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -25,7 +25,7 @@ Specify_the_period <- paste0("WEEK 1 - 24, 2024")   # ,
                         #     (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPtables_gt <- 
+AFPtables_gt <- 
   AFPtables |>
   filter(LabName != "CDC") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
@@ -239,7 +239,7 @@ tab_style(
 
 
 # export my table
-gtsave(AFPtables_gt, "output/AFPtables.html")
+gtsave(AFPtables_gt, "../data/outputs/AFPtables.html")
 # Convert HTML to PNG
 webshot::webshot("output/AFPtables.html", "output/AFPtables.png")
 
