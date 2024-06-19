@@ -46,13 +46,13 @@ virus_isolation_map <-
     ggplot() +
       geom_sf(data = afro_Adm0, aes(fill = "gray"), fill = "gray", color = "white") +
       geom_sf(data = afro_cntries, aes(fill = `Virus Isolation`), color = "black", size = 2) +
-      geom_point(data = polio_labs, aes(x = `X (LONG)` , y = `Y (LAT)`), color = "black", size = 3, shape = 8) +
+      geom_point(data = polio_labs, aes(x = `X (LONG)` , y = `Y (LAT)`, shape = "Polio Labs"), color = "black", size = 3) +
       scale_fill_manual(values = c("ALG" =  "#a6cee3", "SOA" =  "#1f78b4", "GHA" =  "#b2df8a", "SEN" =  "#33a02c", 
                                    "UGA" =  "#fb9a99", "CAE" =  "#ffff99", "CAF" =  "#f768a1", "CIV" =  "cyan", 
                                    "RDC" =  "#ec7014", "ETH" =  "#fdbf6f", "KEN" =  "lightgreen", "MAD" =  "#66bd63",
                                    "IBD, MDG" =  "#01665e", "ZAM" =  "#cab2d6", "ZIM" =  "#7fcdbb"), na.value = "grey50",
                         labels = virus_label) +
-      scale_shape_manual(name = "Polio Labs", values = rep(8, 10)) + 
+      scale_shape_manual(name = "Polio Labs", values = c("Polio Labs" = 8)) + 
       labs(fill = " ") + # remove the old legend name - Virus Isolation/ ITD Labs
       theme_bw() +
       guides(fill = guide_legend(order = 1), 
