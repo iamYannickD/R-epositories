@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/afp_wk21.mdb" 
+path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -26,7 +26,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 # Analysis of databases =====
 AFPkpis <-
   AFPtables |>
-  select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateUpdated) |>
+  select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   filter( AFPtables$LabName != "CDC") |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
@@ -37,8 +37,19 @@ AFPkpis <-
          is_pv_negative = if_else((FinalCellCultureResult == "2-Negative"), 1, 0),
          is_npent = if_else((FinalCellCultureResult == "3-NPENT"), 1, 0),
          
+         # cell culture < 14 days
+         is_culture_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
+         time_culture_results = as.numeric(difftime(DateFinalCellCultureResults, DateStoolReceivedinLab, units = "days")),
+         is_culture_results_14days = if_else( (!is.na(FinalCellCultureResult) & time_culture_results < 15 & time_culture_results > 0), 1, 0),
+         
+         culture_results = sum(is_culture_result),
+         culture_results_14days = sum(is_culture_results_14days),
+         
+         # use a generic data based on the date the database was received
+         DateUpdated = if_else(is.na(DateUpdated), as.POSIXct("2024-06-18 14:24:05"), as.Date(ymd_hms(DateUpdated))),
+         
          DateStoolReceivedinLab = as.Date(ymd(DateStoolReceivedinLab)),
-         DateUpdated = as.Date(ymd_hms(DateUpdated)),
+         #DateUpdated = as.Date(ymd_hms(DateUpdated)),
          days_to_results = as.numeric(difftime(DateUpdated, DateStoolReceivedinLab, units = "days")),
          is_pending_culture_results = if_else(is.na(FinalCellCultureResult) & days_to_results >= 15, 1, 0),
          is_pending_culture_15_30 = if_else(is.na(FinalCellCultureResult) & (days_to_results >= 15 & days_to_results < 30), 1, 0),
@@ -47,6 +58,10 @@ AFPkpis <-
              ) |> 
   summarise(
          samples_with_results = sum(is_result, na.rm = TRUE),
+         
+         culture_results = sum(is_culture_result, na.rm = TRUE),
+         culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
+         
          pv_positive = sum(is_pv_positive, na.rm = TRUE),
          prop_pv_positive = 100 * pv_positive / samples_with_results,
          
@@ -69,6 +84,8 @@ AFPkpis <-
   #edit some columns names
   cols_label(
     "samples_with_results" = "# of Specimens with Results",
+    "culture_results" = "# culture Result",
+    "culture_results_14days" = "# of culture results in 14 days",
     "pv_positive" = "Culture +ve for PV",
     "prop_pv_positive" = "Prop Culture +ve for PV",
     "pv_positive_and_npent" = "Culture +ve for PV & NPEV",
@@ -85,41 +102,41 @@ AFPkpis <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(2:14)
+    columns = c(2:16)
   ) |>
   tab_spanner(
     label = md('**Culture +ve for PV**'),
-    columns = 3:4) |>
-  tab_spanner(
-    label = md('**Culture +ve for PV & NPEV**'),
     columns = 5:6) |>
   tab_spanner(
-    label = md('**NPEV**'),
+    label = md('**Culture +ve for PV & NPEV**'),
     columns = 7:8) |>
   tab_spanner(
-    label = md('**Negative**'),
+    label = md('**NPEV**'),
     columns = 9:10) |>
+  tab_spanner(
+    label = md('**Negative**'),
+    columns = 11:12) |>
   #add the title that covers the columns in the 3th and 10th row
   tab_spanner(
     label = md('**PRIMARY VIRUS ISOLATION RESULTS**'),
-    columns = 3:10) |>
+    columns = 3:12) |>
   #add the title that covers the columns in the 7th and 8th row
   tab_spanner(
     label = md('**Pending Samples**'),
-    columns = 11:14) |>
+    columns = 13:16) |>
   #give a header to the table as well as a sub title
   tab_header(
     title = md(paste0("**AFP : Timeliness and Results of Primary Isolation (14 days)** ")),
     subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
   sub_missing(
-    columns = 2:14,
+    columns = 2:16,
     rows = everything(),
     missing_text = 0
     #missing_text = "---"
   ) |>
   # add percentage in cells
   fmt_number(
-    columns = c(1:14),
+    columns = c(1:16),
     decimals = 0,
     pattern = "{x}"
   ) |>
