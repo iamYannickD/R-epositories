@@ -26,10 +26,10 @@ Specify_the_period <- paste0("WEEK 1 - ",
 # Analysis of databases =====
 AFPkpis <-
   AFPtables |>
-  select(LabName, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
+  select(LabName, ICLabID, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   filter( AFPtables$LabName != "CDC") |>
-  #distinct(ICLabID, .keep_all = "TRUE") |>
+  distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(LabName) |>
   mutate(is_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
          is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
@@ -38,11 +38,10 @@ AFPkpis <-
          is_npent = if_else((FinalCellCultureResult == "3-NPENT"), 1, 0),
          
          # cell culture < 14 days
-         is_culture_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
          time_culture_results = as.numeric(difftime(DateFinalCellCultureResults, DateStoolReceivedinLab, units = "days")),
          is_culture_results_14days = if_else( (!is.na(FinalCellCultureResult) & time_culture_results < 15 & time_culture_results > 0), 1, 0),
          
-         culture_results = sum(is_culture_result),
+         culture_results = sum(is_result),
          culture_results_14days = sum(is_culture_results_14days),
          
          # use a generic data based on the date the database was received
@@ -59,8 +58,8 @@ AFPkpis <-
   summarise(
          samples_with_results = sum(is_result, na.rm = TRUE),
          
-         culture_results = sum(is_culture_result, na.rm = TRUE),
          culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
+         Prop_culture_results_14days = 100 * culture_results_14days / samples_with_results,
          
          pv_positive = sum(is_pv_positive, na.rm = TRUE),
          prop_pv_positive = 100 * pv_positive / samples_with_results,
@@ -84,8 +83,8 @@ AFPkpis <-
   #edit some columns names
   cols_label(
     "samples_with_results" = "# of Specimens with Results",
-    "culture_results" = "# culture Result",
     "culture_results_14days" = "# of culture results in 14 days",
+    "Prop_culture_results_14days" = "Prop cell cultures results 14 days",
     "pv_positive" = "Culture +ve for PV",
     "prop_pv_positive" = "Prop Culture +ve for PV",
     "pv_positive_and_npent" = "Culture +ve for PV & NPEV",
@@ -141,7 +140,7 @@ AFPkpis <-
     pattern = "{x}"
   ) |>
   fmt_number(
-    columns = c(prop_pv_positive, prop_pv_positive_and_npent, prop_npent, prop_negative ),
+    columns = c(Prop_culture_results_14days, prop_pv_positive, prop_pv_positive_and_npent, prop_npent, prop_negative ),
     decimals = 1,
     pattern = "{x} %"
   ) |>
