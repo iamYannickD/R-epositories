@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/es_2024.mdb"
+path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -29,8 +29,8 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 
 
 # Analysis of databases =====
-
-EStables2024 |> 
+ES_byCountry35 <-
+ EStables2024 |> 
   filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia Countrycode
   mutate(IST = case_when(Countrycode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
                                             "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
@@ -53,8 +53,8 @@ EStables2024 |>
   ) |>
   select(IST, Countrycode, Prop_ITD_35days) |>
   filter(!is.na(Prop_ITD_35days), Prop_ITD_35days > 0) |>
-  
   pivot_longer(cols = c(Prop_ITD_35days), names_to = "Proportions", values_to = "Values") |>
+  filter(Countrycode != "SOM") |> #removed somalia from the list of countries
   ggplot() +
   geom_bar(aes(x =  interaction(Countrycode, IST), y = Values, fill = IST), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
@@ -83,6 +83,10 @@ EStables2024 |>
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
+
+
+# saving the plot as image png  
+ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/")  
 
 
 
