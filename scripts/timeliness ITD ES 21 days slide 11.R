@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/es_2024.mdb"
+path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -28,12 +28,13 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 #Specify_the_period <- paste0("WEEK 1 - ", (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-
-EStables2024 |> 
+EStimeliness <- 
+ EStables2024 |> 
   filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia
   group_by(Labname) |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" ),
          Labname = if_else(Countryname == "Angola", "SOA", Labname)
+         #Labname = if_else( (is.na(Labname) & Countryname == "ANGOLA"), "SOA", Labname)
     ) |>
   summarize(
     workload_by_lab = n(),
@@ -41,14 +42,16 @@ EStables2024 |>
     ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
     ITD_results_positive = sum(
             (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
-              (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")), na.rm = TRUE),
+             # (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")), na.rm = TRUE),
+              (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV")), na.rm = TRUE),
     
     
     ITD_results_21days = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
                                 !is.na(FinalcombinedrRTPCRresults) & (date_itd_result - Datesampleinlab) < 22 & 
                                 (date_itd_result - Datesampleinlab) >= 0, na.rm = TRUE),
     ITD_results_21days_positive = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
-                                   (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")) &
+                                  # (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")) & 
+                                    (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV")) & 
                                 !is.na(FinalcombinedrRTPCRresults) & (date_itd_result - Datesampleinlab) < 22 & 
                                 (date_itd_result - Datesampleinlab) >= 0, na.rm = TRUE),
     Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0),
@@ -56,6 +59,7 @@ EStables2024 |>
     ) |>
   select(Labname, Prop_ITD_21days, Prop_ITD_21days_positive) |>
   pivot_longer(cols = c(Prop_ITD_21days, Prop_ITD_21days_positive), names_to = "Proportions", values_to = "Values") |>
+  filter(!is.na(Labname)) |> # remove zim as they dont analyze ES samples
   ggplot() +
   geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
@@ -80,3 +84,7 @@ EStables2024 |>
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 10)
   )
+
+
+# saving the plot as image png  
+ggsave("EStimeliness21_plot.png", EStimeliness, path = "../data/outputs/")  
