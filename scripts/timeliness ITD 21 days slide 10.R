@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/afp_wk21.mdb" 
+path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -27,7 +27,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPtables_gt <- 
+AFPtables_21 <- 
 AFPtables |>
   filter(LabName != "CDC") |>
   #filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F) |> #remove somalia and djibouti
@@ -41,14 +41,16 @@ AFPtables |>
 
          is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
          is_itd_positive = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT") &
-                                       (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") )), 1, 0),
+                                       #(!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) 
+                                       (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid") )  ), 1, 0),
             
            
          is_itd_21days = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
                                  (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0),
          is_itd_21days_positive_sample = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
                                                     # filter ITD results not in the list of results below
-                                                     (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) & 
+                                                     #(!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) &
+                                                    (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid") ) &
                                                      (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0)
          ) |>
   summarize(
@@ -88,9 +90,9 @@ AFPtables |>
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 10)
     )
-      
-    
-    
+
+# saving the plot as image png  
+ggsave("AFPtables21_plot.png", AFPtables_21, path = "../data/outputs/")   
 
 
 
