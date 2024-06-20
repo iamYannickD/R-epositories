@@ -28,10 +28,10 @@ Specify_the_period <- paste0("WEEK 1 - 24, 2024")   # ,
 AFPtables_gt <- 
   AFPtables |>
   filter(LabName != "CDC") |>
+  distinct(ICLabID, .keep_all = "TRUE") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
-  #distinct(ICLabID, .keep_all = "TRUE") |>
   mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   group_by(LabName) |>
   mutate(workload_by_lab = n(),
