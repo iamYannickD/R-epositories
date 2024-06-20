@@ -11,8 +11,8 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP = "../data/dbs/afp_wk21.mdb" 
-path_ES_2024 = "../data/dbs/es_2024.mdb"
+path_AFP = "../data/dbs/wk_24/afp_wk_24.mdb" 
+path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -63,9 +63,10 @@ ES_plot <-
   dplyr::mutate(
     Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "IBD, Nigeria" = "IBD",
                                          "INRB" = "RDC", "IPD SEN" = "SEN", "IPM,MAD" = "MAD",
-                                         "IPM, MAD" = "MAD", "MDG, Nigeria" = "MDG", 
-                                         "KEMRI" = "KEN", "ZAM-UTH" = "ZAM", "ZAM UTH" = "ZAM")
-    ) ) |>
+                                         "IPM, MAD" = "MAD", "MDG, Nigeria" = "MDG", "ESWATINI" = "SOA",
+                                         "KEMRI" = "KEN", "ZAM-UTH" = "ZAM", "ZAM UTH" = "ZAM") ),
+    Labname = if_else( (is.na(Labname) & Countryname == "ANGOLA"), "SOA", Labname)
+     ) |>
   arrange(Labname) |>
   distinct(IDNumber, .keep_all = "TRUE") |>
   group_by(Labname) |>
