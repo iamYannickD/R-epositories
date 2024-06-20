@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/afp_wk35.mdb" 
+path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -29,8 +29,8 @@ Specify_the_period <- paste0("WEEK 1 - ",
 
 
 # Analysis of databases =====
-#AFPtables_gt22 <- 
-AFPtables |>
+AFPCountries_35 <- 
+ AFPtables |>
   filter(LabName != "CDC", !is.na(DateOfOnset)) |>
   filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
   mutate(CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName) |>
@@ -59,6 +59,7 @@ AFPtables |>
     Prop_ITD_35days = 100 * ITD_results_35days / ITD_results,
   ) |>
   filter(!is.na(Prop_ITD_35days) & Prop_ITD_35days > 0) |>
+  #group_by(IST) |>  summarize(median_Prop_ITD_35days = median(Prop_ITD_35days, na.rm = TRUE)) #to know the proportion 35 days by IST
   dplyr::select(IST, CountryCode, Prop_ITD_35days)  |>
   pivot_longer(
     cols = starts_with("Prop"),
@@ -93,6 +94,9 @@ AFPtables |>
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
+
+# saving the plot as image png  
+ggsave("AFPCountries_35_plot.png", AFPCountries_35, path = "../data/outputs/") 
 
 
 
