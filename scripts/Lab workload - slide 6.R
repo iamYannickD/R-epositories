@@ -69,7 +69,7 @@ ES_plot <-
      ) |>
   arrange(Labname) |>
   distinct(IDNumber, .keep_all = "TRUE") |>
-  #group_by(Labname) |>
+  group_by(Labname) |> #total ES samples
   summarise(es_workload_by_lab = n()) |>
   ungroup() |>
   ggplot() +
