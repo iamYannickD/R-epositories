@@ -33,13 +33,16 @@ AFPCountries_35 <-
  AFPtables |>
   filter(LabName != "CDC", !is.na(DateOfOnset)) |>
   filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
-  mutate(CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName) |>
+  mutate(
+    CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName,
+    CountryCode = if_else(LabName == "MAD", "MAD", CountryCode )) |>
   mutate(IST = case_when(CountryCode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
                                             "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
                          CountryCode %in% c( "ANG", "CAE", "CAF", "CHA",  "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
                          CountryCode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
                                               "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
   filter( !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("CIV", "MAD", "RDC", "UGA", "ZAM", "ZIM")) ) |> # remove sequencing data
+  filter( !(LabName %in% c("CAE", "CAF", "RDC", "ETH", "KEN", "MAD", "ZAM", "ZIM", "ALG", "GHA")) ) |>
   select(IST, CountryCode, LabName, DateOfOnset, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
   mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
