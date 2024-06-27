@@ -38,7 +38,7 @@ AFPtables_gt <-
           case_when(
             (is.na(FinalITDResult) | FinalITDResult == "9-Invalid") ~ NA,
             (FinalITDResult %in% c("16-nOPV2", "PV2+/nOPV2+") ) ~ "nOPV2",
-            (FinalITDResult %in% c("15-PV2", "PV2+/nOPV2+", "PV2+/nOPV2-", "12-PV2+/nOPV2-", "5-PV2 SL")) ~ "PV2",
+            (FinalITDResult %in% c("15-PV2", "PV2+/nOPV2-", "12-PV2+/nOPV2-", "5-PV2 SL")) ~ "PV2",
             (FinalITDResult %in% c("4-PV1-SL", "4-PV1 SL")) ~ "Sabin Type 1",
             FinalITDResult == "6-PV3 SL" ~ "Sabin Type 3",
             FinalITDResult == "7-NPEV" ~ "NPEV",
