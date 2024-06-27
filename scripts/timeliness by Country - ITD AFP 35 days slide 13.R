@@ -29,7 +29,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 
 
 # Analysis of databases =====
-AFPCountries_35 <- 
+AFPCountries_35p <- 
  AFPtables |>
   filter(LabName != "CDC", !is.na(DateOfOnset)) |>
   filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
@@ -42,7 +42,7 @@ AFPCountries_35 <-
                          CountryCode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
                                               "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
   filter( !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("CIV", "MAD", "RDC", "UGA", "ZAM", "ZIM")) ) |> # remove sequencing data
-  filter( !(LabName %in% c("CAE", "CAF", "RDC", "ETH", "KEN", "MAD", "ZAM", "ZIM", "ALG", "GHA")) ) |>
+  #filter( !(LabName %in% c("CAE", "CAF", "RDC", "ETH", "KEN", "MAD", "ZAM", "ZIM", "ALG", "GHA")) ) |>
   select(IST, CountryCode, LabName, DateOfOnset, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
   mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
@@ -97,6 +97,7 @@ AFPCountries_35 <-
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
+AFPCountries_35
 
 # saving the plot as image png  
 ggsave("AFPCountries_35_plot.png", AFPCountries_35, path = "../data/outputs/") 
