@@ -8,6 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
 path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
+dateDBreceived <- "2024-06-18 14:24:05"
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -45,7 +46,7 @@ AFPkpis <-
          culture_results_14days = sum(is_culture_results_14days),
          
          # use a generic data based on the date the database was received
-         DateUpdated = if_else(is.na(DateUpdated), as.POSIXct("2024-06-18 14:24:05"), as.Date(ymd_hms(DateUpdated))),
+         DateUpdated = if_else(is.na(DateUpdated), as.POSIXct(dateDBreceived), as.Date(ymd_hms(DateUpdated))),
          
          DateStoolReceivedinLab = as.Date(ymd(DateStoolReceivedinLab)),
          #DateUpdated = as.Date(ymd_hms(DateUpdated)),
