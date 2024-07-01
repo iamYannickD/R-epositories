@@ -48,6 +48,7 @@ AFPCountries_35p <-
   mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(IST, CountryCode) |>
+  filter( !(CountryCode %in% c("ALG", "CAE", "CAF", "CIV", "ETH", "GHA", "NIE", "KEN", "MAD", "RDC", "SEN", "SOA", "UGA", "ZAM", "ZIM")) ) |>
   mutate(workload_by_lab = n(),
          time_itd_results_35days = as.numeric(difftime(proxy_date_itd_result, DateOfOnset, units = "days")),
          
@@ -76,9 +77,9 @@ AFPCountries_35p <-
   ) +
   scale_fill_manual(
     values = c("WEST" = "darkblue", "CENTRAL" = "orange", "ESA" = "gold"),
-    labels = c("WEST" = "West Africa", "CENTRAL" = "Central Africa", "ESA" = "East and Southern Africa")
+    labels = c("WEST" = "IST West", "CENTRAL" = "IST Central", "ESA" = "IST - ESA")
   ) +
-  labs(x = "Country Code", y = "% Samples with results", fill = "", title = "ITD Results by Lab on AFP Isolates") +
+  labs(x = "Country Code", y = "% Samples with results", fill = "", title = "") +
   theme_minimal() +
   geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
@@ -97,10 +98,10 @@ AFPCountries_35p <-
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
-AFPCountries_35
+AFPCountries_35p
 
 # saving the plot as image png  
-ggsave("AFPCountries_35_plot.png", AFPCountries_35, path = "../data/outputs/") 
+ggsave("AFPCountries_35_plot.png", AFPCountries_35p, path = "../data/outputs/") 
 
 
 
