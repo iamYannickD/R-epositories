@@ -63,9 +63,9 @@ ES_byCountry35 <-
   ) +
   scale_fill_manual(
     values = c("WEST" = "darkblue", "CENTRAL" = "orange", "ESA" = "gold"),
-    labels = c("WEST" = "West Africa", "CENTRAL" = "Central Africa", "ESA" = "East and Southern Africa")
+    labels = c("WEST" = "IST West", "CENTRAL" = "IST Central", "ESA" = "IST - ESA")
   ) +
-  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ES - ITD Results by Lab in 35 days") +
+  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "") +
   theme_minimal() +
   geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
@@ -84,6 +84,7 @@ ES_byCountry35 <-
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
+ES_byCountry35
 
 # saving the plot as image png  
 ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/")  
