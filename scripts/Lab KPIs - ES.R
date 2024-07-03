@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/wk25/es.mdb"
+path_ES_2024 = "../data/dbs/test/es.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -219,6 +219,7 @@ tab_style(
     "
   )
 
+EStables2024
 
 # export my table
 gtsave(EStables2024, "../data/outputs/ESTables.html")

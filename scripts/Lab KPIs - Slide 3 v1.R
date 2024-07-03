@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk25/afp.mdb" 
+path_AFP <- "../data/dbs/test/afp.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -239,6 +239,7 @@ tab_style(
     "
   )
 
+AFPtables_gt
 
 # export my table
 gtsave(AFPtables_gt, "../data/outputs/AFPtables.html")
