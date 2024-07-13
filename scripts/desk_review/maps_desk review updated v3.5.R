@@ -86,3 +86,48 @@ afro_pop <- load_afro_pop |>
              Pop15 >= 500000 ~ "> 500,000",
            )
   )
+
+#Create a 1 array vector that contains all the countries, it will serve in the for loop
+country <- admin0$ADM0_VIZ_N |>
+  unique() |> sort()
+
+#indenting the initial value for the loop
+#cntry = "Angola"
+
+#Generates all the maps in the for loop
+# Function to plot maps
+plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, risk_level, path) {
+  plot1 <- ggplot() +
+    geom_sf(data = pop_by_country, aes(fill = cat_pop), color = NA) +
+    geom_sf(data = admin1_by_country, fill = NA, color = "white", size = 1) +
+    geom_sf(data = admin_by_country, fill = NA, color = "black", size = 1) +
+    geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y), color = "black", fill = "blue", size = 1) +
+    geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+    scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
+    labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", cntry)) +
+    theme_bw() #+
+  #theme(legend.position = "bottom")
+  
+  ggsave(paste0(path, "/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
+  
+  plot2 <- ggplot() +
+    geom_sf(data = admin1_by_country, fill = NA, color = "gray") +
+    geom_sf(data = admin_by_country, fill = NA, color = "black", size = 1) +
+    geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y, size = 5, color = ev_rate),
+               size = 1.5, stroke = 1) +
+    geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+    scale_color_manual(values = c("< 25" = "red", "25 - 49" = "yellow", ">= 50" = "green"), 
+                       name = "EV Rate", 
+                       breaks = c("< 25", "25 - 49", ">= 50"),
+                       labels = c(paste0("< 25 (n = ", sum(es_by_country$ev_rate == "< 25"), ")"), 
+                                  paste0("25 - 49 (n = ", sum(es_by_country$ev_rate == "25 - 49"), ")"), 
+                                  paste0(">= 50 (n = ", sum(es_by_country$ev_rate == ">= 50"), ")")),
+    )  +
+    labs(x = "Longitude", y = "Latitude", title = paste0("Map and performance of ES sites in ", cntry)) +
+    theme_bw() #+
+  #theme(legend.position = "bottom")
+  
+  ggsave(paste0(path, "/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
+}
