@@ -131,3 +131,22 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
   
   ggsave(paste0(path, "/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
+
+# Loop through countries
+for (cntry in country) {
+  pop_by_country <- afro_pop |> filter(ADM0_VIZ_N == cntry) 
+  admin_by_country <- admin0 |> filter(ADM0_VIZ_N == cntry)
+  admin1_by_country <- admin1 |> filter(ADM0_VIZ_N == cntry) 
+  es_by_country <- es_sites |> mutate(Country = str_to_title(Country)) |> filter(Country == str_to_title(cntry))
+  
+  if (cntry %in% Very_high_risk) {
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Very_High_Risk", path)
+  } else if (cntry %in% High_risk) {
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "High_Risk", path)
+  } else if (cntry %in% Medium_high_risk) {
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_High_Risk", path)
+  } else {
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_Risk", path)
+  }
+}
+
