@@ -11,7 +11,7 @@ p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
 #load_es_sites <- read_csv("data/dataset_desk_review/Location ES Sites.csv")
-load_es_sites <- read_csv("data/data_q1/Copy of ES_site_analysis_2024-04-23.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/Copy of ES_site_analysis_2024-04-23.csv") |>
   # as the end will change, i select columns that starts with a specific string
   dplyr::select(Country = Countryname, Sitename, ev_rate = starts_with("EV_isolation_Rate"), Lat_Y, Long_X) |>
   # filter out null coordinates
@@ -40,9 +40,9 @@ Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Erit
                       "Togo", "Uganda", "Zimbabwe")
 
 # load administrative boundaries
-admin0 <- geojsonsf::geojson_sf("data/dataset_desk_review/admin0_geo.geojson")
-admin1 <- geojsonsf::geojson_sf("data/dataset_desk_review/admin1_geo.geojson")
-load_afro_pop <- geojsonsf::geojson_sf("data/dataset_desk_review/afro_pop.geojson")
+admin0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson")
+admin1 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin1_geo.geojson")
+load_afro_pop <- geojsonsf::geojson_sf("../data/data_dr/sf/afro_pop.geojson")
 
 #create a column to categorize the EV Rate and factor, meaning it to convert the values 0,1,2 (double) to
 #factor to easily make a series of discrete values
