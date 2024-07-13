@@ -109,7 +109,7 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     theme_bw() #+
   #theme(legend.position = "bottom")
   
-  ggsave(paste0(path, "/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
+  ggsave(paste0("../data/data_dr/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
   
   plot2 <- ggplot() +
     geom_sf(data = admin1_by_country, fill = NA, color = "gray") +
@@ -129,7 +129,7 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     theme_bw() #+
   #theme(legend.position = "bottom")
   
-  ggsave(paste0(path, "/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
+  ggsave(paste0("../data/data_dr/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
 
 # Loop through countries
@@ -140,13 +140,13 @@ for (cntry in country) {
   es_by_country <- es_sites |> mutate(Country = str_to_title(Country)) |> filter(Country == str_to_title(cntry))
   
   if (cntry %in% Very_high_risk) {
-    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Very_High_Risk", path)
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Very_High_Risk")
   } else if (cntry %in% High_risk) {
-    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "High_Risk", path)
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "High_Risk")
   } else if (cntry %in% Medium_high_risk) {
-    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_High_Risk", path)
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_High_Risk")
   } else {
-    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_Risk", path)
+    plot_maps(cntry, pop_by_country, admin1_by_country, admin_by_country, es_by_country, "Medium_Risk")
   }
 }
 
