@@ -29,3 +29,60 @@ load_es_sites <- read_csv("data/data_q1/Copy of ES_site_analysis_2024-04-23.csv"
       ) |>
   filter(Sitename != "KAKOBA SEWAGE TREATMENT PLANT")
 
+# Classification of countries based on their level of risk
+Very_high_risk <- c("Chad", "Democratic Republic of the Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
+
+High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Côte d’Ivoire", 
+               "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
+
+Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
+                      "Liberia", "Mauritania", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
+                      "Togo", "Uganda", "Zimbabwe")
+
+# load administrative boundaries
+admin0 <- geojsonsf::geojson_sf("data/dataset_desk_review/admin0_geo.geojson")
+admin1 <- geojsonsf::geojson_sf("data/dataset_desk_review/admin1_geo.geojson")
+load_afro_pop <- geojsonsf::geojson_sf("data/dataset_desk_review/afro_pop.geojson")
+
+#create a column to categorize the EV Rate and factor, meaning it to convert the values 0,1,2 (double) to
+#factor to easily make a series of discrete values
+es_sites <- load_es_sites |>
+  mutate(ev_rate = 
+           #categorizes based on the ev rates
+           case_when(
+             ev_rate < 25 ~ 0,
+             (ev_rate >= 25 & ev_rate < 50) ~ 1,
+             (ev_rate >= 50 ) ~ 2
+           )
+  ) |> 
+  #convert the categories (double) into factors for the classification
+  mutate(ev_rate = factor(ev_rate, 
+                          labels = c("< 25", "25 - 49", ">= 50"))) |>
+  group_by(Country, ev_rate) |>
+  add_count(ev_rate) |>
+  mutate(n = paste0(ev_rate, " (n = ", n, ")")) 
+
+#creating the column cat_pop and making that column a serie of discrete values with factor
+#then assigning categories to those values, that will be integer. note that case_label does nothing
+afro_pop <- load_afro_pop |>
+  mutate(cat_pop = 
+           case_when(
+             #categorizes based on the population under 15
+             Pop15 < 25000 ~ 0,
+             (Pop15 >= 25000 & Pop15 < 50000) ~ 1,
+             (Pop15 >= 50000 & Pop15 < 100000) ~ 2,
+             (Pop15 >= 100000 & Pop15 < 500000) ~ 3,
+             Pop15 >= 500000 ~ 4) ) |> 
+  mutate(cat_pop = factor(cat_pop, 
+                          labels = c("< 25,000", "25,000 - 50,000", 
+                                     "50,000 - 100,000", "100,000 - 500,000", 
+                                     "> 500,000"))) |>
+  mutate(cat_label = 
+           case_when(
+             Pop15 < 25000 ~ "< 25,000",
+             (Pop15 >= 25000 & Pop15 < 50000) ~ "25,000 - 50,000",
+             (Pop15 >= 50000 & Pop15 < 100000) ~ "50,000 - 100,000",
+             (Pop15 >= 100000 & Pop15 < 500000) ~ "100,000 - 500,000",
+             Pop15 >= 500000 ~ "> 500,000",
+           )
+  )
