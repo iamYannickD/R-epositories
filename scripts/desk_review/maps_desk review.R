@@ -10,8 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-#load_es_sites <- read_csv("data/dataset_desk_review/Location ES Sites.csv")
-load_es_sites <- read_csv("../data/data_dr/es_sites/Copy of ES_site_analysis_2024-04-23.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_jan_jun_2024-07-09.csv") |>
   # as the end will change, i select columns that starts with a specific string
   dplyr::select(Country = Countryname, Sitename, ev_rate = starts_with("EV_isolation_Rate"), Lat_Y, Long_X) |>
   # filter out null coordinates
