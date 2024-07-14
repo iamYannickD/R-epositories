@@ -12,11 +12,11 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/pv_linelist_week15_up.csv") |>
+viruses_isolated <- read_csv("../data/data_dr/viruses/EW 27 2024 AFR PVs line list.csv") |>
   mutate(
-    COUNTRY = str_replace_all(COUNTRY, "DRC", "DEMOCRATIC REPUBLIC OF THE CONGO"),
-    COUNTRY = str_replace_all(COUNTRY, "SIERRA LEON", "SIERRA LEONE"),
-    COUNTRY = str_replace_all(COUNTRY, "COTE D'IVOIRE", "COTE D IVOIRE")
+    Country = str_replace_all(Country, "DRC", "DEMOCRATIC REPUBLIC OF THE CONGO"),
+    Country = str_replace_all(Country, "SIERRA LEON", "SIERRA LEONE"),
+    Country = str_replace_all(Country, "COTE D'IVOIRE", "COTE D IVOIRE")
         )
 masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
@@ -34,14 +34,14 @@ afro_Adm2 <- read_rds("../data/global.dist.rds") |>
 #so that if more than a sample is collected in the same district, they are not on top of each other
 afp_virus <- 
   viruses_isolated |>
-    filter(SOURCE != "ENV") |>
+    filter(Source != "ENV") |>
     mutate(
-      PROVINCE = str_replace_all(PROVINCE, "HAUT-KATANGA", "HAUT KATANGA"),
-      DISTRICT = str_replace_all(DISTRICT, "TUDUN", "TUDUN WADA")
+      Province = str_replace_all(Province, "HAUT-KATANGA", "HAUT KATANGA"),
+      District = str_replace_all(District, "TUDUN", "TUDUN WADA")
           ) |>
-    left_join(y = afro_Adm2, by = c("COUNTRY" = "ADM0_NAME", "PROVINCE" = "ADM1_NAME", "DISTRICT" = "ADM2_NAME"),
+    left_join(y = afro_Adm2, by = c("Country" = "ADM0_NAME", "Province" = "ADM1_NAME", "District" = "ADM2_NAME"),
               relationship = "many-to-many") |>
-    dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY, PROVINCE, DISTRICT, `ES SITE NAME`, `ONSET/ COLLECTION`,
+    dplyr::select(`EPID Number`, Virus, Source, Country, Province, DISTRICT = District, `ES Site Name`, `Onset/ Collection Date`,
                   CENTER_LON, CENTER_LAT, SHAPE)
 
   # Function to generate random points within a polygon
@@ -66,17 +66,17 @@ afp_virus <-
 # ES virus
 es_virus <-
   viruses_isolated |>
-    filter(SOURCE == "ENV") |>
+    filter(Source == "ENV") |>
     mutate(
-      epid_match = str_sub(`EPID NUMBER`, 1, 19)
+      epid_match = str_sub(`EPID Number`, 1, 19)
          ) |>
   mutate(
     epid_match = str_replace_all(epid_match, "ENV-ALG-TMR-TMR-RLV", "ENV-ALG-TAM-TAM-REL"),
     epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
          ) |>
   left_join(y = masterlist, by = c("epid_match" = "SITE_CODE")) |>
-  dplyr::select(`EPID NUMBER`, VIRUS, SOURCE, COUNTRY = COUNTRY.x, PROVINCE = PROVINCE.x, 
-                DISTRICT, `ES SITE NAME`,  `ONSET/ COLLECTION`, Lat_Y, Long_X)
+  dplyr::select(`EPID Number`, Virus, Source, COUNTRY = COUNTRY, PROVINCE, 
+                District, `ES Site Name`,  `Onset/ Collection Date`, Lat_Y, Long_X)
 
 
 #initialization
@@ -90,7 +90,7 @@ for (cntry in countries) {
                             es_virus |>
                             filter(es_virus$COUNTRY == cntry) |>
                             #remove duplicates
-                            distinct(`ES SITE NAME`, Lat_Y, Long_X, .keep_all = TRUE)
+                            distinct(`ES Site Name`, Lat_Y, Long_X, .keep_all = TRUE)
                           
                           afro_Adm0_cntry <-
                             afro_Adm0 |>
@@ -107,13 +107,13 @@ for (cntry in countries) {
                          plot1 <- ggplot(data = es_virus_cntry) +
                             geom_sf(data = afro_admin1_country, fill = NA, color = "gray") +
                             geom_sf(data = afro_Adm0_cntry, fill = NA, color = "black") +
-                            geom_point(shape = 15, size = 2.5, stroke = 1,  aes(x = Long_X, y = Lat_Y, color = VIRUS)) +
+                            geom_point(shape = 15, size = 2.5, stroke = 1,  aes(x = Long_X, y = Lat_Y, color = Virus)) +
                             scale_color_manual(values = c("cVDPV1" = "purple", "cVDPV2" = "darkgreen")) +
                             labs(x = "Longitude", y = "Latitude", color = "Virus Type", 
                                  title = paste0("Map of all ", es_virus_cntry$VIRUS, " Isolated in ", str_to_title(afro_Adm0_cntry$ADM0_NAME))) +
                             theme(plot.title = element_text(hjust = 0.5)) +    # Center ggplot title
                             geom_text_repel(data = es_virus_cntry, 
-                                            aes(x = Long_X, y = Lat_Y, label = `ES SITE NAME`,
+                                            aes(x = Long_X, y = Lat_Y, label = `ES Site Name`,
                                                 fontface = "bold", point.size = 10), 
                                             label.r = 0.015, label.size = 0.01, 
                                             color = "black", bg.color = "white", bg.r = 0.15, size = 2, point.size = 2,
