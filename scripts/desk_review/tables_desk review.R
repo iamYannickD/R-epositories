@@ -49,7 +49,7 @@ masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 # restructuring of the excel file
 es_sites <-
   Load_es_sites |>
-  as_tibble() |>
+  as_tibble()  |>  
   left_join(y = risk_level_by_country, by = c("Countryname" = "country"))
 
 risk_status <- 
@@ -57,13 +57,14 @@ risk_status <-
   #replace(is.na(es_sites$risk_level), "Medium_Risk") |>
   unique()
 
+#risk <- "High_risk"
 
 for (risk in risk_status) {
   #generate a table suited for the desk review
   table_es_sites <-
     #select (es_sites, Country, Province, District, Sitename, "# Samples received in the lab", "EV Isolation rate", "% Samples arrived in lab in good", "% samples <3 days shipment" , 
     #"Average # days samples arrive the lab" ) |>
-    dplyr::select(es_sites, COUNTRY = Countryname, PROVINCE = Province, DISTRICT = starts_with("DISTRICT_ADM02"), Sitename, 
+    dplyr::select(es_sites, COUNTRY = Countryname, PROVINCE = Province, DISTRICT = District, Sitename, 
             "# Samples received in the lab" = starts_with("Num_Samples")[1], "EV Isolation rate" = starts_with("EV_isolation_Rate"), 
             "% Samples arrived in lab in good" = starts_with("prop_samples_good_condition"), 
             "% samples <3 days shipment" = starts_with("prop_Samples_within_3day"), 
