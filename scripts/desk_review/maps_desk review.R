@@ -11,6 +11,8 @@ p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
 load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_apr_jun_2024-07-09.csv") |>
+  # filter only samples with results 
+  filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
   dplyr::select(Country = Countryname, Sitename, ev_rate = starts_with("EV_isolation_Rate"), Lat_Y, Long_X) |>
   # filter out null coordinates
@@ -21,7 +23,7 @@ load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_apr_jun_202
                                          "GUINEE" = "GUINEA",
                                          "MAURITANIE" = "MAURITANIA",
                                          "TANZANIA" = "United Republic of Tanzania",
-                                         "COTE D'IVOIRE" = "Côte d’Ivoire",
+                                         "COTE D'IVOIRE" = "Côte dIvoire",
                                          "ESWATINI" = "SWAZILAND",
                                          "TCHAD" = "CHAD"
                                          ))
@@ -31,17 +33,20 @@ load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_apr_jun_202
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of the Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
 
-High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Côte d’Ivoire", 
+High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Côte dIvoire", 
                "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
 
-Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
+Medium_high_risk <- c("Burundi", "Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
                       "Liberia", "Mauritania", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
                       "Togo", "Uganda", "Zimbabwe")
 
 # load administrative boundaries
-admin0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson")
-admin1 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin1_geo.geojson")
-load_afro_pop <- geojsonsf::geojson_sf("../data/data_dr/sf/afro_pop.geojson")
+admin0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson") |>
+  mutate(ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "Côte d'Ivoire", "Côte dIvoire"))
+admin1 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin1_geo.geojson")  |>
+  mutate(ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "Côte d'Ivoire", "Côte dIvoire"))
+load_afro_pop <- geojsonsf::geojson_sf("../data/data_dr/sf/afro_pop.geojson")  |>
+  mutate(ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "Côte d'Ivoire", "Côte dIvoire"))
 
 #create a column to categorize the EV Rate and factor, meaning it to convert the values 0,1,2 (double) to
 #factor to easily make a series of discrete values
@@ -91,7 +96,7 @@ country <- admin0$ADM0_VIZ_N |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "Angola"
+#cntry = "Congo"
 
 #Generates all the maps in the for loop
 # Function to plot maps
