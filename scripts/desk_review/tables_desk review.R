@@ -57,7 +57,7 @@ risk_status <-
   #replace(is.na(es_sites$risk_level), "Medium_Risk") |>
   unique()
 
-#risk <- "High_risk"
+# risk <- "High_risk"
 
 for (risk in risk_status) {
   #generate a table suited for the desk review
@@ -67,18 +67,20 @@ for (risk in risk_status) {
     dplyr::select(es_sites, COUNTRY = Countryname, PROVINCE = Province, DISTRICT = District, Sitename, 
             "# Samples received in the lab" = starts_with("Num_Samples")[1], "EV Isolation rate" = starts_with("EV_isolation_Rate"), 
             "% Samples arrived in lab in good" = starts_with("prop_samples_good_condition"), 
-            "% samples <3 days shipment" = starts_with("prop_Samples_within_3day"), 
+            "% samples <3 days shipment" = starts_with("prop_samples_within_3day"), 
             "Average # days samples arrive the lab" = starts_with("median_days_to_lab"), risk_level
     ) |>
     filter(!is.na(COUNTRY)) |>
+    filter(!is.na(`# Samples received in the lab`)) |>
     filter(risk_level == risk) |>
     dplyr::select (!risk_level) |>
     #add country to easily differentiate the columns and convert values to numeric values and to go to 100%
     mutate(COUNTRY = paste0("Country : ", COUNTRY)) |>
     # sort by province
-    arrange(desc("PROVINCE")) |>
+    arrange(desc(PROVINCE)) |>
     #group columns by country and ask to start straight at the province
     gt(groupname_col = 'COUNTRY', rowname_col = 'PROVINCE') |>
+
     #edit some columns names
     cols_label(
       "% Samples arrived in lab in good" = "% samples in good conditions",
@@ -92,10 +94,12 @@ for (risk in risk_status) {
       columns = c(`# Samples received in the lab`, `EV Isolation rate`, `% Samples arrived in lab in good`,
                   `% samples <3 days shipment`, `Average # days samples arrive the lab`)
     ) |> 
-    #give 1 number after the decimal to the selected columns
+    # add percentage in cells
     fmt_number(
       columns = c(`EV Isolation rate`, `% Samples arrived in lab in good`, `% samples <3 days shipment`),
-      decimals = 1) |>
+      decimals = 1,
+      pattern = "{x} %"
+    ) |>
     #add the title that covers the columns in the 7th and 8th row
     tab_spanner(
       label = md('**% Samples**'),
@@ -165,7 +169,7 @@ for (risk in risk_status) {
   
   # Create the directory if it doesn't exist
   if (!file.exists( paste0("../data/data_dr/outputs/Table/", risk))) {
-    dir.create(paste0("outputs/Table/", risk) , recursive = TRUE)
+    dir.create(paste0("../data/data_dr/outputs/Table/", risk) , recursive = TRUE)
   }
   
   #save as an html file
