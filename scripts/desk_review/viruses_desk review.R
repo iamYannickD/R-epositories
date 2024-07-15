@@ -12,18 +12,18 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/EW 27 2024 AFR PVs line list.csv") |>
+viruses_isolated <- read_csv("../data/data_dr/viruses/linelist_virus_apr_june_2024.csv") |>
   mutate(
     Country = str_replace_all(Country, "DRC", "DEMOCRATIC REPUBLIC OF THE CONGO"),
-    Country = str_replace_all(Country, "SIERRA LEON", "SIERRA LEONE"),
-    Country = str_replace_all(Country, "COTE D'IVOIRE", "COTE D IVOIRE")
+    Country = str_replace_all(Country, "SIERRA LEON", "SIERRA LEONE")
         )
 masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # load administrative boundaries
-afro_Adm0 <- read_rds("../data/global.ctry.rds") |>
-  filter(WHO_REGION == "AFRO")
-#afro_Adm1 <- read_rds("data/dataset_desk_review/global_dataset/global.prov.rds") |>filter(WHO_REGION == "AFRO")
+afro_Adm0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson") |>
+  mutate(ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "Côte d'Ivoire", "COTE D'IVOIRE"))
+  
+
 afro_Adm1_alt <- geojsonsf::geojson_sf("../data/data_dr/sf/admin1_geo.geojson")
 afro_Adm2 <- read_rds("../data/global.dist.rds") |> 
   filter(WHO_REGION == "AFRO")
@@ -75,14 +75,14 @@ es_virus <-
     epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
          ) |>
   left_join(y = masterlist, by = c("epid_match" = "SITE_CODE")) |>
-  dplyr::select(`EPID Number`, Virus, Source, COUNTRY = COUNTRY, PROVINCE, 
+  dplyr::select(`EPID Number`, Virus, Source, COUNTRY, PROVINCE, 
                 District, `ES Site Name`,  `Onset/ Collection Date`, Lat_Y, Long_X)
 
 
 #initialization
 #cntry <- "ALGERIA" #to test
 countries <- es_virus$COUNTRY |> 
-            unique() |> sort()
+             str_to_upper() |>  unique() |> sort()
 
 for (cntry in countries) {
   
@@ -94,24 +94,24 @@ for (cntry in countries) {
                           
                           afro_Adm0_cntry <-
                             afro_Adm0 |>
-                            filter(ADM0_NAME == cntry)
+                            mutate(ADM0_VIZ_N = str_to_upper(ADM0_VIZ_N)) |>
+                            filter(ADM0_VIZ_N == cntry)
                           
                           afro_admin1_country <-
                             afro_Adm1_alt |>
                             mutate(ADM0_VIZ_N = str_to_upper(ADM0_VIZ_N)) |>
                             mutate(
-                              ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "CÔTE D'IVOIRE", "COTE D IVOIRE")
+                              ADM0_VIZ_N = str_replace_all(ADM0_VIZ_N, "CÔTE D'IVOIRE", "COTE D'IVOIRE")
                             ) |> filter(ADM0_VIZ_N == cntry)
                           
-                          # Plot the map with the updated coordinates
+                         # Plot the map with the updated coordinates
                          plot1 <- ggplot(data = es_virus_cntry) +
                             geom_sf(data = afro_admin1_country, fill = NA, color = "gray") +
                             geom_sf(data = afro_Adm0_cntry, fill = NA, color = "black") +
                             geom_point(shape = 15, size = 2.5, stroke = 1,  aes(x = Long_X, y = Lat_Y, color = Virus)) +
-                            scale_color_manual(values = c("cVDPV1" = "purple", "cVDPV2" = "darkgreen")) +
+                            scale_color_manual(values = c("cVDPV1" = "purple", "VDPV1" = "purple4", "cVDPV2" = "darkgreen", "VDPV2" = "green2")) +
                             labs(x = "Longitude", y = "Latitude", color = "Virus Type", 
-                                 title = paste0("Map of all ", es_virus_cntry$VIRUS, " Isolated in ", str_to_title(afro_Adm0_cntry$ADM0_NAME))) +
-                            theme(plot.title = element_text(hjust = 0.5)) +    # Center ggplot title
+                                 title = paste0("Map of all ", es_virus_cntry$Virus, " Isolated in ", str_to_title(afro_Adm0_cntry$ADM0_VIZ_N))) +
                             geom_text_repel(data = es_virus_cntry, 
                                             aes(x = Long_X, y = Lat_Y, label = `ES Site Name`,
                                                 fontface = "bold", point.size = 10), 
@@ -121,8 +121,9 @@ for (cntry in countries) {
                                             direction = "both", max.time = 1, max.iter = 50000,
                                             #xlim = c(NA, Inf), ylim = c(-Inf, Inf), clip = "ON",
                                             min.segment.length = 0.5) +
-                            theme_bw()
-                          
-                         ggsave(paste0(path, "../data/data_dr/outputs/Map_Virus/", cntry,".png"), plot1) #export population map + es sites
+                            theme_bw() +
+                            theme(plot.title = element_text(hjust = 0.5))     # Center ggplot title
+                         
+                         ggsave(paste0("../data/data_dr/outputs/Map_Virus/", cntry,".png"), plot1) #export population map + es sites
                         }
 
