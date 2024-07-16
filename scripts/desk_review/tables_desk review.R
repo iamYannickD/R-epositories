@@ -20,7 +20,7 @@ High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Centra
                "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
 
 Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
-                      "Liberia", "Mauritania", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
+                      "Liberia", "Mauritania", "Namibia", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
                       "Togo", "Uganda", "Zimbabwe")
 Medium_Risk <- c("")
 
@@ -57,7 +57,7 @@ risk_status <-
   #replace(is.na(es_sites$risk_level), "Medium_Risk") |>
   unique()
 
-# risk <- "High_risk"
+# risk <- "Very_high_risk"
 
 for (risk in risk_status) {
   #generate a table suited for the desk review
@@ -77,7 +77,7 @@ for (risk in risk_status) {
     #add country to easily differentiate the columns and convert values to numeric values and to go to 100%
     mutate(COUNTRY = paste0("Country : ", COUNTRY)) |>
     # sort by province
-    arrange(desc(PROVINCE)) |>
+    arrange(desc(PROVINCE)) |> 
     #group columns by country and ask to start straight at the province
     gt(groupname_col = 'COUNTRY', rowname_col = 'PROVINCE') |>
 
