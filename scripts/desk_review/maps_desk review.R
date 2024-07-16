@@ -37,7 +37,7 @@ High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Centra
                "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
 
 Medium_high_risk <- c("Burundi", "Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
-                      "Liberia", "Mauritania", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
+                      "Liberia", "Mauritania", "Namibia", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
                       "Togo", "Uganda", "Zimbabwe")
 
 # load administrative boundaries
@@ -110,8 +110,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
                     label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
     labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", cntry)) +
-    theme_bw() #+
-  #theme(legend.position = "bottom")
+    theme_bw() +
+    theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
   
@@ -130,8 +130,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
                                   paste0(">= 50 (n = ", sum(es_by_country$ev_rate == ">= 50"), ")")),
     )  +
     labs(x = "Longitude", y = "Latitude", title = paste0("Map and performance of ES sites in ", cntry)) +
-    theme_bw() #+
-  #theme(legend.position = "bottom")
+    theme_bw() +
+    theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
