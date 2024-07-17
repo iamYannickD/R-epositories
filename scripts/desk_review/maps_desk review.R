@@ -96,7 +96,7 @@ country <- admin0$ADM0_VIZ_N |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "Congo"
+#cntry = "South Sudan"
 
 #Generates all the maps in the for loop
 # Function to plot maps
@@ -130,8 +130,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
                                   paste0(">= 50 (n = ", sum(es_by_country$ev_rate == ">= 50"), ")")),
     )  +
     labs(x = "Longitude", y = "Latitude", title = paste0("Map and performance of ES sites in ", cntry)) +
-    theme_bw() +
-    theme(legend.position = "bottom")
+    theme_bw() #+
+    #theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
