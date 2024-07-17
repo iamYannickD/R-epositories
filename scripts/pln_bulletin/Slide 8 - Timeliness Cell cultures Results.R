@@ -22,7 +22,7 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
   filter(substr(ICLabID, start = 5, stop = 6) == 24 ) 
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
 AFPkpis <-
@@ -46,7 +46,8 @@ AFPkpis <-
          culture_results_14days = sum(is_culture_results_14days),
          
          # use a generic data based on the date the database was received
-         DateUpdated = if_else(is.na(DateUpdated), as.POSIXct(dateDBreceived), as.Date(ymd_hms(DateUpdated))),
+         #DateUpdated = if_else(is.na(DateUpdated), as.POSIXct(dateDBreceived), as.Date(ymd_hms(DateUpdated))),
+         DateUpdated = as.Date(ymd(DateUpdated)),
          
          DateStoolReceivedinLab = as.Date(ymd(DateStoolReceivedinLab)),
          #DateUpdated = as.Date(ymd_hms(DateUpdated)),
