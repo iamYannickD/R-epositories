@@ -80,7 +80,7 @@ es_virus <-
 
 
 #initialization
-#cntry <- "ALGERIA" #to test
+#cntry <- "SOUTH SUDAN" #to test
 countries <- es_virus$COUNTRY |> 
              str_to_upper() |>  unique() |> sort()
 
