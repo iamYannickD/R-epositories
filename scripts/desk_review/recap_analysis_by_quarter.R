@@ -24,7 +24,7 @@ Medium_Risk <- c("")
 
 # Create a tibble containing values in the list provided and their risk category
 risk_level_by_country <- tibble(
-  risk_level = c(rep("Very High Risk", length(Very_high_risk)),
+  risk_level = c(rep(" Very High Risk", length(Very_high_risk)),
                  rep("High Risk", length(High_risk)),
                  rep("Medium High Risk", length(Medium_high_risk)),
                  rep("Medium Risk", length(Medium_Risk))),
@@ -44,7 +44,7 @@ risk_level_by_country <- tibble(
   dplyr::select(Countryname, EV_isolation_Rate_3m, EV_isolation_Rate_6m) |>
     left_join(y = risk_level_by_country, by = c("Countryname" = "country")) |>
     filter(!is.na(risk_level)) |>
-    group_by(Countryname, risk_level) |>
+    group_by(risk_level, Countryname) |>
     mutate(
       country_3m = if_else(!is.na(EV_isolation_Rate_3m), 1, 0),
       country_3m_50ev = if_else( (!is.na(EV_isolation_Rate_3m) & EV_isolation_Rate_3m  >= 50) , 1, 0),
@@ -55,12 +55,40 @@ risk_level_by_country <- tibble(
       country_6m_80ev = if_else( (!is.na(EV_isolation_Rate_6m) & EV_isolation_Rate_6m  >= 80), 1, 0),
     ) |>
     summarise(
-      `%Q1countries >= 50` = sum(country_3m_50ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
-      `%Q2countries >= 50` = sum(country_6m_50ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
+      `%Q1countries >= 50` = 100 * sum(country_3m_50ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
+      `%Q2countries >= 50` = 100 * sum(country_6m_50ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
       
-      `%Q1countries >= 80` = sum(country_3m_80ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
-      `%Q2countries >= 80` = sum(country_6m_80ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE)
-    )
+      `%Q1countries >= 80` = 100 * sum(country_3m_80ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
+      `%Q2countries >= 80` = 100 * sum(country_6m_80ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE)
+    ) |>
+    arrange(risk_level, Countryname) |>
+    gt(groupname_col = 'risk_level', rowname_col = 'Countryname') |>
+    #edit some columns names
+    cols_label(
+      "%Q1countries >= 50" = "EV > 50, Q1, 2024",
+      "%Q2countries >= 50" = "EV > 50, Q2, 2024",
+      "%Q1countries >= 80" = "EV > 80, Q1, 2024",
+      "%Q2countries >= 80" = "EV > 80, Q2, 2024"
+    ) |>
+    #center the values in the defined columns
+    cols_align(
+      align = "center",
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`,
+                  `%Q2countries >= 80`)
+    ) |> 
+    # add percentage in cells
+    fmt_number(
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`),
+      decimals = 0,
+      pattern = "{x} %"
+    ) |>
+    #add the title that covers the columns in the 7th and 8th row
+    tab_spanner(
+      label = md('**% of ES sites with ≥50% EV isolation**'),
+      columns = 2:4) |>
+    tab_spanner(
+      label = md('**% of ES sites with ≥80% EV isolation**'),
+      columns = 5:6) 
   
   
 
