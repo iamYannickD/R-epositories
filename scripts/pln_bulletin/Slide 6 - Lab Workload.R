@@ -90,7 +90,7 @@ combined_plots
 
 
 # saving the plot as image png  
-ggsave("combined_plot.png", combined_plots, path = "../data/outputs/") 
+ggsave("combined_plot.png", combined_plots, path = "../data/outputs/", width = 8, height= 8) 
 
 # open the table of our presentation
 Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
