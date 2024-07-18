@@ -48,9 +48,12 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
     mutate(total_workload = sum(afp_workload_by_lab)) |>
     ungroup() |>
   ggplot() +
-  geom_bar(aes(x = Month, y = afp_workload_by_lab, fill = CountryCode), stat = "identity") + 
-  geom_text(aes(x = Month, y = total_workload, label = total_workload), size = 3.5, fontface = "bold", vjust = -0.5) +
-  labs(x = " ", y = "Number of AFP Samples Processed", title = "Workload by Month and by Countries", fill = "Countries" ) +
+  geom_bar(aes(x = Month, y = afp_workload_by_lab, fill = CountryCode), stat = "identity", position = "stack") + 
+  geom_text(aes(x = Month, y = total_workload, label = total_workload), size = 3.5, fontface = "bold", vjust = -0.5, nudge_y = -0.5) +
+  geom_text(aes(x = Month, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3.5, fontface = "bold", position = position_stack(vjust = 0)) +
+    #scale_colour_brewer(palette = "PiYG") +
+    scale_fill_brewer(palette = "Pastel2")
+  labs(x = " ", y = "Number of AFP Samples Processed", title = "Samples analyzed by Month and by Countries", fill = "Countries" ) +
   theme_classic() + 
   theme(
     axis.text = element_text(face = "bold", size = 10, color = "black"),
