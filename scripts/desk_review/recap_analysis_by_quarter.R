@@ -22,6 +22,10 @@ Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Erit
                       "Togo", "Uganda", "Zimbabwe")
 Medium_Risk <- c("")
 
+# Color Categories
+breaks <- c(0, 25, 50, 100)
+colors <- c("red", "yellow", "darkgreen")
+
 # Create a tibble containing values in the list provided and their risk category
 risk_level_by_country <- tibble(
   risk_level = c(rep(" Very High Risk", length(Very_high_risk)),
@@ -39,7 +43,7 @@ risk_level_by_country <- tibble(
                                          "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
   )
 
-#load_es_sites <- 
+#recap_es_sites <- 
   read_csv("../data/data_dr/es_sites/ES_site_analysis_jan_jun_2024-07-09.csv") |>
   dplyr::select(Countryname, EV_isolation_Rate_3m, EV_isolation_Rate_6m) |>
     left_join(y = risk_level_by_country, by = c("Countryname" = "country")) |>
@@ -83,10 +87,41 @@ risk_level_by_country <- tibble(
     # add percentage in cells
     fmt_number(
       columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`),
-      decimals = 1,
+      decimals = 0,
       pattern = "{x} %"
     ) |> 
-    # Add a nanoplot at the end of the table to show trends of ES Sites >= 50%
+      # #color the table based on the values in those cells (`%Q1countries >= 50`)
+      # tab_style(
+      #   style = cell_fill(color = "#00B050"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 50)
+      # )  |> 
+      # tab_style(
+      #   style = cell_fill(color = "yellow"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 25 & `%Q1countries >= 50` < 50)
+      # ) |>
+      # tab_style(
+      #   style = cell_fill(color = "#FF0000"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 0 & `%Q1countries >= 50` < 25)
+      # ) |> 
+      # tab_style(
+      #   style = cell_fill(color = "#00B050"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` == 100)
+      # ) |> 
+      # Color the table cells by category defined
+      data_color(
+        columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, 
+                    `%Q1countries >= 80`, `%Q2countries >= 80`),
+        fn = scales::col_bin(palette=colors, bins=breaks)
+      ) |>
+    # Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 50%
     gt::cols_nanoplot(
       columns = contains(">= 50"),
       autohide = FALSE,
@@ -95,7 +130,7 @@ risk_level_by_country <- tibble(
       new_col_label = md("*EV Trend 50%*"),
       before = 5
     ) |> 
-    #Add a nanoplot at the end of the table to show trends of ES Sites >= 80%
+    #Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 80%
     # gt::cols_nanoplot(
     #   columns = contains(">= 80"),
     #   autohide = FALSE,
@@ -107,7 +142,7 @@ risk_level_by_country <- tibble(
     tab_header(
       title = md("**Summary of ES site sensitivity, Q1 & Q2, 2024**"),
       subtitle = md("**Data source : AFRO ES Database**") ) |>
-    #add the title that covers the columns in the 7th and 8th row
+    #add the title that covers specific columns
     tab_spanner(
       label = md('**% of ES sites with ≥50% EV isolation**'),
       columns = 2:5)  |>
@@ -127,9 +162,58 @@ risk_level_by_country <- tibble(
         sparkline_80
       )
     ) |>
-    gt_theme_guardian()
-  
+    gt_theme_guardian() |>
+    
+    # Edition of the guardian theme
+    tab_options(
+      table.background.color = "white",
+      column_labels.background.color = "white",
+      table.border.top.color = "white",
+    ) |>
+    
+    opt_align_table_header(align = "center") |>
+    #reshape the table
+    tab_options(
+      data_row.padding = px(2),
+      summary_row.padding = px(3), # A bit more padding for summaries
+      row_group.padding = px(4)    # And even more for our groups
+    ) |>
+    tab_style(
+      #style = cell_text(weight = "bold"),
+      # Color each country in the group
+      style = cell_fill(color = "lightgray"),
+      locations = cells_row_groups(groups = everything()) 
+    ) |>
+    opt_css(
+      css = "
+    .cell-output-display {
+      overflow-x: unset !important;
+    }
+    div#two {
+      overflow-x: unset !important;
+      overflow-y: unset !important;
+    }
+    #two .gt_col_heading {
+      position: sticky !important;
+      top: 0 !important;
+    }
+    "
+    )
 
+  # Create the directory if it doesn't exist
+  if (!file.exists( paste0("../data/data_dr/outputs/Recap/"))) {
+    dir.create(paste0("../data/data_dr/outputs/Recap/") , recursive = TRUE)
+  }
+  
+  #save as an html file
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.html"), inline_css = TRUE)
+
+  #save as a png file
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.png"), expand = 10
+         , vheigh = 14)
+  
+  #save as a word document
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.docx"))
  
   
   # Add sparklines for 50% EV isolation
