@@ -43,7 +43,7 @@ risk_level_by_country <- tibble(
                                          "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
   )
 
-#recap_es_sites <- 
+recap_es_sites <- 
   read_csv("../data/data_dr/es_sites/ES_site_analysis_jan_jun_2024-07-09.csv") |>
   dplyr::select(Countryname, EV_isolation_Rate_3m, EV_isolation_Rate_6m) |>
     left_join(y = risk_level_by_country, by = c("Countryname" = "country")) |>
