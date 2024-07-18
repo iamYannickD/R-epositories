@@ -90,6 +90,23 @@ recap_es_sites <-
       decimals = 0,
       pattern = "{x} %"
     ) |> 
+    summary_rows(
+      groups = everything(),
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`),
+      fns = list(
+        "SUB TOTAL (MEAN)" = ~ mean(.x, na.rm = TRUE)
+      ),
+      formatter = fmt_number,
+      decimals = 0
+    ) |>
+    grand_summary_rows(
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`),
+      fns = list(
+        "GRAND TOTAL (MEAN)" = ~ mean(.x, na.rm = TRUE)
+      ),
+      formatter = fmt_number,
+      decimals = 0
+    ) |>
       # #color the table based on the values in those cells (`%Q1countries >= 50`)
       # tab_style(
       #   style = cell_fill(color = "#00B050"),
@@ -117,8 +134,8 @@ recap_es_sites <-
       # ) |> 
       # Color the table cells by category defined
       data_color(
-        columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, 
-                    `%Q1countries >= 80`, `%Q2countries >= 80`),
+        columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, 
+                    `%Q2countries >= 80`),
         fn = scales::col_bin(palette=colors, bins=breaks)
       ) |>
     # Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 50%
@@ -181,8 +198,16 @@ recap_es_sites <-
     tab_style(
       #style = cell_text(weight = "bold"),
       # Color each country in the group
-      style = cell_fill(color = "lightgray"),
+      style = cell_fill(color = "darkgray"),
       locations = cells_row_groups(groups = everything()) 
+    ) |>
+    # adjust background color of summary tables
+    tab_style(
+      style = list(
+        cell_fill(color = "darkgray"),
+        cell_text(weight = "bold")
+      ),
+      locations = cells_grand_summary()
     ) |>
     opt_css(
       css = "
@@ -198,7 +223,7 @@ recap_es_sites <-
       top: 0 !important;
     }
     "
-    )
+    ) 
 
   # Create the directory if it doesn't exist
   if (!file.exists( paste0("../data/data_dr/outputs/Recap/"))) {
