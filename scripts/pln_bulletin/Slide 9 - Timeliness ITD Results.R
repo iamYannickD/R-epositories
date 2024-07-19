@@ -8,7 +8,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
+path_AFP <- "../data/dbs/AFP_160724.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -24,10 +24,10 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPtables_gt <- 
+AFPtables_gt <- 
   AFPtables |>
   filter(LabName != "CDC") |>
   select(LabName, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
@@ -46,7 +46,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
             FinalITDResult == "10-Mixture" ~ "Mixture",
             FinalITDResult == "12-PV1 SL Discordant" ~ "Mixture",
             FinalITDResult == "1-PV1 NSL" ~ "Type 1 Discordant",
-            FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
+            #FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
             !is.na(FinalITDResult) ~ "check" # missed/unexpected results
         )) |>
   filter(!is.na(virus_cat)) |>
@@ -73,7 +73,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
         ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE)
       ), by = c("LabName" = "LabName")) |>
   select(Labs = LabName, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	`Type 1 Discordant`,	
-         `Type 3 Discordant`,	PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |>
+         `Type 3 Discordant`, PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |>
   ungroup() |>
   gt() |>
   tab_header(
@@ -86,7 +86,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
     `Sabin Type 1` = "Sabin Type 1",
     `Sabin Type 3` = "Sabin Type 3",
     `Type 1 Discordant` = "Type 1 Discordant",
-    `Type 3 Discordant` = "Type 3 Discordant",
+    #`Type 3 Discordant` = "Type 3 Discordant",
     PV2 = "nOPV2-",
     nOPV2 = "nOPV2+",
     NPEV = "NPEV",
@@ -97,10 +97,10 @@ Specify_the_period <- paste0("WEEK 1 - ",
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(2:12)
+    columns = everything()
   ) |>
   sub_missing(
-    columns = 2:11,
+    columns = everything(),
     rows = everything(),
     missing_text = 0
   )  |>
