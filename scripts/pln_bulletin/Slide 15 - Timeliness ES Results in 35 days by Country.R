@@ -88,7 +88,7 @@ ES_byCountry35 <-
 ES_byCountry35
 
 # saving the plot as image png  
-ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/")  
+ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/", width = 8, height= 8)  
 
 
 
