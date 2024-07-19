@@ -63,6 +63,7 @@ AFPCountries_35p <-
     Prop_ITD_35days = 100 * ITD_results_35days / ITD_results,
   ) |>
   filter(!is.na(Prop_ITD_35days) & Prop_ITD_35days > 0) |>
+  # For intermediary results
   #group_by(IST) |>  summarize(median_Prop_ITD_35days = median(Prop_ITD_35days, na.rm = TRUE)) #to know the proportion 35 days by IST
   dplyr::select(IST, CountryCode, Prop_ITD_35days)  |>
   pivot_longer(
@@ -101,7 +102,7 @@ AFPCountries_35p <-
 AFPCountries_35p
 
 # saving the plot as image png  
-ggsave("AFPCountries_35_plot.png", AFPCountries_35p, path = "../data/outputs/") 
+ggsave("AFPCountries_35_plot.png", AFPCountries_35p, path = "../data/outputs/", width = 8, height= 8) 
 
 
 
