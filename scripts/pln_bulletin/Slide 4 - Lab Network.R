@@ -85,8 +85,8 @@ sequencing_map
 
 
 # saving the plot as image png  
-ggsave("virus_isolation.png", virus_isolation_map, path = "../data/outputs/") 
-ggsave("sequencing_map.png", sequencing_map, path = "../data/outputs/") 
+ggsave("virus_isolation.png", virus_isolation_map, path = "../data/outputs/", width = 8, height= 8) 
+ggsave("sequencing_map.png", sequencing_map, path = "../data/outputs/", width = 8, height= 8) 
 
 
 # open the table of our presentation
