@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
+path_AFP <- "../data/dbs/AFP_160724.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -61,6 +61,11 @@ AFPtables |>
     Prop_ITD_21days = 100 * ITD_results_21days / ITD_results,
     Prop_ITD_21days_positive_sample = 100 * ITD_results_21days_positive_sample / ITD_results_positive_sample
         ) |>
+  # Intermediary results
+  # summarise(
+  #    prop_lab_res_21days_all_samples = sum(ITD_results_21days, na.rm = TRUE) / sum(ITD_results, na.rm = TRUE),
+  #   prop_lab_res_21days_positive_samples = sum(ITD_results_21days_positive_sample, na.rm = TRUE) / sum(ITD_results_positive_sample, na.rm = TRUE))
+
     dplyr::select(LabName, Prop_ITD_21days, Prop_ITD_21days_positive_sample)  |>
     pivot_longer(
     cols = starts_with("Prop"),
