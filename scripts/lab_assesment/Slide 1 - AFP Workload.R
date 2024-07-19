@@ -52,7 +52,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
   geom_text(aes(x = Month, y = total_workload, label = total_workload), size = 4, fontface = "bold", vjust = -0.5, nudge_y = -0.5) +
   geom_text(aes(x = Month, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3, fontface = "bold", position = position_stack(vjust = 0.5) ) + #vjust = 0.5
     #scale_colour_brewer(palette = "PiYG") +
-    scale_fill_brewer(palette = "Pastel1") +
+    #scale_fill_brewer(palette = "Pastel1") +
   labs(x = " ", y = "Number of AFP Samples Processed", title = paste0("Samples processed by Month and by Countries in ", labname), fill = "Countries" ) +
   theme_classic() + 
   theme(
