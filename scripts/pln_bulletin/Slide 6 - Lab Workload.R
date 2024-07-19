@@ -11,8 +11,8 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP = "../data/dbs/wk_24/afp_wk_24.mdb" 
-path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
+path_AFP = "../data/dbs/AFP_160724.mdb" 
+path_ES_2024 = "../data/dbs/ES_160724.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -23,15 +23,15 @@ ESdb2024 <- DBI::dbConnect(odbc::odbc(),
                            .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
                                               DBQ=", path_ES_2024))
 
-Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
-
 # load data in R
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>
   # select samples collected in 2024 only
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+
+Specify_the_period <- paste0("WEEK 1 - ", 
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
   as_tibble()
