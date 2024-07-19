@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
+path_ES_2024 = "../data/dbs/ES_160724.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -56,7 +56,12 @@ EStimeliness <-
                                 (date_itd_result - Datesampleinlab) >= 0, na.rm = TRUE),
     Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0),
     Prop_ITD_21days_positive = round(ITD_results_21days_positive / ITD_results_positive * 100, 0)
-    ) |>
+    ) |> 
+  # Intermediate results
+  # summarise(
+  #   Prop_ITD_21days_all_sample =  sum(ITD_results_21days, na.rm = TRUE) / sum(ITD_results, na.rm = TRUE),
+  #   Prop_ITD_21days_positive_sample = sum(ITD_results_21days_positive, na.rm = TRUE) / sum(ITD_results_positive, na.rm = TRUE))
+
   select(Labname, Prop_ITD_21days, Prop_ITD_21days_positive) |>
   pivot_longer(cols = c(Prop_ITD_21days, Prop_ITD_21days_positive), names_to = "Proportions", values_to = "Values") |>
   filter(!is.na(Labname)) |> # remove zim as they dont analyze ES samples
