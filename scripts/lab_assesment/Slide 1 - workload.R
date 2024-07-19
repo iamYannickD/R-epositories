@@ -11,7 +11,7 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
+path_AFP <- "../data/dbs/AFP_160724.mdb" 
 labname <- "CAE" # Replace with the actual labname you want to filter by
 
 # Connect to the Microsoft Access database
