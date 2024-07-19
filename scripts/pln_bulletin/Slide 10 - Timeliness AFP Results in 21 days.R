@@ -92,7 +92,7 @@ AFPtables |>
     )
 
 # saving the plot as image png  
-ggsave("AFPtables21_plot.png", AFPtables_21, path = "../data/outputs/")   
+ggsave("AFPtables21_plot.png", AFPtables_21, path = "../data/outputs/", width = 8, height= 8)   
 
 
 
