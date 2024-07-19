@@ -46,10 +46,10 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
   geom_bar(aes(x = Month, y = es_workload_by_lab, fill = Countrycode), colour = "black", stat = "identity", position = position_stack(reverse = TRUE)) + 
   geom_text(aes(x = Month, y = es_workload_by_lab, label = es_workload_by_lab), size = 3, fontface = "bold", position = position_stack(vjust = 0.5)) +
   geom_text(aes(x = Month, y = total_workload, label = total_workload), size = 4, fontface = "bold", vjust = -0.5) +
-    scale_fill_brewer(palette = "Pastel1") +
+    #scale_fill_brewer(palette = "Pastel1") +
   
     #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
-  labs(x = " ", y = "Number of AFP Samples Processed", title = paste0("Samples processed by Month and by Countries in ", labname), fill = "Countries" ) +
+  labs(x = " ", y = "Number of ES Samples Processed", title = paste0("Samples processed by Month and by Countries in ", labname), fill = "Countries" ) +
   theme_classic() +
   theme(
     axis.text = element_text(face = "bold", size = 10, color = "black"),
