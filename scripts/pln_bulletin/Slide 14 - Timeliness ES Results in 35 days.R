@@ -76,6 +76,6 @@ EStimeliness35 <-
 
 
 # saving the plot as image png  
-ggsave("EStimeliness35_plot.png", EStimeliness35, path = "../data/outputs/")  
+ggsave("EStimeliness35_plot.png", EStimeliness35, path = "../data/outputs/", width = 8, height= 8)  
 
 
