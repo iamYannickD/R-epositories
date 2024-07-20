@@ -63,35 +63,53 @@ Specify_the_period <- paste0("WEEK 1 - " ,
          ITD_results_21days = sum(is_itd_21days)
   ) |>
   summarize(
-    workload_by_lab = n(),
-    samples_good_cond = sum(is_good, na.rm = TRUE),
-    Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / workload_by_lab,
-    culture_results = sum(is_culture_result, na.rm = TRUE),
-    culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
-    Prop_culture_results_14days = 100 * culture_results_14days / culture_results,
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_results_7days = sum(is_itd_7days, na.rm = TRUE),
-    Prop_ITD_7days = 100 * ITD_results_7days / ITD_results,
-    ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
-    Prop_ITD_21days = 100 * ITD_results_21days / ITD_results
+    nb_workload_by_lab = n(),
+    nb_samples_good_cond = sum(is_good, na.rm = TRUE),
+    Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / nb_workload_by_lab,
+    nb_culture_results = sum(is_culture_result, na.rm = TRUE),
+    nb_culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
+    Prop_culture_results_14days = 100 * nb_culture_results_14days / nb_culture_results,
+    nb_ITD_results = sum(is_itd, na.rm = TRUE),
+    nb_ITD_results_7days = sum(is_itd_7days, na.rm = TRUE),
+    Prop_ITD_7days = 100 * nb_ITD_results_7days / nb_ITD_results,
+    nb_ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
+    Prop_ITD_21days = 100 * nb_ITD_results_21days / nb_ITD_results
   ) |>
-  dplyr::select(CountryCode, workload_by_lab, samples_good_cond, Prop_sample_good_cond, culture_results, culture_results_14days,
-                Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
+  dplyr::select(CountryCode, nb_workload_by_lab, nb_samples_good_cond, Prop_sample_good_cond, nb_culture_results, nb_culture_results_14days,
+                Prop_culture_results_14days, nb_ITD_results, nb_ITD_results_7days, Prop_ITD_7days, nb_ITD_results_21days, Prop_ITD_21days) |> #check values
   
   gt() |>
   #edit some columns names
   cols_label(
-    "workload_by_lab" = "# of Stool specimens",
-    "samples_good_cond" = "# samples good conditions",
-    "culture_results" = "# culture Result",
-    "culture_results_14days" = "# of culture results in 14 days",
-    "ITD_results_7days" = "# of ITD Results in 7 days",
-    "ITD_results" = "# ITD results",
+    "nb_workload_by_lab" = "# of Stool specimens",
+    "nb_samples_good_cond" = "# samples good conditions",
+    "nb_culture_results" = "# culture Result",
+    "nb_culture_results_14days" = "# of culture results in 14 days",
+    "nb_ITD_results_7days" = "# of ITD Results in 7 days",
+    "nb_ITD_results" = "# ITD results",
     "Prop_sample_good_cond" = "Samples in Good Condition",
     "Prop_culture_results_14days" = "PV Isolation Results on Time",
     "Prop_ITD_7days" = "ITD Results in 7 days of receipt of Isolate",
-    "ITD_results_21days" = "# of ITD Results in 21 days",
+    "nb_ITD_results_21days" = "# of ITD Results in 21 days",
     "Prop_ITD_21days" = "Final lab results availaible in 21 days of receipt"
+  ) |>
+  # insert a summary for proportions
+  grand_summary_rows(
+    columns = starts_with("Prop"),
+    fns = list(
+      "AVG" = ~ mean(.x, na.rm = TRUE)
+    ) )  |>
+  grand_summary_rows(
+    columns = starts_with("nb_"),
+    fns = list(
+      "TOTAL" = ~ sum(.x, na.rm = TRUE)
+    ) )  |>
+  # customize the summary line
+  tab_style(
+    style = list(
+      cell_text(weight = "bold", size = px(14))  # Bold and increase font size
+    ),
+    locations = cells_grand_summary()
   ) |>
   #center the values in the defined columns
   cols_align(
@@ -113,7 +131,6 @@ Specify_the_period <- paste0("WEEK 1 - " ,
     columns = 2:12,
     rows = everything(),
     missing_text = "-"
-    #missing_text = "---"
   ) |>
   #color the table based on the values in those cells
   # For sample conditions ====
@@ -210,7 +227,7 @@ tab_style(
   opt_stylize(style = 6, color = 'gray') |>
   #call that theme
   #other themes gt_theme_excel()  |>gt_theme_pff() |>
-  gt_theme_excel() |>
+  gt_theme_538()|>
   
   opt_align_table_header(align = "center") |>
   #reshape the table
