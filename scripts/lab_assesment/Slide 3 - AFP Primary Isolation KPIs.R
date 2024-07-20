@@ -8,6 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
 path_AFP <- "../data/dbs/AFP_160724.mdb" 
+labname <- "CAE" # Replace with the actual labname you want to filter by
 #dateDBreceived <- "2024-06-18 14:24:05"
 
 # Connect to the Microsoft Access database =====
@@ -27,11 +28,12 @@ Specify_the_period <- paste0("WEEK 1 - ",
 # Analysis of databases =====
 AFPkpis <-
   AFPtables |>
-  select(LabName, ICLabID, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
-  mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
-  filter( AFPtables$LabName != "CDC") |>
+  filter(LabName == labname) |>
+  mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected"),
+          CountryCode = substr(EpidNumber, start = 1, stop = 3), .after = LabName) |>
+  select(CountryCode, ICLabID, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
   distinct(ICLabID, .keep_all = "TRUE") |>
-  group_by(LabName) |>
+  group_by(CountryCode) |>
   mutate(is_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
          is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
          is_pv_positive_and_npent = if_else((FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
