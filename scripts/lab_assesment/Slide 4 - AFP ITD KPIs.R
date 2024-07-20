@@ -54,7 +54,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
   filter(!is.na(virus_cat)) |>
   group_by(CountryCode, virus_cat) |>
   summarise(n = n()) |>
-  pivot_wider(names_from = virus_cat, values_from = n) |>
+  pivot_wider(names_from = virus_cat, values_from = n) |> 
   left_join(AFPtables |>
               filter(LabName == labname) |>
               #distinct(ICLabID, .keep_all = "TRUE") |>
