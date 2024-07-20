@@ -96,6 +96,19 @@ Specify_the_period <- paste0("WEEK 1 - ",
     Mixture = "Mixture",
     Pending_Isolates = "Pending Isolates >7 days"
   ) |>
+  grand_summary_rows(
+    columns = !CountryCode,
+    missing_text = "",
+    fns = list(
+      "TOTAL" = ~ sum(.x, na.rm = TRUE)
+    ) )  |>
+  # customize the summary line
+  tab_style(
+    style = list(
+      cell_text(weight = "bold", size = px(14))  # Bold and increase font size
+    ),
+    locations = cells_grand_summary()
+  )  |>
   #center the values in the defined columns
   cols_align(
     align = "center",
