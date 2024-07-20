@@ -31,8 +31,7 @@ Specify_the_period <- paste0("WEEK 1 - " ,
   filter(LabName == labname) |>
   distinct(ICLabID, .keep_all = "TRUE") |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected"),
-          CountryCode = substr(EpidNumber, start = 1, stop = 3), .after = LabName
-          ) |>
+          CountryCode = substr(EpidNumber, start = 1, stop = 3), .after = LabName ) |>
   mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   select(LabName, CountryCode, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
