@@ -224,9 +224,7 @@ tab_style(
   ) |>
   
   # Color in gray the table and beautify the formating
-  opt_stylize(style = 6, color = 'gray') |>
-  #call that theme
-  #other themes gt_theme_excel()  |>gt_theme_pff() |>
+  #opt_stylize(style = 6, color = 'gray') |>
   gt_theme_538()|>
   
   opt_align_table_header(align = "center") |>
