@@ -1,4 +1,4 @@
-# Check if the package pacman is installed
+# Check if the package pacman  is installed
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
 
