@@ -1,5 +1,5 @@
 #check directory
-getwd()
+#getwd()
 
 # Check if the package pacman is installed
 if (!require("pacman")) {install.packages("pacman")} 
