@@ -195,7 +195,7 @@ tab_style(
   data_color(
     #method = "numeric",
     columns = nb_pending_culture_results,
-    rows = nb_pending_culture_results >= 15,
+    rows = nb_pending_culture_results >= 1,
     palette = "ggsci::red_material"
   )  |>
   # Color in gray the table and beautify the formating
