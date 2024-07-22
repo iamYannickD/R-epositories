@@ -46,8 +46,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
              FinalITDResult == "7-NPEV" ~ "NPEV",
              FinalITDResult == "8-NEV" ~ "NEV",
              FinalITDResult == "10-Mixture" ~ "Mixture",
-             FinalITDResult == "12-PV1 SL Discordant" ~ "Mixture",
-             FinalITDResult == "1-PV1 NSL" ~ "Type 1 Discordant",
+             FinalITDResult %in% c("12-PV1 SL Discordant", "1-PV1 NSL") ~ "Type 1 Discordant",
              #FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
              !is.na(FinalITDResult) ~ "check" # missed/unexpected results
            )) |>
@@ -75,8 +74,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                 ITD_results = sum(is_itd, na.rm = TRUE),
                 ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE)
               ), by = c("CountryCode" = "CountryCode")) |>
-  select(CountryCode, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	#`Type 1 Discordant`,	
-          PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |> # `Type 3 Discordant`,
+  rename(Numb_Isolates = ITD_results, Pending_Isolates = ITD_pending_7days) |> 
   ungroup() |>
   gt() |>
   tab_header(
@@ -85,15 +83,8 @@ Specify_the_period <- paste0("WEEK 1 - ",
   #edit some columns names
   cols_label(
     Numb_Isolates = "Number of Isolates",
-    `Sabin Type 1` = "Sabin Type 1",
-    `Sabin Type 3` = "Sabin Type 3",
-    #`Type 1 Discordant` = "Type 1 Discordant",
-    #`Type 3 Discordant` = "Type 3 Discordant",
     PV2 = "nOPV2-",
     nOPV2 = "nOPV2+",
-    NPEV = "NPEV",
-    NEV = "NEV",
-    Mixture = "Mixture",
     Pending_Isolates = "Pending Isolates >7 days"
   ) |>
   grand_summary_rows(
@@ -130,7 +121,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
     columns = 7:8) |>
   #give a header to the table as well as a sub title
   tab_header(
-    title = md(paste0("**INTRATYPIC DIFFERENTIATION (ITD 7 DAYS) OF ISOLATES** ")),
+    title = md(paste0("**INTRATYPIC DIFFERENTIATION (ITD 7 DAYS) OF AFP ISOLATES** ")),
     subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
   data_color(
     #method = "numeric",
