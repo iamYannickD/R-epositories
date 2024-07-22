@@ -21,7 +21,7 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
   as_tibble()
 
 # bar chart of samples processed by labs
-#ES_plot <-
+ES_plot <-
   EStables2024 |>
   dplyr::mutate(
     Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "IBD, Nigeria" = "IBD",
@@ -56,7 +56,9 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
     axis.title = element_text(face = "bold", size = 12, color = "black")
   )
   
-  
+
+  # saving the plot as image png  
+  ggsave("es_slide1.png", ES_plot, path = "../data/outputs_lab_ass/", width = 8, height= 8) 
   
   
   

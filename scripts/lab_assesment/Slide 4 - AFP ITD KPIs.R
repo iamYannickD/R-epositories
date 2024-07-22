@@ -28,7 +28,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPtables_gt <- 
+AFPtables_gt <- 
   AFPtables |>
   filter(LabName == labname) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
@@ -110,15 +110,15 @@ Specify_the_period <- paste0("WEEK 1 - ",
     rows = everything(),
     missing_text = 0
   )  |>
-  tab_spanner(
-    label = md('**Sabin Like PV**'),
-    columns = 3:4) |>
-  tab_spanner(
-    label = md('**Discordant**'),
-    columns = 5:6) |>
-  tab_spanner(
-    label = md('**PV2**'),
-    columns = 7:8) |>
+  # tab_spanner(
+  #   label = md('**Sabin Like PV**'),
+  #   columns = 3:4) |>
+  # tab_spanner(
+  #   label = md('**Discordant**'),
+  #   columns = 5:6) |>
+  # tab_spanner(
+  #   label = md('**PV2**'),
+  #   columns = 7:8) |>
   #give a header to the table as well as a sub title
   tab_header(
     title = md(paste0("**INTRATYPIC DIFFERENTIATION (ITD 7 DAYS) OF AFP ISOLATES** ")),
@@ -163,8 +163,8 @@ Specify_the_period <- paste0("WEEK 1 - ",
   )
 
 # export 
-AFPtables_gt |> gtsave(filename = "../data/outputs/AFPtables_gt.html", inline_css = TRUE)
-AFPtables_gt |> gtsave("../data/outputs/AFPtables_gt.png")
+AFPtables_gt |> gtsave(filename = "../data/outputs_lab_ass/AFPtables_gt.html", inline_css = TRUE)
+AFPtables_gt |> gtsave("../data/outputs_lab_ass/AFPtables_gt.png")
 
 
 

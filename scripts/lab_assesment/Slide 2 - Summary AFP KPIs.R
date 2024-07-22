@@ -26,7 +26,7 @@ Specify_the_period <- paste0("WEEK 1 - " ,
                              (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPtables_gt <- 
+AFPtables_gt <- 
   AFPtables |>
   filter(LabName == labname) |>
   distinct(ICLabID, .keep_all = "TRUE") |>
@@ -259,9 +259,8 @@ tab_style(
 AFPtables_gt
 
 # export my table
-gtsave(AFPtables_gt, "../data/outputs/AFPtables.html")
-# Convert HTML to PNG
-webshot::webshot("output/AFPtables.html", "output/AFPtables.png")
+gtsave(AFPtables_gt, "../data/outputs_lab_ass/AFPtables.html")
+
 
 
 

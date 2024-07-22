@@ -21,55 +21,69 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
   as_tibble() |>
   mutate(Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "INRB" = "RDC", "IPD SEN" = "SEN",
                                               "IPM, MAD" = "MAD", "IPM,MAD" = "MAD", "KEMRI" = "KEN", "IBD, Nigeria" = "IBD",
-                                              "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM"))
+                                              "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM")),
+         date_result_to_lab = coalesce(Dateresultstolab, Datefinalcultureresult),
+         date_itd_result = coalesce(DateFinalCombinedResult, DatefinalResultReported)
   )
 
 #Specify_the_period <- paste0("WEEK 1 - ", (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-
-EStables2024 |>
+EStables_gt <- 
+  EStables2024 |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )) |>
   filter(Labname == labname) |>
   group_by(Countrycode) |>
   summarize(
-    workload_by_lab = n(),
-    Sample_good_cond = sum(Samplecondition == "1-Good", na.rm = TRUE),
-    Prop_sample_good_cond = round(Sample_good_cond / workload_by_lab * 100, 0),
+    nb_workload_by_lab = n(),
+    nb_Sample_good_cond = sum(Samplecondition == "1-Good", na.rm = TRUE),
+    Prop_sample_good_cond = round(nb_Sample_good_cond / nb_workload_by_lab * 100, 0),
     
-    culture_results = sum(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult), na.rm = TRUE),
-    culture_results_14days = sum(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult) &
+    nb_culture_results = sum(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult), na.rm = TRUE),
+    nb_culture_results_14days = sum(!is.na(Finalcellcultureresult) & !is.nan(Finalcellcultureresult) & !is.null(Finalcellcultureresult) &
                                    (Datefinalcultureresult - Datesampleinlab) < 15 & 
                                    (Datefinalcultureresult - Datesampleinlab) >= 0, na.rm = TRUE),
-    Prop_culture_results_14days = round(culture_results_14days / culture_results * 100, 0),
+    Prop_culture_results_14days = round(nb_culture_results_14days / nb_culture_results * 100, 0),
     
-    ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
-    ITD_results_7days = sum((str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
+    nb_ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
+    nb_ITD_results_7days = sum((str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
                               (as.Date(date_itd_result) - as.Date(date_result_to_lab)) < 8 & 
                               (as.Date(date_itd_result) - as.Date(date_result_to_lab)) >= 0, na.rm = TRUE),
-    Prop_ITD_7days = round(ITD_results_7days / ITD_results * 100, 0),
+    Prop_ITD_7days = round(nb_ITD_results_7days / nb_ITD_results * 100, 0),
     
-    ITD_results_21days = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
+    nb_ITD_results_21days = sum( (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) & 
                                 !is.na(FinalcombinedrRTPCRresults) & (DateFinalCombinedResult - Datesampleinlab) < 22 & 
                                 (DateFinalCombinedResult - Datesampleinlab) >= 0, na.rm = TRUE),
-    Prop_ITD_21days = round(ITD_results_21days / ITD_results * 100, 0)
+    Prop_ITD_21days = round(nb_ITD_results_21days / nb_ITD_results * 100, 0)
   ) |>
-  select(Countrycode, workload_by_lab, Prop_sample_good_cond, culture_results, culture_results_14days,
-         Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |>
+  select(Countrycode, nb_workload_by_lab, nb_Sample_good_cond, Prop_sample_good_cond, nb_culture_results, nb_culture_results_14days,
+         Prop_culture_results_14days, nb_ITD_results, nb_ITD_results_7days, Prop_ITD_7days, nb_ITD_results_21days, Prop_ITD_21days) |>
   gt() |>
   #edit some columns names
   cols_label(
-    "workload_by_lab" = "# of Stool specimens",
-    "culture_results" = "# Culture Results",
-    "culture_results_14days" = "# of Culture results in 14 days", 
-    "ITD_results" = "# ITD Results",
-    "ITD_results_7days" = "ITD Results in 7 days",
-    "ITD_results_21days" = "ITD results in 21 days",
+    "nb_workload_by_lab" = "# of Stool specimens",
+    "nb_Sample_good_cond" = "# samples good conditions",
+    "nb_culture_results" = "# Culture Results",
+    "nb_culture_results_14days" = "# of Culture results in 14 days", 
+    "nb_ITD_results" = "# ITD Results",
+    "nb_ITD_results_7days" = "ITD Results in 7 days",
+    "nb_ITD_results_21days" = "ITD results in 21 days",
     "Prop_sample_good_cond" = "Samples in Good Condition",
     "Prop_culture_results_14days" = "PV Isolation Results on Time",
     "Prop_ITD_7days" = "ITD Results in 7 days of receipt of Isolate",
     "Prop_ITD_21days" = "Stool speciments with Final lab results availaible in 21 days of receipt"
-  ) |>
+  ) |> 
+  # insert a summary for proportions
+  grand_summary_rows(
+    columns = starts_with("Prop"),
+    fns = list(
+      "AVG" = ~ mean(.x, na.rm = TRUE)
+    ) )  |>
+  grand_summary_rows(
+    columns = starts_with("nb_"),
+    fns = list(
+      "TOTAL" = ~ sum(.x, na.rm = TRUE)
+    ) ) |>
   #center the values in the defined columns
   cols_align(
     align = "center",
@@ -218,7 +232,6 @@ tab_style(
     "
   )
 
-EStables2024
 
 # export my table
-gtsave(EStables2024, "../data/outputs/ESTables.html")
+gtsave(EStables_gt, "../data/outputs_lab_ass/EStables.html")

@@ -30,7 +30,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # bar chart of samples processed by labs
-#AFP_plot <-
+AFP_plot <-
   AFPtables |>
   filter( AFPtables$LabName != "CDC") |>
   distinct(ICLabID, .keep_all = "TRUE") |>
@@ -59,3 +59,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
     axis.text = element_text(face = "bold", size = 10, color = "black"),
     axis.title = element_text(face = "bold", size = 12, color = "black")
   )
+
+
+# saving the plot as image png  
+ggsave("afp_slide1.png", AFP_plot, path = "../data/outputs_lab_ass/", width = 8, height= 8) 

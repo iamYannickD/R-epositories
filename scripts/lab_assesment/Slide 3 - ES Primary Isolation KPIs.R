@@ -26,8 +26,8 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
   )
 
 # Analysis of databases =====
-
-EStables2024 |>
+ESkpis <- 
+  EStables2024 |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )) |>
   filter(Labname == labname) |>
   group_by(Countrycode) |>
@@ -224,7 +224,9 @@ tab_style(
     "
   )
   
-  
+
+# export my table
+gtsave(ESkpis, "../data/outputs_lab_ass/ESkpis.html")
   
   
   

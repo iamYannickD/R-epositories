@@ -26,7 +26,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
                              (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
-#AFPkpis <-
+AFPkpis <-
   AFPtables |>
   filter(LabName == labname) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected"),
@@ -233,26 +233,13 @@ tab_style(
 
 
 # export my table
-gtsave(AFPkpis, "../data/outputs/AFPKpis.html")
+gtsave(AFPkpis, "../data/outputs_lab_ass/AFPKpis.html")
 # Convert HTML to PNG
-webshot::webshot("../data/output/AFPtables.html", "../data/output/AFPKpis.png")
+webshot::webshot("../data/outputs_lab_ass//AFPtables.html", "../data/output/AFPKpis.png")
 
 # convert html to excel file
 #write.xlsx(AFPkpis_df, "output/AFPKpis.xlsx")
 
-
-# open the table of our presentation change link ppt
-Pres_ppt <- read_pptx(path = "../data/AFRO polio labs bulletin week 1-18_2024.pptx")
-
-# Insert the image in a new slide
-#Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 3), external_img("output/AFPtables.png"), location = ph_location_fullsize())
-
-# add the table in the 4th slide of the presentation
-Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 9), external_img("output/AFPKpis.png"), 
-                    location = ph_location(left = 0.2, top = 1, width = 13, height = 8))
-
-# Save the updated presentation
-print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")  
 
 
 

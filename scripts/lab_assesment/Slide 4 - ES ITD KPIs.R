@@ -1,4 +1,5 @@
 # Check if the package pacman is installed
+# rm(list = ls())
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
 
@@ -22,11 +23,16 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
   as_tibble() |>
   mutate(Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "INRB" = "RDC", "IPD SEN" = "SEN",
                                               "IPM, MAD" = "MAD", "IPM,MAD" = "MAD", "KEMRI" = "KEN", "IBD, Nigeria" = "IBD",
-                                              "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM"))
-  ) |> mutate(proxy_date_infor_itd = coalesce(DatefinalResultReported, DateFinalCombinedResult) )
+                                              "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM")),
+         date_result_to_lab = coalesce(Dateresultstolab, Datefinalcultureresult),
+         proxy_date_infor_itd = coalesce(DateFinalCombinedResult, DatefinalResultReported)
+  )
+
+
 
 # Analysis of databases =====
-EStables2024 |>
+EStables_gt <- 
+  EStables2024 |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )) |>
   filter(Labname == labname) |>
   mutate(virus_cat = 
@@ -102,15 +108,15 @@ EStables2024 |>
     rows = everything(),
     missing_text = 0
   )  |>
-  tab_spanner(
-    label = md('**Sabin Like PV**'),
-    columns = 3:4) |>
-  tab_spanner(
-    label = md('**Discordant**'),
-    columns = 5:6) |>
-  tab_spanner(
-    label = md('**PV2**'),
-    columns = 7:8) |>
+  # tab_spanner(
+  #   label = md('**Sabin Like PV**'),
+  #   columns = 3:4) |>
+  # tab_spanner(
+  #   label = md('**Discordant**'),
+  #   columns = 5:6) |>
+  # tab_spanner(
+  #   label = md('**PV2**'),
+  #   columns = 7:8) |>
   #give a header to the table as well as a sub title
   tab_header(
     title = md(paste0("**INTRATYPIC DIFFERENTIATION (ITD 7 DAYS) OF ES ISOLATES** ")),
@@ -153,3 +159,9 @@ EStables2024 |>
     }
     "
   )
+
+
+
+# export 
+EStables_gt |> gtsave(filename = "../data/outputs_lab_ass/EStables_gt.html", inline_css = TRUE)
+EStables_gt |> gtsave("../data/outputs_lab_ass/EStables_gt.png")
