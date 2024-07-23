@@ -160,7 +160,7 @@ EStables_gt <-
     "
   )
 
-
+EStables_gt
 
 # export 
 EStables_gt |> gtsave(filename = "../data/outputs_lab_ass/EStables_gt.html", inline_css = TRUE)
