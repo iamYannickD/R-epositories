@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/test/afp.mdb" 
+path_AFP <- "../data/dbs/AFP_160724.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -61,36 +61,42 @@ AFPtables_gt <-
          ITD_results_21days = sum(is_itd_21days)
             ) |>
   summarize(
-    workload_by_lab = n(),
-    samples_good_cond = sum(is_good, na.rm = TRUE),
-    Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / workload_by_lab,
-    culture_results = sum(is_culture_result, na.rm = TRUE),
-    culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
-    Prop_culture_results_14days = 100 * culture_results_14days / culture_results,
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_results_7days = sum(is_itd_7days, na.rm = TRUE),
-    Prop_ITD_7days = 100 * ITD_results_7days / ITD_results,
-    ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
-    Prop_ITD_21days = 100 * ITD_results_21days / ITD_results
+    nb_workload_by_lab = n(),
+    nb_samples_good_cond = sum(is_good, na.rm = TRUE),
+    Prop_sample_good_cond = 100 * sum(is_good, na.rm = TRUE) / nb_workload_by_lab,
+    nb_culture_results = sum(is_culture_result, na.rm = TRUE),
+    nb_culture_results_14days = sum(is_culture_results_14days, na.rm = TRUE),
+    Prop_culture_results_14days = 100 * nb_culture_results_14days / nb_culture_results,
+    nb_ITD_results = sum(is_itd, na.rm = TRUE),
+    nb_ITD_results_7days = sum(is_itd_7days, na.rm = TRUE),
+    Prop_ITD_7days = 100 * nb_ITD_results_7days / nb_ITD_results,
+    nb_ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
+    Prop_ITD_21days = 100 * nb_ITD_results_21days / nb_ITD_results
   ) |>
-  dplyr::select(LabName, workload_by_lab, samples_good_cond, Prop_sample_good_cond, culture_results, culture_results_14days,
-                Prop_culture_results_14days, ITD_results, ITD_results_7days, Prop_ITD_7days, ITD_results_21days, Prop_ITD_21days) |> #check values
+  dplyr::select(LabName, nb_workload_by_lab, nb_samples_good_cond, Prop_sample_good_cond, nb_culture_results, nb_culture_results_14days,
+                Prop_culture_results_14days, nb_ITD_results, nb_ITD_results_7days, Prop_ITD_7days, nb_ITD_results_21days, Prop_ITD_21days) |> #check values
   
   gt() |>
   #edit some columns names
   cols_label(
-    "workload_by_lab" = "# of Stool specimens",
-    "samples_good_cond" = "# samples good conditions",
-    "culture_results" = "# culture Result",
-    "culture_results_14days" = "# of culture results in 14 days",
-    "ITD_results_7days" = "# of ITD Results in 7 days",
-    "ITD_results" = "# ITD results",
+    "nb_workload_by_lab" = "# of Stool specimens",
+    "nb_samples_good_cond" = "# samples good conditions",
+    "nb_culture_results" = "# culture Result",
+    "nb_culture_results_14days" = "# of culture results in 14 days",
+    "nb_ITD_results_7days" = "# of ITD Results in 7 days",
+    "nb_ITD_results" = "# ITD results",
     "Prop_sample_good_cond" = "Samples in Good Condition",
     "Prop_culture_results_14days" = "PV Isolation Results on Time",
     "Prop_ITD_7days" = "ITD Results in 7 days of receipt of Isolate",
-    "ITD_results_21days" = "# of ITD Results in 21 days",
+    "nb_ITD_results_21days" = "# of ITD Results in 21 days",
     "Prop_ITD_21days" = "Final lab results availaible in 21 days of receipt"
   ) |>
+  grand_summary_rows(
+    columns = starts_with("nb_"),
+    #missing_text = "-",
+    fns = list(
+      "TOTAL" = ~ sum(.x, na.rm = TRUE)
+    ) ) |>
   #center the values in the defined columns
   cols_align(
     align = "center",
@@ -243,23 +249,6 @@ AFPtables_gt
 
 # export my table
 gtsave(AFPtables_gt, "../data/outputs/AFPtables.html")
-# Convert HTML to PNG
-webshot::webshot("output/AFPtables.html", "output/AFPtables.png")
-
-
-# open the table of our presentation
-Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
-
-# Insert the image in a new slide
-#Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 3), external_img("output/AFPtables.png"), location = ph_location_fullsize())
-
-# add the table in the 4th slide of the presentation
-Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 4), external_img("output/AFPtables.png"), 
-                    location = ph_location(left = 1, top = 1, width = 12, height = 8))
-
-# Save the updated presentation
-print(Pres_ppt, target = paste0("data/AFRO polio labs bulletin week 1-", Specify_the_period, "_2024.pptx"))
-
 
 
 
