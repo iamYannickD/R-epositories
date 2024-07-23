@@ -100,7 +100,7 @@ ESkpis <-
     columns = starts_with("Prop"),
     #missing_text = "-",
     fns = list(
-      "AVG" = ~ mean(.x, na.rm = TRUE)
+      "AVG" = ~ median(.x, na.rm = TRUE)
     ) )  |>
   # fmt_percent(
   #   columns = starts_with("Prop"),
@@ -224,6 +224,7 @@ tab_style(
     "
   )
   
+ESkpis
 
 # export my table
 gtsave(ESkpis, "../data/outputs_lab_ass/ESkpis.html")
