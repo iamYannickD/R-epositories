@@ -92,22 +92,6 @@ combined_plots
 # saving the plot as image png  
 ggsave("combined_plot.png", combined_plots, path = "../data/outputs/", width = 8, height= 8) 
 
-# open the table of our presentation
-Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
-
-# Insert the image in a new slide
-#Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 3), 
-  #external_img("output/AFPtables.png"), location = ph_location_fullsize())
-
-# add the table in the 4th slide of the presentation
-Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 7), external_img("output/combined_plot.png"), 
-                    location = ph_location(left = 0.1, top = 0.8, width = 11, height = 6.5))
-
-# Save the updated presentation
-print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")       
-
-
-
 
 
 
