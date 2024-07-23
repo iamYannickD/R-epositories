@@ -162,6 +162,8 @@ AFPtables_gt <-
     "
   )
 
+AFPtables_gt
+
 # export 
 AFPtables_gt |> gtsave(filename = "../data/outputs_lab_ass/AFPtables_gt.html", inline_css = TRUE)
 AFPtables_gt |> gtsave("../data/outputs_lab_ass/AFPtables_gt.png")
