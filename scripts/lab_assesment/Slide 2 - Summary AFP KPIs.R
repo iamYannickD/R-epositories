@@ -1,4 +1,4 @@
-# Check if the package pacman  is installed
+# Check if the package pacman is installed
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
 
@@ -97,8 +97,8 @@ AFPtables_gt <-
   grand_summary_rows(
     columns = starts_with("Prop"),
     fns = list(
-      "AVG" = ~ mean(.x, na.rm = TRUE)
-    ) )  |>
+      "AVG" = ~ median(.x, na.rm = TRUE))
+    )  |>
   grand_summary_rows(
     columns = starts_with("nb_"),
     fns = list(
