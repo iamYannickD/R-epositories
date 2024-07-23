@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/wk_24/es_2024_wk24.mdb"
+path_ES_2024 = "../data/dbs/ES_160724.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
