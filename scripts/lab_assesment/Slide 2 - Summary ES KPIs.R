@@ -77,7 +77,7 @@ EStables_gt <-
   grand_summary_rows(
     columns = starts_with("Prop"),
     fns = list(
-      "AVG" = ~ mean(.x, na.rm = TRUE)
+      "AVG" = ~ median(.x, na.rm = TRUE)
     ) )  |>
   grand_summary_rows(
     columns = starts_with("nb_"),
@@ -232,6 +232,7 @@ tab_style(
     "
   )
 
+EStables_gt
 
 # export my table
 gtsave(EStables_gt, "../data/outputs_lab_ass/EStables.html")
