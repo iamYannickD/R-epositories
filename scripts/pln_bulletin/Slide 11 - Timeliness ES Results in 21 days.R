@@ -90,6 +90,7 @@ EStimeliness <-
     legend.text = element_text(size = 10)
   )
 
+EStimeliness
 
 # saving the plot as image png  
 ggsave("EStimeliness21_plot.png", EStimeliness, path = "../data/outputs/", width = 8, height= 8)  
