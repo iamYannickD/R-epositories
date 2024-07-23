@@ -60,6 +60,7 @@ AFP_plot <-
     axis.title = element_text(face = "bold", size = 12, color = "black")
   )
 
+AFP_plot
 
 # saving the plot as image png  
 ggsave("afp_slide1.png", AFP_plot, path = "../data/outputs_lab_ass/", width = 8, height= 8) 
