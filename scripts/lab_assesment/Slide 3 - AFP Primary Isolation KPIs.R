@@ -107,7 +107,7 @@ AFPkpis <-
     columns = starts_with("Prop"),
     #missing_text = "-",
     fns = list(
-      "AVG" = ~ mean(.x, na.rm = TRUE)
+      "AVG" = ~ median(.x, na.rm = TRUE)
     ) )  |>
   # fmt_percent(
   #   columns = starts_with("Prop"),
@@ -231,6 +231,7 @@ tab_style(
     "
   )
 
+AFPkpis
 
 # export my table
 gtsave(AFPkpis, "../data/outputs_lab_ass/AFPKpis.html")
