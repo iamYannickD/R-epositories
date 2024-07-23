@@ -89,21 +89,4 @@ ggsave("virus_isolation.png", virus_isolation_map, path = "../data/outputs/", wi
 ggsave("sequencing_map.png", sequencing_map, path = "../data/outputs/", width = 8, height= 8) 
 
 
-# open the table of our presentation
-Pres_ppt <- read_pptx(path = "data/AFRO polio labs bulletin week 1-18_2024.pptx")
-
-# Insert the image in a new slide
-#Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 3), external_img("output/AFPtables.png"), location = ph_location_fullsize())
-
-# add the table in the 4th slide of the presentation
-Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 5), external_img("output/virus_isolation.png"), 
-                    location = ph_location(left = 0.2, top = 1, width = 7, height = 5.5))
-
-Pres_ppt <- ph_with(on_slide(Pres_ppt, index = 5), external_img("output/sequencing_map.png"), 
-                    location = ph_location(left = 6.5, top = 1, width = 7, height = 5.5))
-
-# Save the updated presentation
-print(Pres_ppt, target = "data/AFRO polio labs bulletin week 1-18_2024.pptx")  
-
-
 
