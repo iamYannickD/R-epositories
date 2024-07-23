@@ -25,7 +25,7 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
   filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd_hms(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
 
 # Analysis of databases =====
 AFPtables_gt35 <- 
@@ -83,6 +83,7 @@ AFPtables |>
     legend.text = element_text(size = 10)
   )
 
+AFPtables_gt35
 
 # saving the plot as image png  
 ggsave("AFPtables35_plot.png", AFPtables_gt35, path = "../data/outputs/", width = 8, height= 8) 
