@@ -67,6 +67,8 @@ afp_virus <-
 es_virus <-
   viruses_isolated |>
     filter(Source == "ENV") |>
+  # filter viruses isolated in the last 100 days
+  filter( (today() - dmy(`Onset/ Collection Date`)) < 100 ) |>
     mutate(
       epid_match = str_sub(`EPID Number`, 1, 19)
          ) |>
@@ -80,7 +82,7 @@ es_virus <-
 
 
 #initialization
-#cntry <- "SOUTH SUDAN" #to test
+#cntry <- "GHANA" #to test
 countries <- es_virus$COUNTRY |> 
              str_to_upper() |>  unique() |> sort()
 
@@ -88,6 +90,7 @@ for (cntry in countries) {
   
                           es_virus_cntry <-
                             es_virus |>
+                            #selection of the country of interest
                             filter(es_virus$COUNTRY == cntry) |>
                             #remove duplicates
                             distinct(`ES Site Name`, Lat_Y, Long_X, .keep_all = TRUE)
