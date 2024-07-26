@@ -77,7 +77,7 @@ AFPCountries_35p <-
     labels = c("Prop_ITD_35days" = "Among all samples (with results)")
   ) +
   scale_fill_manual(
-    values = c("WEST" = "darkblue", "CENTRAL" = "orange", "ESA" = "gold"),
+    values = c("WEST" = "darkblue", "CENTRAL" = "brown4", "ESA" = "gold"),
     labels = c("WEST" = "IST West", "CENTRAL" = "IST Central", "ESA" = "IST - ESA")
   ) +
   labs(x = "Country Code", y = "% Samples with results", fill = "", title = "") +
