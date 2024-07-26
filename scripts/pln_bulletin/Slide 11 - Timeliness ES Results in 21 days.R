@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 21, 2024"
+Specify_the_period <- "WEEK 1 - 28, 2024"
 path_ES_2024 = "../data/dbs/ES_160724.mdb"
 
 # Connect to the Microsoft Access database ====
