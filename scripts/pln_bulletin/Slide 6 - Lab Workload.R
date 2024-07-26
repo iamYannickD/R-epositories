@@ -80,7 +80,7 @@ ES_plot <-
   theme_classic() +
   theme(
     axis.text = element_text(face = "bold", size = 10, color = "black"),
-    axis.title = element_text(face = "bold", size = 12, color = "black")
+    axis.title = element_text(face = "bold", size = 10, color = "black")
   )
 
 
