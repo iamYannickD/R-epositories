@@ -73,7 +73,7 @@ AFPtables_gt <-
         ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE)
       ), by = c("LabName" = "LabName")) |>
   select(Labs = LabName, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	`Type 1 Discordant`,	
-         `Type 3 Discordant`, PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |>
+         `Type 3 Discordant`, PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |> 
   ungroup() |>
   gt() |>
   tab_header(
@@ -106,13 +106,13 @@ AFPtables_gt <-
   )  |>
     tab_spanner(
       label = md('**Sabin Like PV**'),
-      columns = 3:4) |>
+      columns = c(`Sabin Type 1`, `Sabin Type 3`) ) |>
     tab_spanner(
       label = md('**Discordant**'),
-      columns = 5:6) |>
+      columns = c(`Type 1 Discordant`)) |>
   tab_spanner(
     label = md('**PV2**'),
-    columns = 7:8) |>
+    columns = c(PV2, nOPV2)) |>
     #give a header to the table as well as a sub title
     tab_header(
       title = md(paste0("**INTRATYPIC DIFFERENTIATION (ITD 7 DAYS) OF ISOLATES** ")),
