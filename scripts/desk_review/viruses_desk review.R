@@ -68,9 +68,7 @@ es_virus <-
   viruses_isolated |>
     filter(Source == "ENV") |>
     filter( (today() - dmy(`Onset/ Collection Date`)) < 100 ) |> # filter viruses isolated in the last 100 days
-    mutate(
-      epid_match = str_sub(`EPID Number`, 1, 19)
-           ) |>
+    mutate( epid_match = str_sub(`EPID Number`, 1, 19) ) |>
     mutate(
       epid_match = str_replace_all(epid_match, "ENV-ALG-TMR-TMR-RLV", "ENV-ALG-TAM-TAM-REL"),
       epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
