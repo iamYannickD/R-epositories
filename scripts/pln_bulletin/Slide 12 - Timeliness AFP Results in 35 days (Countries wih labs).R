@@ -66,7 +66,7 @@ AFPtables |>
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ITD Results by Lab on AFP Isolates") +
   theme_minimal() +
-  geom_hline(yintercept = 80, linetype = "dotted", color = "black", linewidth = 2) + # green line for the target
+  geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
   theme(
     panel.grid.major = element_blank(),
