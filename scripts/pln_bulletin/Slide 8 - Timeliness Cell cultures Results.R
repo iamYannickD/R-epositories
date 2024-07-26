@@ -149,7 +149,7 @@ AFPkpis <-
   ) |>
   fmt_number(
     columns = starts_with("Prop"),
-    decimals = 1,
+    decimals = 0,
     pattern = "{x} %"
   ) |>
   #color the table based on the values in those cells
