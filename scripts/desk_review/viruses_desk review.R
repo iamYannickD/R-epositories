@@ -67,17 +67,16 @@ afp_virus <-
 es_virus <-
   viruses_isolated |>
     filter(Source == "ENV") |>
-  # filter viruses isolated in the last 100 days
-  filter( (today() - dmy(`Onset/ Collection Date`)) < 100 ) |>
+    filter( (today() - dmy(`Onset/ Collection Date`)) < 100 ) |> # filter viruses isolated in the last 100 days
     mutate(
       epid_match = str_sub(`EPID Number`, 1, 19)
-         ) |>
-  mutate(
-    epid_match = str_replace_all(epid_match, "ENV-ALG-TMR-TMR-RLV", "ENV-ALG-TAM-TAM-REL"),
-    epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
-         ) |>
-  left_join(y = masterlist, by = c("epid_match" = "SITE_CODE")) |>
-  dplyr::select(`EPID Number`, Virus, Source, COUNTRY, PROVINCE, 
+           ) |>
+    mutate(
+      epid_match = str_replace_all(epid_match, "ENV-ALG-TMR-TMR-RLV", "ENV-ALG-TAM-TAM-REL"),
+      epid_match = str_replace_all(epid_match, "ENV-ANG-LUA-VIA-CFG", "ENV-ANG-LUA-VIA-CZG") 
+           ) |>
+    left_join(y = masterlist, by = c("epid_match" = "SITE_CODE")) |>
+    dplyr::select(`EPID Number`, Virus, Source, COUNTRY, PROVINCE, 
                 District, `ES Site Name`,  `Onset/ Collection Date`, Lat_Y, Long_X)
 
 
