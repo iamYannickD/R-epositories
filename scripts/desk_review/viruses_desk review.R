@@ -1,6 +1,6 @@
 #check directory and assign it to a path
 #setwd("C:/Users/OMEN/Documents/WHO/R_Projects/automated_desk_review")
-path <- getwd()
+#path <- getwd()
 
 # Check if the package pacman is installed (pacman Install and load multiple desired packages at once)
 if (!require("pacman")) {install.packages("pacman")} 
