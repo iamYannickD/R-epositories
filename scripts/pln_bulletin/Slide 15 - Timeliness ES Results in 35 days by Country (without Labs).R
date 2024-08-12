@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 21, 2024"
-path_ES_2024 = "../data/dbs/ES_160724.mdb"
+Specify_the_period <- "WEEK 1 - 31, 2024"
+path_ES_2024 = "../data/dbs/ES_060824.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -32,11 +32,11 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 ES_byCountry35 <-
  EStables2024 |> 
   filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia Countrycode
-  mutate(IST = case_when(Countrycode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
+  mutate(IST = case_when(Countrycode %in% c("ALG", "BEN", "BFA", "CAV", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
                                             "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
                          Countrycode %in% c( "ANG", "CAE", "CAF", "CHA",  "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
-                         Countrycode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
-                                             "SOA", "SWZ", "SYC", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = Countrycode) |>
+                         Countrycode %in% c( "BOT", "BUU", "COM", "DJI", "ERI", "ETH", "KEN", "LES", "MAD", "MAL", "MAS", "MOZ", "NAM", "RSS", "RWA",
+                                             "SOA", "SOM", "SWZ", "SYC", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = Countrycode) |>
   group_by(IST, Countrycode) |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" ),
          Labname = if_else(Countryname == "Angola", "SOA", Labname)
