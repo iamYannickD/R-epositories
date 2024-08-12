@@ -8,7 +8,6 @@ p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
 path_AFP <- "../data/dbs/AFP_160724.mdb" 
-dateDBreceived <- "2024-06-18 14:24:05"
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
