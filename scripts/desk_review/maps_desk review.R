@@ -27,8 +27,7 @@ load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_apr_jun_202
                                          "ESWATINI" = "SWAZILAND",
                                          "TCHAD" = "CHAD"
                                          ))
-      ) |>
-  filter(Sitename != "KAKOBA SEWAGE TREATMENT PLANT")
+      )
 
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of the Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
