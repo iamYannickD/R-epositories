@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 28, 2024"
-path_ES_2024 = "../data/dbs/ES_160724.mdb"
+Specify_the_period <- "WEEK 1 - 31, 2024"
+path_ES_2024 = "../data/dbs/ES_060824.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -39,7 +39,9 @@ EStimeliness <-
   summarize(
     workload_by_lab = n(),
     
-    ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
+    #ITD_results = sum(str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4"), na.rm = TRUE),
+    ITD_results = sum(!is.na(FinalcombinedrRTPCRresults)),
+    
     ITD_results_positive = sum(
             (str_detect(Finalcellcultureresult, "^1") | str_detect(Finalcellcultureresult, "^4")) &
              # (str_detect(FinalcombinedrRTPCRresults, "Discordant") | str_detect(FinalcombinedrRTPCRresults, "PV2")), na.rm = TRUE),
