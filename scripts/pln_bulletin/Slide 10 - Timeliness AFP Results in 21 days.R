@@ -39,7 +39,7 @@ AFPtables |>
   mutate(workload_by_lab = n(),
          time_itd_results_21days = as.numeric(difftime(proxy_date_itd_result, DateStoolReceivedinLab, units = "days")),
 
-         is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
+         #is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
          is_itd_positive = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT") &
                                        #(!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid", "4-PV1-SL", "4-PV1 SL", "6-PV3 SL") ) 
                                        (!FinalITDResult %in% c("7-NPEV", "8-NEV", "9-Invalid") )  ), 1, 0),
@@ -54,7 +54,8 @@ AFPtables |>
                                                      (!is.na(FinalITDResult) & time_itd_results_21days < 22 & time_itd_results_21days >= 0), 1, 0)
          ) |>
   summarize(
-    ITD_results = sum(is_itd, na.rm = TRUE),
+    #ITD_results = sum(is_itd, na.rm = TRUE),
+    ITD_results = sum(!is.na(FinalITDResult)),
     ITD_results_positive_sample = sum(is_itd_positive, na.rm = TRUE),
     ITD_results_21days = sum(is_itd_21days, na.rm = TRUE),
     ITD_results_21days_positive_sample = sum(is_itd_21days_positive_sample, na.rm = TRUE),
