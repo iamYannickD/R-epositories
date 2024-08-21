@@ -40,13 +40,20 @@ district_layer <-
     as_tibble()
   
 # merge sequences results with spatial (district) layer created
-  
+sequences_by_year <-
+  sequences_results |>
+  mutate(Year = format(COLLECTION_DATE, "%Y")) |>
+  group_by(Year) |>
+  count()
+
 geom_sequences <-
   sequences_results |>
   mutate(Year = format(COLLECTION_DATE, "%Y")) |>
   mutate(KEY = substr(EPID, 1, 11)) |>
-  left_join(y = district_layer, by = c("KEY"))
-  
+  left_join(y = district_layer, by = "KEY")  |>
+  left_join(sequences_by_year, by = "Year")
+
+
 
 # Function to generate random points within a polygon
 generate_random_point <- function(polygon) {
@@ -68,19 +75,24 @@ for (i in 1:nrow(geom_sequences)) {
 }
 
 
-#epidemiology_map <- 
+#Sequences_map <- 
   ggplot(data = geom_sequences) +
   geom_sf(data = afro_Adm1, fill = "gray", color = "white") +
   geom_sf(data = afro_cntries, fill = NA, color = "black", size = 4) +
   #geom_sf(data = afro_Adm2, fill = "gray", color = "white") +
-  geom_point(aes(x = Long_X, y = Lat_Y), shape = 16, size = 2, color = "red", fill = "black", stroke = 2) +
+  geom_point(aes(x = Long_X, y = Lat_Y), shape = 16, size = 1.5, color = "red", fill = "black", stroke = 1.5) +
+  geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 18, size = 4, color = "black") +
+  
   #scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
   labs(x = "Longitude", y = "Latitude", color = "Viruses Isolated", 
        title = paste0("Geolocation of reported viruses in ", cntry_code)) +
   facet_wrap(~ Year, ncol = 4) + 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
+
   
+  # saving the plot as image png  
+  ggsave("Sequences_Map.png", Sequences_map, path = "output/")  #export population map + es sites  
   
   
   
