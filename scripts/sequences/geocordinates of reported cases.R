@@ -49,8 +49,9 @@ sequences_by_year <-
 
 geom_sequences <-
   sequences_results |>
-  mutate(Year = format(COLLECTION_DATE, "%Y")) |>
-  mutate(KEY = substr(EPID, 1, 11)) |>
+  mutate(Year = format(COLLECTION_DATE, "%Y"),
+       KEY = if_else(substr(EPID, 1, 3) != "ENV", 
+                     substr(EPID, 1, 11), substr(EPID, 5, 15))) |>
   left_join(y = district_layer, by = "KEY")  |>
   left_join(sequences_by_year, by = "Year")
 
@@ -82,12 +83,12 @@ Sequences_map <-
   geom_sf(data = afro_cntries, fill = NA, color = "black", size = 4) +
   #geom_sf(data = afro_Adm2, fill = "gray", color = "white") +
   geom_point(aes(x = Long_X, y = Lat_Y), shape = 16, size = 1.5, color = "red", fill = "black", stroke = 1.5) +
-  #geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 23, size = 4, color = "black") +
+  geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 4.5, vjust = 28, size = 4, color = "black") +
   
   #scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
   labs(x = "Longitude", y = "Latitude", color = "Viruses Isolated", 
        title = paste0("Geolocation of reported viruses in ", cntry_code)) +
-  #facet_wrap(~ Year, ncol = 4) + 
+  facet_wrap(~ Year, ncol = 4) + 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
 
@@ -121,6 +122,8 @@ Epi_curve <-
     theme(plot.title = element_text(hjust = 0.5),
           legend.position = "bottom",
           axis.text.x = element_text(angle = 90, hjust = 1)) 
+
+  Epi_curve
   
   # saving the plot as image png  
   ggsave("Epi_curve.png", Epi_curve, path = "../data/outputs/")  
