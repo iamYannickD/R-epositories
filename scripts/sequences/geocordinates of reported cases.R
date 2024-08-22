@@ -75,7 +75,7 @@ for (i in 1:nrow(geom_sequences)) {
 }
 
 
-#Sequences_map <- 
+Sequences_map <- 
   ggplot(data = geom_sequences) +
   geom_sf(data = afro_Adm1, fill = "gray", color = "white") +
   geom_sf(data = afro_cntries, fill = NA, color = "black", size = 4) +
@@ -95,7 +95,57 @@ for (i in 1:nrow(geom_sequences)) {
   ggsave("Sequences_Map.png", Sequences_map, path = "output/")  #export population map + es sites  
   
   
+  ##################################################################################
+  # Epid curve of sequences by quarters
   
+  sequences_by_quarters <- 
+    sequences_results |>
+    mutate(Year = year(COLLECTION_DATE),
+           Quarter = quarter(COLLECTION_DATE, with_year = TRUE)) |>
+    #mutate(Period = paste0(Quarter, "-", Year)) |>
+    #group_by(Period) |>
+    group_by(Year, Quarter) |>
+    summarise(Count = n(), .groups = 'drop')
+  
+  
+  # Plot the Epicurve as a Bar Chart
+  ggplot(data = sequences_by_quarters, aes(x = as.factor(Quarter), y = Count)) + # fill = as.factor(Year)
+    geom_bar(stat = "identity", fill = "red", position = "dodge") +  # Create bars for each quarter and year
+    labs(x = "Quarter", y = "Number of Sequencings", #fill = "Year",
+         title = "Epicurve of Sequencing Results by Quarter") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5),
+          legend.position = "bottom",
+          axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+  
+  
+  ###################################################################################
+  # Epid curbe of sequences by emergence and by quarter
+  
+  sequences_by_quarters_by_emergence <- 
+    sequences_results |>
+    mutate(Year = year(COLLECTION_DATE),
+           Quarter = quarter(COLLECTION_DATE, with_year = TRUE)) |>
+    #mutate(Period = paste0(Quarter, "-", Year)) |>
+    #group_by(Period) |>
+    group_by(Year, Quarter, `EMERGENCE GROUP`) |>
+    summarise(Count = n(), .groups = 'drop')
+  
+  
+  geom_sequences_emerg <-
+    sequences_results |>
+    mutate(Year = year(COLLECTION_DATE),
+           Quarter = quarter(COLLECTION_DATE, with_year = TRUE)) |>
+    left_join(sequences_by_quarters_by_emergence, by = "Quarter", relationship = "many-to-many")
+  
+  ggplot(geom_sequences_emerg, aes(x = Year.x, y = `EMERGENCE GROUP.x`, fill = Count)) +
+    geom_tile() +  # Create a heat map
+    scale_fill_gradient(low = "white", high = "red") +  # Heat map color gradient
+    labs(x = "Quarter", y = "Emergence Group", fill = "Count",
+         title = "Matrix of Sequencing Results by Emergence Group and Quarter") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
   
   
   
