@@ -81,7 +81,7 @@ Sequences_map <-
   geom_sf(data = afro_cntries, fill = NA, color = "black", size = 4) +
   #geom_sf(data = afro_Adm2, fill = "gray", color = "white") +
   geom_point(aes(x = Long_X, y = Lat_Y), shape = 16, size = 1.5, color = "red", fill = "black", stroke = 1.5) +
-  geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 18, size = 4, color = "black") +
+  geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 23, size = 4, color = "black") +
   
   #scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
   labs(x = "Longitude", y = "Latitude", color = "Viruses Isolated", 
@@ -91,7 +91,9 @@ Sequences_map <-
   theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
 
   
-  # saving the plot as image png  
+Sequences_map
+
+# saving the plot as image png  
   ggsave("Sequences_Map.png", Sequences_map, path = "output/")  #export population map + es sites  
   
   
