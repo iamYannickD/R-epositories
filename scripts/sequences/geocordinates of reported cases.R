@@ -4,7 +4,8 @@ library("pacman")
 
 #install library to import geojson, ggspatial enable R to read and manipulate geojson spatial features
 #raster is for geographic data analysis, in this case to generate a random point within the district polygon
-p_load(tidyverse, sf, readxl, geojsonsf, ggspatial, ggrepel, raster)
+# zoo package support the formating of quaterly data as 2024 Q2 (quarters)
+p_load(tidyverse, sf, readxl, geojsonsf, ggspatial, ggrepel, raster, zoo)
 
 # load dataset
 cntry <- "DEMOCRATIC REPUBLIC OF THE CONGO"
@@ -81,12 +82,12 @@ Sequences_map <-
   geom_sf(data = afro_cntries, fill = NA, color = "black", size = 4) +
   #geom_sf(data = afro_Adm2, fill = "gray", color = "white") +
   geom_point(aes(x = Long_X, y = Lat_Y), shape = 16, size = 1.5, color = "red", fill = "black", stroke = 1.5) +
-  geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 23, size = 4, color = "black") +
+  #geom_text(aes(x = Inf, y = Inf, label = paste("n =", n)), hjust = 2.8, vjust = 23, size = 4, color = "black") +
   
   #scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
   labs(x = "Longitude", y = "Latitude", color = "Viruses Isolated", 
        title = paste0("Geolocation of reported viruses in ", cntry_code)) +
-  facet_wrap(~ Year, ncol = 4) + 
+  #facet_wrap(~ Year, ncol = 4) + 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
 
@@ -94,7 +95,7 @@ Sequences_map <-
 Sequences_map
 
 # saving the plot as image png  
-  ggsave("Sequences_Map.png", Sequences_map, path = "output/")  #export population map + es sites  
+  ggsave("Sequences_Map.png", Sequences_map, path = "../data/outputs/")  
   
   
   ##################################################################################
@@ -103,23 +104,26 @@ Sequences_map
   sequences_by_quarters <- 
     sequences_results |>
     mutate(Year = year(COLLECTION_DATE),
-           Quarter = quarter(COLLECTION_DATE, with_year = TRUE)) |>
-    #mutate(Period = paste0(Quarter, "-", Year)) |>
-    #group_by(Period) |>
-    group_by(Year, Quarter) |>
+           Quarter = as.yearqtr(COLLECTION_DATE, format = "%Y-%m-%d"),
+           Month = as.yearmon(COLLECTION_DATE, format = "%Y-%m-%d" )) |>
+           #Quarter = quarter(COLLECTION_DATE, with_year = TRUE)) |>
+    group_by(Year, Month) |>
     summarise(Count = n(), .groups = 'drop')
   
   
   # Plot the Epicurve as a Bar Chart
-  ggplot(data = sequences_by_quarters, aes(x = as.factor(Quarter), y = Count)) + # fill = as.factor(Year)
+Epi_curve <-
+  ggplot(data = sequences_by_quarters, aes(x = as.factor(Month), y = Count)) + # fill = as.factor(Year)
     geom_bar(stat = "identity", fill = "red", position = "dodge") +  # Create bars for each quarter and year
-    labs(x = "Quarter", y = "Number of Sequencings", #fill = "Year",
-         title = "Epicurve of Sequencing Results by Quarter") +
+    labs(x = "Month", y = "Number of Sequences Received", #fill = "Year",
+         title = "Epicurve of Sequencing Results by Months") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5),
           legend.position = "bottom",
-          axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+          axis.text.x = element_text(angle = 90, hjust = 1)) 
   
+  # saving the plot as image png  
+  ggsave("Epi_curve.png", Epi_curve, path = "../data/outputs/")  
   
   ###################################################################################
   # Epid curbe of sequences by emergence and by quarter
@@ -148,7 +152,6 @@ Sequences_map
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5),
           axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
-  
   
   
   
