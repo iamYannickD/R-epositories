@@ -87,7 +87,7 @@ Sequences_map <-
   
   #scale_color_manual(values = c("cVDPV1" = "#F067A6", "cVDPV2" = "#2CBB9B")) +
   labs(x = "Longitude", y = "Latitude", color = "Viruses Isolated", 
-       title = paste0("Geolocation of reported viruses in ", cntry_code)) +
+       title = paste0("Geolocation of AFRO sequences received from ", cntry_code)) +
   facet_wrap(~ Year, ncol = 4) + 
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5), legend.position="bottom")    # Center ggplot title and legend at bottom
