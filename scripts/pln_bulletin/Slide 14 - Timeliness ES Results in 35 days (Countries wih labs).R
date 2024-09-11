@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 28, 2024"
-path_ES_2024 = "../data/dbs/ES_160724.mdb"
+Specify_the_period <- "WEEK 1 - 36, 2024"
+path_ES_2024 = "../data/dbs/ES_2024_09092024.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -57,7 +57,7 @@ EStimeliness35 <-
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ES - ITD Results by Lab in 35 days") +
   theme_minimal() +
-  geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
+  geom_hline(yintercept = 80, linetype = "dashed", color = "green", linewidth = 1.5) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
   theme(
     panel.grid.major = element_blank(),
@@ -77,6 +77,6 @@ EStimeliness35 <-
 EStimeliness35
 
 # saving the plot as image png  
-ggsave("EStimeliness35_plot.png", EStimeliness35, path = "../data/outputs/", width = 8, height= 8)  
+ggsave("EStimeliness35_plot.png", EStimeliness35, path = "../data/outputs/", width = 13, height= 6)  
 
 
