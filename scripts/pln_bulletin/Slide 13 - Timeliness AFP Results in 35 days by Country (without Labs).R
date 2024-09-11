@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/wk_24/afp_wk_24.mdb" 
+path_AFP <- "../data/dbs/AFP_09092024.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -82,7 +82,7 @@ AFPCountries_35p <-
   ) +
   labs(x = "Country Code", y = "% Samples with results", fill = "", title = "") +
   theme_minimal() +
-  geom_hline(yintercept = 80, linetype = "dotted", color = "green", linewidth = 2) + # green line for the target
+  geom_hline(yintercept = 80, linetype = "dashed", color = "green", linewidth = 1.5) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
   theme(
     panel.grid.major = element_blank(),
@@ -102,7 +102,7 @@ AFPCountries_35p <-
 AFPCountries_35p
 
 # saving the plot as image png  
-ggsave("AFPCountries_35_plot.png", AFPCountries_35p, path = "../data/outputs/", width = 8, height= 8) 
+ggsave("AFPCountries_35_plot.png", AFPCountries_35p, path = "../data/outputs/", width = 13, height= 6) 
 
 
 
