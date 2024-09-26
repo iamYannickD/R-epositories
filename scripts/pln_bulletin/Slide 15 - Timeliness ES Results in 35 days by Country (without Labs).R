@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 31, 2024"
-path_ES_2024 = "../data/dbs/ES_060824.mdb"
+Specify_the_period <- "WEEK 1 - 38, 2024"
+path_ES_2024 = "../data/dbs/ES_2024_26092024.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -88,7 +88,7 @@ ES_byCountry35 <-
 ES_byCountry35
 
 # saving the plot as image png  
-ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/", width = 8, height= 8)  
+ggsave("ESCountry35_plot.png", ES_byCountry35, path = "../data/outputs/", width = 13, height= 6)  
 
 
 
