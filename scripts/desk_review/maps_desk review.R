@@ -10,7 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_apr_jun_2024-07-09.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_jul_sept_2024.csv") |>
   # filter only samples with results 
   filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
