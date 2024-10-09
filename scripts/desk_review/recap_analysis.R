@@ -1,15 +1,12 @@
-#check directory and assign it to a path
-#path <- getwd()
-
 # Check if the package pacman is installed (pacman Install and load multiple desired packages at once)
 if (!require("pacman")) {install.packages("pacman")} 
 library("pacman")
 
-#install library to import geojson, ggspatial enable R to read and manipulate geojson spatial features
-#and ggrepel allows to edit the labels and avoid overlaps
+#load libraries
 p_load(tidyverse, gt, gtExtras)
 
-#load data
+# load data
+es_sites <- read_csv("../data/data_dr/es_sites/ES_analysis_3_6_12_months_recap.csv") 
 
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
@@ -33,7 +30,7 @@ risk_level_by_country <- tibble(
                  rep("Medium High Risk", length(Medium_high_risk)),
                  rep("Medium Risk", length(Medium_Risk))),
   country = c(Very_high_risk, High_risk, Medium_high_risk, Medium_Risk) |> str_to_upper()
-) |>
+    ) |>
   mutate(
     country = str_replace_all(country, c("CHAD" = "TCHAD",
                                          "UNITED REPUBLIC OF TANZANIA" = "TANZANIA",
@@ -43,21 +40,8 @@ risk_level_by_country <- tibble(
                                          "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
   )
 
-nanoplot_options_list <-
-  nanoplot_options(
-    data_point_radius = px(4),
-    data_point_stroke_width = px(2),
-    data_point_stroke_color = "black",
-    data_point_fill_color = "white",
-    data_line_stroke_width = px(4),
-    data_line_stroke_color = "gray",
-    show_data_line = TRUE,
-    show_data_points = TRUE,
-    show_data_area = FALSE,
-  )
-
 recap_es_sites <- 
-  read_csv("../data/data_dr/es_sites/ES_analysis_3_6_12_months_recap.csv") |>
+  es_sites |>
   dplyr::select(Countryname, EV_isolation_Rate_3m, EV_isolation_Rate_6m, EV_isolation_Rate_12m) |>
     left_join(y = risk_level_by_country, by = c("Countryname" = "country")) |>
     filter(!is.na(risk_level)) |>
@@ -86,7 +70,7 @@ recap_es_sites <-
     ) |>
     mutate(
       #sparkline_50 = map2( `%Q1countries >= 50`, `%Q2countries >= 50`, ~ list(c(.x, .y))),
-          #sparkline_50 = map2( `%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, ~ list(c(.x, .y))),
+          sparkline_50 = map2( `%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, ~ list(c(.x, .y))),
           sparkline_80 = map2( `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, ~ list(c(.x, .y)))
           
       #sparkline_80 = map2_dbl( `%Q1countries >= 80`, `%Q2countries >= 80`, ~ list(c(.x, .y)))
@@ -176,16 +160,16 @@ recap_es_sites <-
       before = 6
     ) |>
     #Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 80%
-    gt::cols_nanoplot(
-      columns = contains(">= 80"),
-      #columns = c(`%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`),
-      autoscale = TRUE,
-      autohide = FALSE,
-      new_col_name = "nanoplots_80",
-      new_col_label = md("*EV Trend 80%*"),
-      #options = nanoplot_options_list,
-      before = 9
-    ) |>
+    # gt::cols_nanoplot(
+    #   columns = contains(">= 80"),
+    #   #columns = c(`%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`),
+    #   autoscale = TRUE,
+    #   autohide = FALSE,
+    #   new_col_name = "nanoplots_80",
+    #   new_col_label = md("*EV Trend 80%*"),
+    #   #options = nanoplot_options_list,
+    #   before = 9
+    # ) |>
     #give a header to the table as well as a sub title
     tab_header(
       title = md("**Summary of ES site sensitivity, Q1, Q2 & Q3, 2024**"),
@@ -274,46 +258,6 @@ recap_es_sites
   gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.docx"))
  
   
-  # Add sparklines for 50% EV isolation
-    # Add sparklines for 50% EV isolation
-  gt_plt_sparkline(
-    column = sparkline_50,
-    label = "EV Isolation 50% Trend"
-  ) |>
-  # Add sparklines for 80% EV isolation
-  gt_plt_sparkline(
-    column = sparkline_80,
-    label = "EV Isolation 80% Trend"
-  )
-     
-  
-    # Add sparklines
-    gt_plt_sparkline(
-      data = list(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`),
-      label = "EV Isolation 50% Trend",
-      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`, `%Q2countries >= 80`)
-    )
-  
-  
-    gt_plt_sparkline(
-      data80 = list(`%Q1countries >= 80`, `%Q2countries >= 80`),
-      label = "EV Isolation 80% Trend",
-      columns = c(`%Q1countries >= 80`, `%Q2countries >= 80`)
-    )
-    
-    
-    
-
-
-
-    gt_sparkline_tab <- mtcars %>%
-      dplyr::group_by(cyl) %>%
-      # must end up with list of data for each row in the input dataframe
-      dplyr::summarize(mpg_data = list(mpg), .groups = "drop") %>%
-      gt() %>%
-      gt_plt_dist(mpg_data)
-
-
     
    
     
