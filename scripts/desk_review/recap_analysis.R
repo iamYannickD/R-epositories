@@ -32,8 +32,7 @@ risk_level_by_country <- tibble(
   country = c(Very_high_risk, High_risk, Medium_high_risk, Medium_Risk) |> str_to_upper()
     ) |>
   mutate(
-    country = str_replace_all(country, c("CHAD" = "TCHAD",
-                                         "UNITED REPUBLIC OF TANZANIA" = "TANZANIA",
+    country = str_replace_all(country, c("UNITED REPUBLIC OF TANZANIA" = "TANZANIA",
                                          "CÔTE D’IVOIRE" = "COTE D'IVOIRE",
                                          "GUINEA"  = "GUINEE",
                                          "MAURITANIA" = "MAURITANIE", 
@@ -90,7 +89,7 @@ recap_es_sites <-
       "%Q1countries >= 80" = "Q1, 2024",
       "%Q2countries >= 80" = "Q2, 2024",
       "%Q3countries >= 80" = "Q3, 2024",
-      #sparkline_50 = "EV Isolation 50% Trend",
+      sparkline_50 = "EV Isolation 50% Trend",
       sparkline_80 = "EV Isolation 80% Trend"
     ) |>
     # add percentage in cells
@@ -155,6 +154,7 @@ recap_es_sites <-
       columns = contains(">= 50"),
       autoscale = TRUE,
       autohide = FALSE,
+      #plot_type = "bar",
       new_col_name = "nanoplots_50",
       new_col_label = md("EV Trend 50%"),
       before = 6
@@ -163,7 +163,7 @@ recap_es_sites <-
     # gt::cols_nanoplot(
     #   columns = contains(">= 80"),
     #   #columns = c(`%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`),
-    #   autoscale = TRUE,
+    #   #autoscale = TRUE,
     #   autohide = FALSE,
     #   new_col_name = "nanoplots_80",
     #   new_col_label = md("*EV Trend 80%*"),
@@ -185,13 +185,14 @@ recap_es_sites <-
     cols_align(
       align = "center",
       columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`,
-                  `%Q2countries >= 80`) #, nanoplots_50
+                  `%Q2countries >= 80`, nanoplots_50)
     ) |>
     # Hide some unused columns
     cols_hide(
       columns = c(
         sparkline_50,
-        sparkline_80
+        sparkline_80,
+        `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`
       )
     ) |>
     gt_theme_guardian() |>
@@ -260,19 +261,7 @@ recap_es_sites
   
     
    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+  
     
     
     
