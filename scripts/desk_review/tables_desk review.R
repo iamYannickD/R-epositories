@@ -11,7 +11,7 @@ p_load(tidyverse, gt, gtExtras, webshot2)
 
 #load dataset
 #es_sites <- read_csv("data/dataset_desk_review/Location ES Sites.csv") 
-Load_es_sites <- read.csv2("../data/data_dr/es_sites/ES_site_analysis_apr_jun_2024-07-09.csv", sep = ",", encoding="UTF-8")
+Load_es_sites <- read.csv2("../data/data_dr/es_sites/ES_site_analysis_jul_sept_2024.csv", sep = ",", encoding="UTF-8")
 
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of the Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
