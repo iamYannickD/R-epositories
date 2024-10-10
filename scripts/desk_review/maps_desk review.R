@@ -109,8 +109,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
                     label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
     labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", cntry)) +
-    theme_bw() +
-    theme(legend.position = "bottom")
+    theme_bw() #+
+    #theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
   
