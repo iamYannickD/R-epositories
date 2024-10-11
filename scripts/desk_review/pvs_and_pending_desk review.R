@@ -57,7 +57,7 @@ for (cntry in countries) {
                          plot1 <- ggplot(data = es_virus_cntry) +
                             geom_sf(data = afro_admin1_country, fill = NA, color = "gray") +
                             geom_sf(data = afro_Adm0_cntry, fill = NA, color = "black") +
-                            geom_point(shape = 16, size = 2.5, stroke = 1, aes(x = Long_X, y = Lat_Y, color = Virus)) +
+                            geom_point(shape = 15, size = 2.5, stroke = 1, aes(x = Long_X, y = Lat_Y, color = Virus)) +
                             scale_color_manual(values = c("cVDPV1" = "#F067A6", "VDPV1" = "pink", "cVDPV2" = "#3ABB9C", "VDPV2" = "green4",
                                                           "cVDPV3" = "#8ED8F8", "VDPV3" = "#8ED8F8", "PV2 Pending" = "gray")) +
                             labs(x = "Longitude", y = "Latitude", color = "Virus Type", 
@@ -72,8 +72,8 @@ for (cntry in countries) {
                                             #xlim = c(NA, Inf), ylim = c(-Inf, Inf), clip = "ON",
                                             min.segment.length = 0.5) +
                             theme_bw() +
-                            theme(plot.title = element_text(hjust = 0.5)) + # Center ggplot title
-                            theme(legend.position = "bottom")
+                            theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
+                            #theme(legend.position = "bottom")
                          
                          ggsave(paste0("../data/data_dr/outputs/Map_Virus/", cntry,".png"), plot1) #export population map + es sites
                         }
