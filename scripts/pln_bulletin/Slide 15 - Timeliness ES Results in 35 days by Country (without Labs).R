@@ -54,7 +54,7 @@ ES_byCountry35 <-
   select(IST, Countrycode, Prop_ITD_35days) |>
   filter(!is.na(Prop_ITD_35days), Prop_ITD_35days > 0) |>
   pivot_longer(cols = c(Prop_ITD_35days), names_to = "Proportions", values_to = "Values") |>
-  filter(Countrycode != c("SOM", "DJI") ) |> #removed somalia from the list of countries
+  filter(!Countrycode %in% c("SOM", "DJI") ) |> #removed somalia and djibouti from the list of countries
   filter( !(Countrycode %in% c("ALG", "CAE", "CAF", "CIV", "ETH", "GHA", "NIE", "KEN", "MAD", "RDC", "SEN", "SOA", "UGA", "ZAM")) ) |>
   ggplot() +
   geom_bar(aes(x =  interaction(Countrycode, IST), y = Values, fill = IST), stat = "identity", position = position_dodge(), width = .9, color = "black") +
