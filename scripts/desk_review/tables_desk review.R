@@ -40,11 +40,9 @@ risk_level_by_country <- tibble(
                                          "CÔTE D’IVOIRE" = "COTE D'IVOIRE",
                                          "GUINEA"  = "GUINEE",
                                          "MAURITANIA" = "MAURITANIE", 
-                                         "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
+                                         "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA",
+                                         "DEMOCRATIC REPUBLIC OF CONGO" = "Democratic Republic of The Congo"))
   )
-
-# import the master list to extract the provinces, districts 
-masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # restructuring of the excel file
 es_sites <-
