@@ -10,7 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-load_es_sites <- read_csv("../data/data_dr/es_sites/ES_site_analysis_jul_sept_2024.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-09-30_to_2023-09-30.csv") |>
   # filter only samples with results 
   filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
@@ -95,7 +95,7 @@ country <- admin0$ADM0_VIZ_N |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "South Sudan"
+#cntry = "Guinea"
 
 #Generates all the maps in the for loop
 # Function to plot maps
