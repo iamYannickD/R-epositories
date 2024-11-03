@@ -6,12 +6,12 @@ library("pacman")
 p_load(tidyverse, gt, gtExtras)
 
 # load data
-es_sites <- read_csv("../data/data_dr/es_sites/ES_analysis_3_6_12_months_recap.csv") 
+es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_cummulative_by_quarters_2.csv") 
 
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
 
-High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Côte d’Ivoire", 
+High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Cote dIvoire", 
                "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
 
 Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
@@ -35,37 +35,37 @@ risk_level_by_country <- tibble(
     country = str_replace_all(country, c("UNITED REPUBLIC OF TANZANIA" = "TANZANIA",
                                          "CÔTE D’IVOIRE" = "COTE D'IVOIRE",
                                          "GUINEA"  = "GUINEE",
-                                         "MAURITANIA" = "MAURITANIE", 
+                                         #"MAURITANIA" = "MAURITANIE", 
                                          "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
   )
 
 recap_es_sites <- 
   es_sites |>
-  dplyr::select(Countryname, EV_isolation_Rate_3m, EV_isolation_Rate_6m, EV_isolation_Rate_12m) |>
+  dplyr::select(Countryname = Country, EV_isolation_Rate_3m, EV_isolation_Rate_6m, EV_isolation_Rate_9m) |>
     left_join(y = risk_level_by_country, by = c("Countryname" = "country")) |>
     filter(!is.na(risk_level)) |>
     group_by(risk_level, Countryname) |>
     mutate(
       country_3m = if_else(!is.na(EV_isolation_Rate_3m), 1, 0),
-      country_3m_50ev = if_else( (!is.na(EV_isolation_Rate_3m) & EV_isolation_Rate_3m  >= 50) , 1, 0),
-      country_3m_80ev = if_else( (!is.na(EV_isolation_Rate_3m) & EV_isolation_Rate_3m  >= 80), 1, 0),
+      country_3m_50ev = if_else( (!is.na(EV_isolation_Rate_3m) & EV_isolation_Rate_3m  >= 0.5) , 1, 0),
+      country_3m_80ev = if_else( (!is.na(EV_isolation_Rate_3m) & EV_isolation_Rate_3m  >= 0.8), 1, 0),
       
       country_6m = if_else(!is.na(EV_isolation_Rate_6m), 1, 0),
-      country_6m_50ev = if_else( (!is.na(EV_isolation_Rate_6m) & EV_isolation_Rate_6m  >= 50) , 1, 0),
-      country_6m_80ev = if_else( (!is.na(EV_isolation_Rate_6m) & EV_isolation_Rate_6m  >= 80), 1, 0),
+      country_6m_50ev = if_else( (!is.na(EV_isolation_Rate_6m) & EV_isolation_Rate_6m  >= 0.5) , 1, 0),
+      country_6m_80ev = if_else( (!is.na(EV_isolation_Rate_6m) & EV_isolation_Rate_6m  >= 0.8), 1, 0),
       
-      country_12m = if_else(!is.na(EV_isolation_Rate_12m), 1, 0),
-      country_12m_50ev = if_else( (!is.na(EV_isolation_Rate_12m) & EV_isolation_Rate_12m  >= 50) , 1, 0),
-      country_12m_80ev = if_else( (!is.na(EV_isolation_Rate_12m) & EV_isolation_Rate_12m  >= 80), 1, 0)
+      country_9m = if_else(!is.na(EV_isolation_Rate_9m), 1, 0),
+      country_9m_50ev = if_else( (!is.na(EV_isolation_Rate_9m) & EV_isolation_Rate_9m  >= 0.5) , 1, 0),
+      country_9m_80ev = if_else( (!is.na(EV_isolation_Rate_9m) & EV_isolation_Rate_9m  >= 0.8), 1, 0)
     ) |>
     summarise(
       `%Q1countries >= 50` = 100 * sum(country_3m_50ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
       `%Q2countries >= 50` = 100 * sum(country_6m_50ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
-      `%Q3countries >= 50` = 100 * sum(country_12m_50ev, na.rm = TRUE) / sum(country_12m, na.rm = TRUE),
+      `%Q3countries >= 50` = 100 * sum(country_9m_50ev, na.rm = TRUE) / sum(country_9m, na.rm = TRUE),
       
       `%Q1countries >= 80` = 100 * sum(country_3m_80ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
       `%Q2countries >= 80` = 100 * sum(country_6m_80ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
-      `%Q3countries >= 80` = 100 * sum(country_12m_80ev, na.rm = TRUE) / sum(country_12m, na.rm = TRUE)
+      `%Q3countries >= 80` = 100 * sum(country_9m_80ev, na.rm = TRUE) / sum(country_9m, na.rm = TRUE)
     ) |>
     mutate(
       #sparkline_50 = map2( `%Q1countries >= 50`, `%Q2countries >= 50`, ~ list(c(.x, .y))),
@@ -184,15 +184,14 @@ recap_es_sites <-
     #center the values in the defined columns
     cols_align(
       align = "center",
-      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q1countries >= 80`,
-                  `%Q2countries >= 80`, nanoplots_50)
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`,
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, nanoplots_50)
     ) |>
     # Hide some unused columns
     cols_hide(
       columns = c(
         sparkline_50,
-        sparkline_80,
-        `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`
+        sparkline_80
       )
     ) |>
     gt_theme_guardian() |>
