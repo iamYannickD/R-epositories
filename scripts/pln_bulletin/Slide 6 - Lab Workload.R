@@ -11,8 +11,8 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP = "../data/dbs/AFP_09092024.mdb" 
-path_ES_2024 = "../data/dbs/ES_2024_09092024.mdb"
+path_AFP = "../data/dbs/AFP_Week41.mdb" 
+path_ES_2024 = "../data/dbs/ES_Week_41.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -48,7 +48,7 @@ AFP_plot <-
   #summarise(total_workload = sum(afp_workload_by_lab)) # summary
   ggplot() +
   geom_bar(aes(x = LabName, y = afp_workload_by_lab, fill = "darkblue"), fill = "darkblue", stat = "identity") + 
-  geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3.5, fontface = "bold", vjust = -0.5) +
+  geom_text(aes(x = LabName, y = afp_workload_by_lab, label = afp_workload_by_lab), size = 3, fontface = "bold", vjust = -0.5) +
   #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
   labs(x = " ", y = "Number of AFP Samples", title = "AFP and other Human Samples" ) +
   theme_classic() + 
@@ -75,7 +75,7 @@ ES_plot <-
   #summarise(total_workload = sum(es_workload_by_lab)) #summary
   ggplot() +
   geom_bar(aes(x = Labname, y = es_workload_by_lab, fill = "orange"), fill = "orange", stat = "identity") + 
-  geom_text(aes(x = Labname, y = es_workload_by_lab, label = es_workload_by_lab), size = 3.5, fontface = "bold", vjust = -0.5) +
+  geom_text(aes(x = Labname, y = es_workload_by_lab, label = es_workload_by_lab), size = 3, fontface = "bold", vjust = -0.5) +
   #geom_label(mapping = LabName, data = AFPtables, stat = "identity") +
   labs(x = "AFRO Polio Labs", y = "Number of ES Samples", title = "ES Samples" ) +
   theme_classic() +
