@@ -11,7 +11,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 Specify_the_period <- "WEEK 1 - 28, 2024"
 path_ES_2024 = "../data/dbs/ES_160724.mdb"
 labname <- "CAE" # Replace with the actual labname you want to filter by
-DateUpdated <- "2024-07-16"
+# DateUpdated <- "2024-07-16"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
