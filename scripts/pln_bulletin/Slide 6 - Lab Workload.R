@@ -11,8 +11,8 @@ library("pacman")
 p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
-path_AFP = "../data/dbs/AFP_Week41.mdb" 
-path_ES_2024 = "../data/dbs/ES_Week_41.mdb"
+path_AFP = "../data/dbs/AFP_Week52_2024.mdb" 
+path_ES_2024 = "../data/dbs/ES_Week52_2024.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
