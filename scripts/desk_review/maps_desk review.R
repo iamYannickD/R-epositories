@@ -10,7 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-09-30_to_2023-09-30.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-01_to_2024-12-31_3m.csv") |>
   # filter only samples with results 
   filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
@@ -38,6 +38,8 @@ High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Centra
 Medium_high_risk <- c("Burundi", "Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
                       "Liberia", "Mauritania", "Namibia", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "United Republic of Tanzania", 
                       "Togo", "Uganda", "Zimbabwe")
+
+Medium_Risk <- c("Botswana", "Eswatini", "Lesotho", "Mauritius", "Mauritius", "Seychelles", "South Africa")
 
 # load administrative boundaries
 admin0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson") |>
