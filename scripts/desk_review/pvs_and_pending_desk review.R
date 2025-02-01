@@ -8,7 +8,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_july_sept_2024.csv") 
+viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_oct_dec_2024 ES_2.csv") 
 masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # load administrative boundaries
@@ -28,7 +28,7 @@ es_virus <-
 
 
 #initialization
-#cntry <- "GHANA" #to test
+#cntry <- "COTE D'IVOIRE" #to test
 countries <- es_virus$Country |> 
              str_to_upper() |>  unique() |> sort()
 
