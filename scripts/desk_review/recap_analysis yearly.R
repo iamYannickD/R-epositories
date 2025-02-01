@@ -6,7 +6,7 @@ library("pacman")
 p_load(tidyverse, gt, gtExtras)
 
 # load data
-es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-01_to_2024-12-31 Cumul.csv") 
+es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-01_to_2024-12-31 Cumul_2.csv") 
 
 # Classification of countries based on their level of risk
 Very_high_risk <- c("Chad", "Democratic Republic of Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
@@ -64,15 +64,15 @@ recap_es_sites <-
       country_12m_80ev = if_else( (!is.na(EV_isolation_Rate_12m) & EV_isolation_Rate_12m  >= 0.8), 1, 0)
     ) |>
     summarise(
-      `%Q1countries >= 50` = 100 * sum(country_3m_50ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
-      `%Q2countries >= 50` = 100 * sum(country_6m_50ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
-      `%Q3countries >= 50` = 100 * sum(country_9m_50ev, na.rm = TRUE) / sum(country_9m, na.rm = TRUE),
       `%Q4countries >= 50` = 100 * sum(country_12m_50ev, na.rm = TRUE) / sum(country_12m, na.rm = TRUE),
+      `%Q3countries >= 50` = 100 * sum(country_9m_50ev, na.rm = TRUE) / sum(country_9m, na.rm = TRUE),
+      `%Q2countries >= 50` = 100 * sum(country_6m_50ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
+      `%Q1countries >= 50` = 100 * sum(country_3m_50ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
       
-      `%Q1countries >= 80` = 100 * sum(country_3m_80ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
-      `%Q2countries >= 80` = 100 * sum(country_6m_80ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
+      `%Q4countries >= 80` = 100 * sum(country_12m_80ev, na.rm = TRUE) / sum(country_12m, na.rm = TRUE),
       `%Q3countries >= 80` = 100 * sum(country_9m_80ev, na.rm = TRUE) / sum(country_9m, na.rm = TRUE),
-      `%Q4countries >= 80` = 100 * sum(country_12m_80ev, na.rm = TRUE) / sum(country_12m, na.rm = TRUE)
+      `%Q2countries >= 80` = 100 * sum(country_6m_80ev, na.rm = TRUE) / sum(country_6m, na.rm = TRUE),
+      `%Q1countries >= 80` = 100 * sum(country_3m_80ev, na.rm = TRUE) / sum(country_3m, na.rm = TRUE),
     ) |>
     mutate(
       #sparkline_50 = map2( `%Q1countries >= 50`, `%Q2countries >= 50`, ~ list(c(.x, .y))),
@@ -90,14 +90,14 @@ recap_es_sites <-
     #gt_color_rows(2:6, palette = c("darkred", "red", "yellow", "green", "darkgreen")) |> # domain = c(0, 0.50), plt =  "RdYlGn"
     #edit some columns names
     cols_label(
-      "%Q1countries >= 50" = "Q1, 2024",
-      "%Q2countries >= 50" = "Q2, 2024",
-      "%Q3countries >= 50" = "Q3, 2024",
-      "%Q4countries >= 50" = "Q4, 2024",
-      "%Q1countries >= 80" = "Q1, 2024",
-      "%Q2countries >= 80" = "Q2, 2024",
-      "%Q3countries >= 80" = "Q3, 2024",
-      "%Q4countries >= 80" = "Q4, 2024",
+      "%Q1countries >= 50" = "Q4, 2024",
+      "%Q2countries >= 50" = "Q3, 2024",
+      "%Q3countries >= 50" = "Q2, 2024",
+      "%Q4countries >= 50" = "Q1, 2024",
+      "%Q1countries >= 80" = "Q4, 2024",
+      "%Q2countries >= 80" = "Q3, 2024",
+      "%Q3countries >= 80" = "Q2, 2024",
+      "%Q4countries >= 80" = "Q1, 2024",
       sparkline_50 = "EV Isolation 50% Trend",
       sparkline_80 = "EV Isolation 80% Trend"
     ) |>
@@ -177,7 +177,7 @@ recap_es_sites <-
     #   new_col_name = "nanoplots_80",
     #   new_col_label = md("*EV Trend 80%*"),
     #   #options = nanoplot_options_list,
-    #   before = 9
+    #   before = 11
     # ) |>
     #give a header to the table as well as a sub title
     tab_header(
@@ -194,7 +194,7 @@ recap_es_sites <-
     cols_align(
       align = "center",
       columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`,
-                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`, nanoplots_50)
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`, nanoplots_50) #nanoplots_80)
     ) |>
     # Hide some unused columns
     cols_hide(
