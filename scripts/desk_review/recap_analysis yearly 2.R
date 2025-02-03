@@ -168,4 +168,68 @@ recap_es_sites <-
     #   new_col_label = md("EV Trend 50%"),
     #   before = 7
     # ) |>
+    #Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 80%
+    gt::cols_nanoplot(
+      columns = contains(">= 80"),
+      #columns = c(`%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`),
+      #autoscale = TRUE,
+      autohide = FALSE,
+      new_col_name = "nanoplots_80",
+      new_col_label = md("*EV Trend 80%*"),
+      #options = nanoplot_options_list,
+      before = 11
+    ) |>
+    #give a header to the table as well as a sub title
+    tab_header(
+      title = md("**Summary of ES site sensitivity, Q1, Q2, Q3 & Q4, 2024**"),
+      subtitle = md("**Data source : AFRO ES Database**") ) |>
+    #add the title that covers specific columns
+    tab_spanner(
+      label = md('**% of ES sites with ≥50% EV isolation**'),
+      columns = 3:6)  |>
+    tab_spanner(
+      label = md('**% of ES sites with ≥80% EV isolation**'),
+      columns = 8:11) |>
+    #center the values in the defined columns
+    cols_align(
+      align = "center",
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`,
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`, nanoplots_80) #nanoplots_80)
+    ) |>
+    # Hide some unused columns
+    cols_hide(
+      columns = c(
+        sparkline_50,
+        sparkline_80
+      )
+    ) |>
+    gt_theme_guardian() |>
     
+    # Edition of the guardian theme
+    tab_options(
+      table.background.color = "white",
+      column_labels.background.color = "white",
+      table.border.top.color = "white",
+    ) |>
+    
+    opt_align_table_header(align = "center") |>
+    #reshape the table
+    tab_options(
+      data_row.padding = px(2),
+      summary_row.padding = px(3), # A bit more padding for summaries
+      row_group.padding = px(4)    # And even more for our groups
+    ) |>
+    tab_style(
+      #style = cell_text(weight = "bold"),
+      # Color each country in the group
+      style = cell_fill(color = "darkgray"),
+      locations = cells_row_groups(groups = everything()) 
+    ) |>
+    # adjust background color of summary tables
+    tab_style(
+      style = list(
+        cell_fill(color = "darkgray"),
+        cell_text(weight = "bold")
+      ),
+      locations = cells_grand_summary()
+    ) 
