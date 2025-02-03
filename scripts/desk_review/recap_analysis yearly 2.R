@@ -101,4 +101,71 @@ recap_es_sites <-
       sparkline_50 = "EV Isolation 50% Trend",
       sparkline_80 = "EV Isolation 80% Trend"
     ) |>
+    # add percentage in cells
+    fmt_number(
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`, 
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`),
+      decimals = 0,
+      pattern = "{x} %"
+    ) |> 
+    summary_rows(
+      groups = everything(),
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`, 
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`),
+      fns = list(
+        "SUB TOTAL (MEAN)" = ~ mean(.x, na.rm = TRUE)
+      ),
+      formatter = fmt_number,
+      decimals = 0
+    ) |>
+    grand_summary_rows(
+      columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`, 
+                  `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`),
+      fns = list(
+        "GRAND TOTAL (MEAN)" = ~ mean(.x, na.rm = TRUE)
+      ),
+      formatter = fmt_number,
+      decimals = 0
+    ) |>
+      # #color the table based on the values in those cells (`%Q1countries >= 50`)
+      # tab_style(
+      #   style = cell_fill(color = "#00B050"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 50)
+      # )  |> 
+      # tab_style(
+      #   style = cell_fill(color = "yellow"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 25 & `%Q1countries >= 50` < 50)
+      # ) |>
+      # tab_style(
+      #   style = cell_fill(color = "#FF0000"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` >= 0 & `%Q1countries >= 50` < 25)
+      # ) |> 
+      # tab_style(
+      #   style = cell_fill(color = "#00B050"),
+      #   locations = cells_body(
+      #     columns = `%Q1countries >= 50`,
+      #     rows = `%Q1countries >= 50` == 100)
+      # ) |> 
+      # Color the table cells by category defined
+      data_color(
+        columns = c(`%Q1countries >= 50`, `%Q2countries >= 50`, `%Q3countries >= 50`, `%Q4countries >= 50`, 
+                    `%Q1countries >= 80`, `%Q2countries >= 80`, `%Q3countries >= 80`, `%Q4countries >= 80`),
+        fn = scales::col_bin(palette=colors, bins=breaks)
+      ) |>
+    # Add a nanoplot at the end of the 'group' in the table to show trends of ES Sites >= 50%
+    # gt::cols_nanoplot(
+    #   columns = contains(">= 50"),
+    #   autoscale = TRUE,
+    #   autohide = FALSE,
+    #   #plot_type = "bar",
+    #   new_col_name = "nanoplots_50",
+    #   new_col_label = md("EV Trend 50%"),
+    #   before = 7
+    # ) |>
     
