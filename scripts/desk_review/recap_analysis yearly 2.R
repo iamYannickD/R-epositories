@@ -251,4 +251,32 @@ recap_es_sites <-
 
 recap_es_sites
 
+  # Create the directory if it doesn't exist
+  if (!file.exists( paste0("../data/data_dr/outputs/Recap/"))) {
+    dir.create(paste0("../data/data_dr/outputs/Recap/") , recursive = TRUE)
+  }
+  
+  #save as an html file
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.html"), inline_css = TRUE)
+
+  #save as a png file
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.png"), expand = 10
+         , vheigh = 14)
+  
+  #save as a word document
+  gtsave(recap_es_sites, paste0("../data/data_dr/outputs/Recap/", "/recap_es_desk_review.docx"))
+ 
+  
+    
    
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
