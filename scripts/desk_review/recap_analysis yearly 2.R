@@ -232,4 +232,23 @@ recap_es_sites <-
         cell_text(weight = "bold")
       ),
       locations = cells_grand_summary()
+    ) |>
+    opt_css(
+      css = "
+    .cell-output-display {
+      overflow-x: unset !important;
+    }
+    div#two {
+      overflow-x: unset !important;
+      overflow-y: unset !important;
+    }
+    #two .gt_col_heading {
+      position: sticky !important;
+      top: 0 !important;
+    }
+    "
     ) 
+
+recap_es_sites
+
+   
