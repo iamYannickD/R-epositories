@@ -20,7 +20,8 @@ High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Centra
 Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
                       "Liberia", "Mauritania", "Namibia", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "Tanzania", 
                       "Togo", "Uganda", "Zimbabwe")
-Medium_Risk <- c("")
+
+Medium_Risk <- c("Botswana", "Eswatini", "Lesotho", "Mauritius", "Mauritius", "Seychelles", "South Africa")
 
 # Color Categories
 breaks <- c(0, 25, 50, 100)
