@@ -72,8 +72,8 @@ for (cntry in countries) {
                                             #xlim = c(NA, Inf), ylim = c(-Inf, Inf), clip = "ON",
                                             min.segment.length = 0.5) +
                             theme_bw() +
-                            theme(plot.title = element_text(hjust = 0.5)) + # Center ggplot title
-                            theme(legend.position = "bottom")
+                            theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
+                            #theme(legend.position = "bottom")
                          
                          ggsave(paste0("../data/data_dr/outputs/Map_Virus/", cntry,".png"), plot1) #export population map + es sites
                         }
