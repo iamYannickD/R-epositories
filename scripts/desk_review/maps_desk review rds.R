@@ -104,7 +104,7 @@ country <- afroCountries$ADM0_NAME |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "Guinea"
+#cntry = "ZIMBABWE"
 
 #Generates all the maps in the for loop
 # Function to plot maps
@@ -117,7 +117,7 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
                     label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
-    labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", cntry)) +
+    labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", str_to_title(cntry))) +
     theme_bw() +
     theme(legend.position = "bottom")
   
@@ -146,7 +146,7 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
 
 # Loop through countries
 for (cntry in country) {
-  pop_by_country <- afro_pop |> filter(ADM0_VIZ_N == cntry) 
+  pop_by_country <- afro_pop |> filter(ADM0_VIZ_N ==str_to_title(cntry)) 
   admin_by_country <- afroCountries |> filter(ADM0_NAME == cntry)
   admin1_by_country <- afroProvinces |> filter(ADM0_NAME == cntry) 
   es_by_country <- es_sites |> mutate(Country = str_to_title(Country)) |> filter(Country == str_to_title(cntry))
