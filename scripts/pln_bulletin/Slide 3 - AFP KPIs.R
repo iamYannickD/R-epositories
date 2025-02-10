@@ -17,14 +17,14 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD)
-                   ) |>
-  # select samples collected in 2024 only
-  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+                   ) #|>
+  # select samples collected in 2025 only
+  #filter(substr(ICLabID, start = 5, stop = 6) == 25 )
 
 #export <- write_csv(AFPtables, file = "../data/outputs/export_to_check.csv")
 
 Specify_the_period <- paste0("WEEK 1 - " , 
-                         (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                         (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
 
 # Analysis of databases =====
 AFPtables_gt <- 
