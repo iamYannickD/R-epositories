@@ -8,15 +8,15 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 31, 2024"
-path_ES_2024 = "../data/dbs/ES_2024_09092024.mdb"
+path_ES_2025 = "../data/dbs/ES_2024_09092024.mdb"
 
 # Connect to the Microsoft Access database ====
-ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
+ESdb2025 <- DBI::dbConnect(odbc::odbc(), 
                            .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
-                                              DBQ=", path_ES_2024))
+                                              DBQ=", path_ES_2025))
 # load data in R =====
 # Retrieve all data from the AFP database
-EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
+EStables2025 <- DBI::dbGetQuery(ESdb2025, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
   as_tibble() |>
   mutate(Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "INRB" = "RDC", "IPD SEN" = "SEN",
                                               "IPM, MAD" = "MAD", "IPM,MAD" = "MAD", "KEMRI" = "KEN", "IBD, Nigeria" = "IBD",
@@ -29,7 +29,7 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 
 # Analysis of databases =====
 EStimeliness <- 
- EStables2024 |> 
+ EStables2025 |> 
   filter(Countryname %in% c("Djibouti", "Somalia") == F) |> # removed djibouti and Somalia
   group_by(Labname) |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" ),
