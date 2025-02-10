@@ -97,7 +97,7 @@ country <- admin0$ADM0_VIZ_N |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "Guinea"
+#cntry = "Guinea-bissau"
 
 #Generates all the maps in the for loop
 # Function to plot maps
