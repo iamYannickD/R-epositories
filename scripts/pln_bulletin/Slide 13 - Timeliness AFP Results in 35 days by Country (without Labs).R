@@ -20,12 +20,12 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
     proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD),
     proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI)
     
-  ) |>
-  # select samples collected in 2024 only
-  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+  ) #|>
+  # select samples collected in 2025 only
+  #filter(substr(ICLabID, start = 5, stop = 6) == 25 )
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
 
 
 # Analysis of databases =====
