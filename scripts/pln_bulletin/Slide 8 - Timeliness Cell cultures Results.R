@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_160724.mdb" 
+path_AFP <- "../data/dbs/AFP_Week52_2024.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -186,8 +186,8 @@ tab_style(
   opt_stylize(style = 6, color = 'gray') |>
   #call that theme
   #other themes 
-  #gt_theme_excel()  |> gt_theme_pff() |> 
-  gt_theme_538() |>
+  gt_theme_excel()  |> #gt_theme_pff() |> 
+  #gt_theme_538() 
   
   opt_align_table_header(align = "center") |>
   #reshape the table
