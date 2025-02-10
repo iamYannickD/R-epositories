@@ -12,28 +12,28 @@ p_load(tidyverse, RODBC, patchwork)
 
 #Give the path to the AFP database
 path_AFP = "../data/dbs/AFP_Week52_2024.mdb" 
-path_ES_2024 = "../data/dbs/ES_Week52_2024.mdb"
+path_ES_2025 = "../data/dbs/ES_Week52_2024.mdb"
 
 # Connect to the Microsoft Access database
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
                         .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
                                               DBQ=", path_AFP))
 
-ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
+ESdb2025 <- DBI::dbConnect(odbc::odbc(), 
                            .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
-                                              DBQ=", path_ES_2024))
+                                              DBQ=", path_ES_2025))
 
 # load data in R
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble() |>
+  tibble() #|>
   # select samples collected in 2024 only
-  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+  #filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
 
-EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
+EStables2025 <- DBI::dbGetQuery(ESdb2025, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
   as_tibble()
 
 # bar chart of samples processed by labs
@@ -59,7 +59,7 @@ AFP_plot <-
 
 
 ES_plot <-
-  EStables2024 |>
+  EStables2025 |>
   dplyr::mutate(
     Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "IBD, Nigeria" = "IBD",
                                          "INRB" = "RDC", "IPD SEN" = "SEN", "IPM,MAD" = "MAD",
