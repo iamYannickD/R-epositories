@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_Week52_2024.mdb" 
+path_AFP <- "../data/dbs/AFP2025.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -18,7 +18,8 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(
     proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD),
-    proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI)
+    proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI),
+    proxy_date_collection = coalesce(DateOfOnset, DateStoolCollected)
     
   ) #|>
   # select samples collected in 2025 only
@@ -31,7 +32,7 @@ Specify_the_period <- paste0("WEEK 1 - ",
 # Analysis of databases =====
 AFPCountries_35p <- 
  AFPtables |>
-  filter(LabName != "CDC", !is.na(DateOfOnset)) |>
+  filter(LabName != "CDC", !is.na(proxy_date_collection)) |>
   filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
   mutate(
     CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName,
@@ -43,14 +44,14 @@ AFPCountries_35p <-
                                               "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
   filter( !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("CIV", "MAD", "RDC", "UGA", "ZAM", "ZIM")) ) |> # remove sequencing data
   #filter( !(LabName %in% c("CAE", "CAF", "RDC", "ETH", "KEN", "MAD", "ZAM", "ZIM", "ALG", "GHA")) ) |>
-  select(IST, CountryCode, LabName, DateOfOnset, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
+  select(IST, CountryCode, LabName, DateOfOnset, proxy_date_collection, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_itd_result) |>
   mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
   #distinct(ICLabID, .keep_all = "TRUE") |>
   group_by(IST, CountryCode) |>
   filter( (CountryCode %in% c("GHA", "SOA")) ) |>
   mutate(workload_by_lab = n(),
-         time_itd_results_35days = as.numeric(difftime(proxy_date_itd_result, DateOfOnset, units = "days")),
+         time_itd_results_35days = as.numeric(difftime(proxy_date_itd_result, proxy_date_collection, units = "days")),
          
          is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
          
