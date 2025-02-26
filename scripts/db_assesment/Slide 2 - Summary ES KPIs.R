@@ -7,9 +7,9 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 28, 2024"
-path_ES_2024 = "../data/dbs/ES_160724.mdb"
-labname <- "CAE" # Replace with the actual labname you want to filter by
+Specify_the_period <- "WEEK 1 - 8, 2025"
+path_ES_2024 = "../data/dbs/ES2025.mdb"
+labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -32,8 +32,8 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 EStables_gt <- 
   EStables2024 |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )) |>
-  filter(Labname == labname) |>
-  group_by(Countrycode) |>
+  filter(Labname %in% labname) |>
+  group_by(Labname, Countrycode) |>
   summarize(
     nb_workload_by_lab = n(),
     nb_Sample_good_cond = sum(Samplecondition == "1-Good", na.rm = TRUE),
@@ -87,11 +87,11 @@ EStables_gt <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(1:11)
+    columns = c(1:13)
   ) |>
   #give a header to the table as well as a sub title
   tab_header(
-    title = md(paste0("**ES : SUMMARY OF AFRO LABORATORY KEY PERFORMANCE INDICATORS (KPIs) in**", " ", labname)),
+    title = md(paste0("**ES : SUMMARY OF AFRO LABORATORY KEY PERFORMANCE INDICATORS (KPIs)**")),
     subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
   # add percentage in cells
   fmt_number(
@@ -101,7 +101,7 @@ EStables_gt <-
     pattern = "{x} %"
   ) |>
   sub_missing(
-    columns = 2:11,
+    columns = 2:13,
     rows = everything(),
     missing_text = "-"
     #missing_text = "---"
@@ -200,7 +200,7 @@ tab_style(
   # Color in gray the table and beautify the formating
   opt_stylize(style = 6, color = 'gray') |>
   #call that theme
-  #other themes gt_theme_excel()  |>gt_theme_pff() |>
+  #other themes gt_theme_excel()  |>gt_theme_pff() |>  gt_theme_538()|>
   gt_theme_excel() |>
   
   opt_align_table_header(align = "center") |>
@@ -235,4 +235,4 @@ tab_style(
 EStables_gt
 
 # export my table
-gtsave(EStables_gt, "../data/outputs_lab_ass/EStables.html")
+gtsave(EStables_gt, "../data/outputs_db_ass/EStables.html")
