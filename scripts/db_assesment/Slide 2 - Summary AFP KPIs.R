@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_160724.mdb" 
-labname <- "CAE" # Replace with the actual labname you want to filter by
+path_AFP <- "../data/dbs/AFP_WK08.mdb" 
+labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -18,9 +18,9 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
   tibble() |>  mutate(proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD)
-  ) |>
+  ) #|>
   # select samples collected in 2024 only
-  filter(substr(ICLabID, start = 5, stop = 6) == 24 )
+  #filter(substr(ICLabID, start = 5, stop = 6) == 24 )
 
 Specify_the_period <- paste0("WEEK 1 - " , 
                              (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
@@ -28,14 +28,14 @@ Specify_the_period <- paste0("WEEK 1 - " ,
 # Analysis of databases =====
 AFPtables_gt <- 
   AFPtables |>
-  filter(LabName == labname) |>
+  filter(LabName %in% labname) |>
   distinct(ICLabID, .keep_all = "TRUE") |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected"),
           CountryCode = substr(EpidNumber, start = 1, stop = 3), .after = LabName ) |>
   mutate(StoolCondition = str_replace_all(StoolCondition, "1-Adéquat", "1-Good")) |>
   select(LabName, CountryCode, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
          proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults) |>
-  group_by(CountryCode) |>
+  group_by(LabName, CountryCode) |>
   mutate(workload_by_lab = n(),
          # sample conditions
          is_good = if_else( (StoolCondition == "1-Good" | StoolCondition == "1-Bonne"), 1, 0), 
@@ -114,11 +114,11 @@ AFPtables_gt <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(1:12)
+    columns = c(1:13)
   ) |>
   #give a header to the table as well as a sub title
   tab_header(
-    title = md(paste0("**AFP : SUMMARY OF AFRO LABORATORY KEY PERFORMANCE INDICATORS (KPIs) in**", " ", labname)),
+    title = md(paste0("**AFP : SUMMARY OF AFRO LABORATORY KEY PERFORMANCE INDICATORS (KPIs)**")),
     subtitle = md(paste0("**",Specify_the_period,"**") ) ) |>
   # add percentage in cells
   fmt_number(
@@ -128,7 +128,7 @@ AFPtables_gt <-
     pattern = "{x} %"
   ) |>
   sub_missing(
-    columns = 2:12,
+    columns = 2:13,
     rows = everything(),
     missing_text = "-"
   ) |>
@@ -224,8 +224,8 @@ tab_style(
   ) |>
   
   # Color in gray the table and beautify the formating
-  #opt_stylize(style = 6, color = 'gray') |>
-  gt_theme_538()|>
+  #opt_stylize(style = 6, color = 'gray') |> gt_theme_538()|>
+  gt_theme_excel() |>
   
   opt_align_table_header(align = "center") |>
   #reshape the table
@@ -259,7 +259,7 @@ tab_style(
 AFPtables_gt
 
 # export my table
-gtsave(AFPtables_gt, "../data/outputs_lab_ass/AFPtables.html")
+gtsave(AFPtables_gt, "../data/outputs_db_ass/AFPtables.html")
 
 
 
