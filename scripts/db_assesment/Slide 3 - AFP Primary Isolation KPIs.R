@@ -7,8 +7,8 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_160724.mdb" 
-labname <- "CAE" # Replace with the actual labname you want to filter by
+path_AFP <- "../data/dbs/AFP_WK08.mdb" 
+labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
 #dateDBreceived <- "2024-06-18 14:24:05"
 
 # Connect to the Microsoft Access database =====
@@ -23,17 +23,17 @@ AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, Ep
   filter(substr(ICLabID, start = 5, stop = 6) == 24 ) 
 
 Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2024")
+                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
 
 # Analysis of databases =====
 AFPkpis <-
   AFPtables |>
-  filter(LabName == labname) |>
+  filter(LabName %in% labname) |>
   mutate( FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected"),
           CountryCode = substr(EpidNumber, start = 1, stop = 3), .after = LabName) |>
-  select(CountryCode, ICLabID, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
+  select(LabName, CountryCode, ICLabID, DateStoolReceivedinLab, FinalCellCultureResult, DateFinalCellCultureResults, DateUpdated) |>
   distinct(ICLabID, .keep_all = "TRUE") |>
-  group_by(CountryCode) |>
+  group_by(LabName, CountryCode) |>
   mutate(is_result = if_else(!is.na(FinalCellCultureResult), 1, 0),
          is_pv_positive = if_else((FinalCellCultureResult == "1-Suspected Poliovirus"), 1, 0),
          is_pv_positive_and_npent = if_else((FinalCellCultureResult == "4-Suspected Poliovirus + NPENT"), 1, 0),
@@ -82,7 +82,7 @@ AFPkpis <-
     nb_pending_culture_30_60 = sum(is_pending_culture_30_60),
     nb_pending_culture_more_60 = sum(is_pending_culture_more_60)
   ) |>
-  ungroup() |>
+  #ungroup() |>
   gt() |>
   #edit some columns names
   cols_label(
@@ -129,34 +129,34 @@ AFPkpis <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(2:16)
+    columns = c(2:17)
   ) |>
   tab_spanner(
     label = md('**Culture +ve for PV**'),
-    columns = 5:6) |>
+    columns = 6:7) |>
   tab_spanner(
     label = md('**Culture +ve for PV & NPEV**'),
-    columns = 7:8) |>
+    columns = 8:9) |>
   tab_spanner(
     label = md('**NPEV**'),
-    columns = 9:10) |>
+    columns = 10:11) |>
   tab_spanner(
     label = md('**Negative**'),
-    columns = 11:12) |>
+    columns = 12:13) |>
   #add the title that covers the columns in the 3th and 10th row
   tab_spanner(
     label = md('**PRIMARY VIRUS ISOLATION RESULTS**'),
-    columns = 3:12) |>
+    columns = 4:13) |>
   #add the title that covers the columns in the 7th and 8th row
   tab_spanner(
     label = md('**Pending Samples**'),
-    columns = 13:16) |>
+    columns = 14:17) |>
   #give a header to the table as well as a sub title
   tab_header(
     title = md(paste0("**AFP : Timeliness and Results of Primary Isolation (14 days)** ")),
     subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
   sub_missing(
-    columns = 2:16,
+    columns = 2:17,
     rows = everything(),
     missing_text = 0
     #missing_text = "---"
@@ -238,8 +238,6 @@ gtsave(AFPkpis, "../data/outputs_lab_ass/AFPKpis.html")
 # Convert HTML to PNG
 webshot::webshot("../data/outputs_lab_ass//AFPtables.html", "../data/output/AFPKpis.png")
 
-# convert html to excel file
-#write.xlsx(AFPkpis_df, "output/AFPKpis.xlsx")
 
 
 
