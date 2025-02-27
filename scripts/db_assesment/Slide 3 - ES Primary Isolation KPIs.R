@@ -7,10 +7,10 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
-Specify_the_period <- "WEEK 1 - 28, 2024"
-path_ES_2024 = "../data/dbs/ES_160724.mdb"
-labname <- "CAE" # Replace with the actual labname you want to filter by
-DateUpdated <- "2024-07-16"
+Specify_the_period <- "WEEK 1 - 8, 2025"
+path_ES_2024 = "../data/dbs/ES2025.mdb"
+labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
+DateUpdated <- "2025-02-24"
 
 # Connect to the Microsoft Access database ====
 ESdb2024 <- DBI::dbConnect(odbc::odbc(), 
@@ -29,8 +29,8 @@ EStables2024 <- DBI::dbGetQuery(ESdb2024, "SELECT * FROM Environmental ORDER BY 
 ESkpis <- 
   EStables2024 |>
   mutate(Labname = str_replace_all(Labname, "ESWATINI", "SOA" )) |>
-  filter(Labname == labname) |>
-  group_by(Countrycode) |>
+  filter(Labname %in% labname) |>
+  group_by(Labname, Countrycode) |>
   mutate(is_result = if_else(!is.na(Finalcellcultureresult), 1, 0),
          is_pv_positive = if_else((Finalcellcultureresult == "1-Suspected Poliovirus"), 1, 0),
          is_pv_positive_and_npent = if_else((Finalcellcultureresult == "4-Suspected Poliovirus + NPENT"), 1, 0),
@@ -75,7 +75,7 @@ ESkpis <-
     nb_pending_culture_30_60 = sum(is_pending_culture_30_60),
     nb_pending_culture_more_60 = sum(is_pending_culture_more_60)
   ) |>
-  ungroup() |>
+  #ungroup() |>
   gt() |>
   #edit some columns names
   cols_label(
@@ -122,34 +122,34 @@ ESkpis <-
   #center the values in the defined columns
   cols_align(
     align = "center",
-    columns = c(2:16)
+    columns = c(2:17)
   ) |>
   tab_spanner(
     label = md('**Culture +ve for PV**'),
-    columns = 5:6) |>
+    columns = 6:7) |>
   tab_spanner(
     label = md('**Culture +ve for PV & NPEV**'),
-    columns = 7:8) |>
+    columns = 8:9) |>
   tab_spanner(
     label = md('**NPEV**'),
-    columns = 9:10) |>
+    columns = 10:11) |>
   tab_spanner(
     label = md('**Negative**'),
-    columns = 11:12) |>
+    columns = 12:13) |>
   #add the title that covers the columns in the 3th and 10th row
   tab_spanner(
     label = md('**PRIMARY VIRUS ISOLATION RESULTS**'),
-    columns = 3:12) |>
+    columns = 4:13) |>
   #add the title that covers the columns in the 7th and 8th row
   tab_spanner(
     label = md('**Pending Samples**'),
-    columns = 13:16) |>
+    columns = 14:17) |>
   #give a header to the table as well as a sub title
   tab_header(
     title = md(paste0("**ES : Timeliness and Results of Primary Isolation (14 days)** ")),
     subtitle = md(paste0("**",Specify_the_period,"**")) ) |>
   sub_missing(
-    columns = 2:16,
+    columns = 2:17,
     rows = everything(),
     missing_text = 0
     #missing_text = "---"
