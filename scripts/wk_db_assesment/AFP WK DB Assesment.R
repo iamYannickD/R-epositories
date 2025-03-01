@@ -21,10 +21,13 @@ Current_AFPdb <- DBI::dbConnect(odbc::odbc(),
 # load data in R =====
 # Retrieve all data from the AFP database
 Previous_week_AFPtables <- DBI::dbGetQuery(Previous_AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble()
+                            tibble() |>
+                            filter( LabName != "CDC" & !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("SAN", "RSA")) ) # remove sequencing data
+
 
 Current_week_AFPtables <- DBI::dbGetQuery(Current_AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble()
+                            tibble()  |>
+                            filter( LabName != "CDC" & !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("SAN", "RSA")) ) # remove sequencing data
 
 Specify_the_period <- paste0("WEEK 1 - " , 
                              (epiweek(as.Date(ymd(Current_week_AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
