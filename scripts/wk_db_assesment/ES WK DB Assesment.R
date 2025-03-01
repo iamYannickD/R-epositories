@@ -10,7 +10,7 @@ p_load(tidyverse, RODBC)
 Specify_the_period <- "WEEK 1 - 8, 2025"
 path_previous_ES_DB <- "../data/dbs/ES_WK07.mdb"
 path_current_ES_DB <- "../data/dbs/ES_WK08.mdb" 
-labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
+#labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
 
 # Connect to the Microsoft Access database ====
 Previous_ESdb <- DBI::dbConnect(odbc::odbc(), 
@@ -21,10 +21,10 @@ Current_ESdb <- DBI::dbConnect(odbc::odbc(),
 
 # load data in R =====
 # Retrieve all data from the ES database
-Previous_weekEStables <- DBI::dbGetQuery(Previous_ESdb, "SELECT * FROM Environmental ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
+Previous_weekEStables <- DBI::dbGetQuery(Previous_ESdb, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
   tibble()
 
-Current_week_EStables <- DBI::dbGetQuery(Current_ESdb, "SELECT * FROM Environmental ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
+Current_week_EStables <- DBI::dbGetQuery(Current_ESdb, "SELECT * FROM Environmental ORDER BY IDNumber;", stringsAsFactors = FALSE) |>
   tibble()
 
 # Identify new entries (present in Current but not in Previous)
