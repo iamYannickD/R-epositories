@@ -10,6 +10,8 @@ p_load(tidyverse, sf)
 # Virus isolation/ITD laboratories in Afro =====
 virus_isolation <- read_csv("../data/data/polio_lab_network_afro.csv")
 polio_labs <- read_csv("../data/data/Geocoordinates of Labs in African region.csv")
+seq_labs <- read_csv("../data/data/Geocoordinates of Labs in African region.csv") |>
+            filter(`Lab name` %in% c("UVRI", "Ibadan, Nigeria", "Ghana", "South Africa"))
 # Sequencing laboratories in Afro
 
 # virus count by lab
@@ -69,10 +71,12 @@ sequencing_map <-
       ggplot() +
           geom_sf(data = afro_Adm0, aes(fill = "gray"), fill = "gray", color = "white") +
           geom_sf(data = afro_cntries, aes(fill = `Sequencing Lab`), color = "black", size = 2) +
+          geom_point(data = seq_labs, aes(x = `X (LONG)` , y = `Y (LAT)`, shape = "Seq Labs"), color = "black", size = 5) +
           #geom_point(data = polio_labs, aes(x = `X (LONG)` , y = `Y (LAT)`), color = "black", size = 3, shape = 10) +
-          scale_fill_manual(values = c("CDC" =  "#377eb8", "NICD" =  "#4daf4a", 
+          scale_fill_manual(values = c("UGA" =  "#377eb8", "IBD" =  "#ffff75", "NICD" =  "#4daf4a", 
                                        "IPP" =  "#984ea3", "GHA" =  "#ff7f00"), na.value = "grey50",
                             labels = vec_labs_Seq) +
+          scale_shape_manual(name = "Seq Labs", values = c("Seq Labs" = 8)) +
           labs(fill = " ") + # remove the old legend name
       theme_bw() + 
       theme(legend.position = c(0.93, 0.5),
