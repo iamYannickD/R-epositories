@@ -4,70 +4,43 @@ library("pacman")
 
 # Load packages =====
 #RODBC to be able to work with microsoft access databases, allowing R to connect to Open Database Connectivity (ODBC) APIs
-p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
+p_load(tidyverse, RODBC,gt, gtExtras, webshot)
 
-#Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP2025.mdb" 
-
-# Connect to the Microsoft Access database =====
-AFPdb <- DBI::dbConnect(odbc::odbc(), 
-                        .connection_string = paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
-                                              DBQ=", path_AFP))
-# load data in R =====
-# Retrieve all data from the AFP database
-AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble() |>  mutate(
-    proxy_date_infor_itd = coalesce(DateIsolateinforITD, DateLarmIsolateRec, DateRarmIsolateSentforITD),
-    proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI),
-    proxy_date_collection = coalesce(DateOfOnset, DateStoolCollected)
-    
-  ) #|>
-  # select samples collected in 2025 only
-  #filter(substr(ICLabID, start = 5, stop = 6) == 25 )
-
-Specify_the_period <- paste0("WEEK 1 - ", 
-                             (epiweek(as.Date(ymd(AFPtables$DateUpdated))) - 1) |> unique(), ", 2025")
+#Give the path to the Sequencing results file
+seq_result_AFP <- read.csv("../data/data/All virus sequencing results.csv") |>
+  mutate(DATE_COLL = dmy(ONSET..COLLECTION)) |>
+  filter(SOURCE != "ENV" & (today() - DATE_COLL < 366)) |>  # (year(DATE_COLL) > 2024 ) or #%in% c(2024, 2025)
+  mutate(DATE_RECEIVED = dmy(DATE.RECEIVED)) |>
+  mutate(TAT = difftime(DATE_RECEIVED, DATE_COLL)) |> tibble()
 
 
 # Analysis of databases =====
-AFPCountries_46p <- 
- AFPtables |>
-  filter(LabName != "CDC", !is.na(proxy_date_collection)) |>
-  filter(substr(EpidNumber, start = 1, stop = 3) %in% c("DJI", "SOM") == F ) |> #remove somalia and djibouti
+Sequencing.results.countries.without.labs <- 
+  seq_result_AFP |>
   mutate(
-    CountryCode = substr(EpidNumber, start = 1, stop = 3), .before = LabName,
-    CountryCode = if_else(LabName == "MAD", "MAD", CountryCode )) |>
+    CountryCode = substr(EPID.NUMBER, start = 1, stop = 3), .before = COUNTRY) |>
   mutate(IST = case_when(CountryCode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
                                             "NIE", "NIG", "SEN", "SIL",  "TOG" ) ~ "WEST",
                          CountryCode %in% c( "ANG", "CAE", "CAF", "CHA",  "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
                          CountryCode %in% c( "BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
-                                              "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
-  filter( !(LabName == "SOA" & substr(ICLabID, start = 1, stop = 3) %in% c("CIV", "MAD", "RDC", "UGA", "ZAM", "ZIM")) ) |> # remove sequencing data
-  #filter( !(LabName %in% c("CAE", "CAF", "RDC", "ETH", "KEN", "MAD", "ZAM", "ZIM", "ALG", "GHA")) ) |>
-  select(IST, CountryCode, EpidNumber, LabName, DateOfOnset, DateStoolCollected, DateStoolReceivedinLab, StoolCondition, FinalCellCultureResult, DateFinalCellCultureResults,
-         proxy_date_infor_itd, FinalITDResult, DateFinalrRTPCRResults, proxy_date_collection, proxy_date_itd_result) |>
-  mutate(FinalCellCultureResult = str_replace_all(FinalCellCultureResult, "Supected", "Suspected") ) |>
-  #distinct(ICLabID, .keep_all = "TRUE") |>
+                                             "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"), .before = CountryCode) |>
+  select(IST, CountryCode, EPID.NUMBER, DATE_COLL, DATE_RECEIVED, TAT) |>
   group_by(IST, CountryCode) |>
-  # (old ind) filter( !(CountryCode %in% c("ALG", "CAE", "CAF", "CIV", "ETH", "GHA", "NIE", "KEN", "MAD", "RDC", "SEN", "SOA", "UGA", "ZAM", "ZIM")) ) |>
-  filter( !(CountryCode %in% c("GHA", "SOA")) ) |>
+  filter( !(CountryCode %in% c("GHA", "SOA")) ) |> # "UGA", "NIE"
   mutate(workload_by_lab = n(),
-         time_itd_results_46days = as.numeric(difftime(proxy_date_itd_result, proxy_date_collection, units = "days")),
-         
-         is_itd = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")), 1, 0),
-         
-         is_itd_46days = if_else( (FinalCellCultureResult %in% c("1-Suspected Poliovirus", "4-Suspected Poliovirus + NPENT")) &
-                                    (!is.na(FinalITDResult) & time_itd_results_46days < 47 & time_itd_results_46days >= 0), 1, 0)
-  ) |>
+         #time_itd_results_46days = as.numeric(difftime(proxy_date_itd_result, proxy_date_collection, units = "days")),
+         seq_46days = if_else( (TAT < 47 & TAT >= 0), 1, 0)  
+  ) |> 
   summarize(
-    ITD_results = sum(is_itd, na.rm = TRUE),
-    ITD_results_46days = sum(is_itd_46days, na.rm = TRUE),
-    Prop_ITD_46days = 100 * ITD_results_46days / ITD_results,
+    workload_by_lab,
+    SEQ_46days = sum(seq_46days, na.rm = TRUE),
+    Prop_SEQ_46days = 100 * SEQ_46days / workload_by_lab,
   ) |>
-  filter(!is.na(Prop_ITD_46days) & Prop_ITD_46days > 0) |>
+  filter(!is.na(Prop_SEQ_46days) & Prop_SEQ_46days >= 0) |>
   # For intermediary results
-  #group_by(IST) |>  summarize(median_Prop_ITD_46days = median(Prop_ITD_46days, na.rm = TRUE)) #to know the proportion 46 days by IST
-  dplyr::select(IST, CountryCode, Prop_ITD_46days)  |>
+  #group_by(IST) |>  summarize(median_Prop_SEQ_46days = median(Prop_SEQ_46days, na.rm = TRUE)) #to know the proportion 35 days by IST
+  
+  dplyr::select(IST, CountryCode, Prop_SEQ_46days)  |>
   pivot_longer(
     cols = starts_with("Prop"),
     names_to = "Metric",
@@ -75,8 +48,8 @@ AFPCountries_46p <-
   ggplot() +
   geom_bar(aes(x = interaction(CountryCode, IST), y = Value, fill = IST), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
-    values = c("Prop_ITD_46days" = "gold"),
-    labels = c("Prop_ITD_46days" = "Among all samples (with results)")
+    values = c("Prop_SEQ_46days" = "gold"),
+    labels = c("Prop_SEQ_46days" = "Among all samples (with results)")
   ) +
   scale_fill_manual(
     values = c("WEST" = "darkblue", "CENTRAL" = "brown4", "ESA" = "gold"),
@@ -101,10 +74,10 @@ AFPCountries_46p <-
     legend.text = element_text(size = 10)
   ) + scale_x_discrete(labels = function(x) sub("\\..*$", "", x)) # To display only CountryCode on x-axis
 
-AFPCountries_46p
+Sequencing.results.countries.without.labs
 
 # saving the plot as image png  
-ggsave("AFPCountries_46_plot.png", AFPCountries_46p, path = "../data/outputs/", width = 13, height= 6) 
+ggsave("AFP_Countries_under_35_plot.png", Sequencing.results.countries.without.labs, path = "../data/outputs/", width = 13, height= 6) 
 
 
 

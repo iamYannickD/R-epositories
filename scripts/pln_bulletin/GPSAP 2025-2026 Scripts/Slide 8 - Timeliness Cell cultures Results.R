@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, openxlsx)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_Week52_2024.mdb" 
+path_AFP <- "../data/dbs/AFP_WK09.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
