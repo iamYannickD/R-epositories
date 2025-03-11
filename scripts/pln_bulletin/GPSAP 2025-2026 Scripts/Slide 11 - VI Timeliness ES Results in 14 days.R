@@ -69,7 +69,7 @@ EStimeliness <-
     values = c("Prop_cellCulture_14days" = "gold", "Prop_cellCulture_14days_positive" = "darkblue"),
     labels = c("Prop_cellCulture_14days" = "Among all samples (with results)", "Prop_cellCulture_14days_positive" = "Among positive samples")
   ) +
-  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "ES - ITD Results by Lab in 7 days") +
+  labs(x = "Lab Name", y = "% Samples with results", fill = "", title = " ") + #ES - ITD Results by Lab in 14 days
   theme_minimal() +
   geom_hline(yintercept = 80, linetype = "dashed", color = "green", linewidth = 1.5) + # green line for the target
   scale_y_continuous(breaks = seq(0, 100, by = 20), expand = c(0, 0.1)) +  # Graduate y-axis by 20%
