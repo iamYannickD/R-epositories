@@ -8,8 +8,8 @@ p_load(tidyverse, RODBC)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 9, 2025"
-path_previous_ES_DB <- "../data/dbs/ES_WK08.mdb"
-path_current_ES_DB <- "../data/dbs/ES_WK09.mdb" 
+path_previous_ES_DB <- "../data/dbs/ES_WK09.mdb"
+path_current_ES_DB <- "../data/dbs/ES_WK10.mdb" 
 #labname <- c("CAE", "CIV", "ETH") # Replace with the actual labname(s) you want to filter by
 
 # Connect to the Microsoft Access database ====
