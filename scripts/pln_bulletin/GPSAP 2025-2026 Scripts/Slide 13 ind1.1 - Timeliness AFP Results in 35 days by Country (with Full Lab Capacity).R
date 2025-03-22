@@ -29,11 +29,12 @@ Sequencing.results.countries.with.labs <-
   filter( (CountryCode %in% c("GHA", "SOA")) ) |> # "UGA", "NIE"
   mutate(TAT_days = as.numeric(TAT)) |>
   ggplot(aes(x = TAT_days)) +
-  geom_bar(aes(fill = TAT_days < 35), color = "black", width = 1.5) +
+  geom_bar(aes(fill = TAT_days <= 35), color = "black", width = 1.5) +
   scale_fill_manual(values = c("TRUE" = "green", "FALSE" = "red"), 
-                    labels = c("TRUE" = "< 35 jours", "FALSE" = "≥ 35 jours")) +
+                    labels = c("TRUE" = "<= 35 jours", "FALSE" = "> 35 jours")) +
   geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5, size = 5) +
   geom_vline(xintercept = 35, linetype = "dashed", color = "red", linewidth = 1) +
+  annotate("text", x = 35, y = Inf, label = "(35 days)", vjust = 2, hjust = -0.1, color = "red", size = 5) +
   labs(
     title = " ",
     x = "Turnaround Time (in Days)",
@@ -47,7 +48,7 @@ Sequencing.results.countries.with.labs <-
   scale_y_continuous(
     breaks = seq(0, 5, by = 1)
   ) +
-  theme_minimal() 
+  theme_minimal()
 
 
 Sequencing.results.countries.with.labs
