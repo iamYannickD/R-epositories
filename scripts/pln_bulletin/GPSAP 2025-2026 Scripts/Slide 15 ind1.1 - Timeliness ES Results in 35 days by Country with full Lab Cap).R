@@ -60,13 +60,13 @@ Sequencing.results.countries.with.labs <- data_ES |>
                            vjust = 2, hjust = -0.1, color = "red", size = 5) +
                   facet_wrap(vars(CountryCode), ncol = 2, scales = "free") +
                   labs(
-                    title = "Turnaround Time (TAT)",
-                    x = "Turnaround Time (in days)",
-                    y = "Number of Samples with Sequencing Results",
+                    title = "", #"Turnaround Time (TAT)",
+                    x = "", #"Turnaround Time (in days)",
+                    y = " ", #"Number of Samples with Sequencing Results",
                     fill = "TAT (in days)"
                   ) +
                   scale_x_continuous(
-                    breaks = seq(0, max(data_ES$TAT_days, na.rm = TRUE) + 1, by = 20),
+                    breaks = seq(0, max(data_ES$TAT_days, na.rm = TRUE) + 1, by = 10),
                     limits = c(0, max(data_ES$TAT_days, na.rm = TRUE) + 1)
                   ) +
                   theme_minimal()
