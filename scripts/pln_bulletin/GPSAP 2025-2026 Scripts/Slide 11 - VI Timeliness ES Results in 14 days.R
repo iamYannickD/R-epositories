@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 7, 2025"
-path_ES_2025 = "../data/dbs/ES2025.mdb"
+path_ES_2025 = "../data/dbs/WK10_Environmental_Surveillance_Lab_DB_as of 08 March 2025.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2025 <- DBI::dbConnect(odbc::odbc(), 
@@ -21,8 +21,8 @@ EStables2025 <- DBI::dbGetQuery(ESdb2025, "SELECT * FROM Environmental ORDER BY 
   mutate(Labname = str_replace_all(Labname, c("ENTEBBE" = "UGA", "GHANA" = "GHA", "INRB" = "RDC", "IPD SEN" = "SEN",
                                               "IPM, MAD" = "MAD", "IPM,MAD" = "MAD", "KEMRI" = "KEN", "IBD, Nigeria" = "IBD",
                                               "MDG, Nigeria" = "MDG", "ZAM UTH" = "ZAM", "ZAM-UTH" = "ZAM")),
-         proxy_date_sample_in_lab = coalesce(Datesampleinlab, Datesamplesenttolab),
-         proxy_date_cellculture_result = coalesce(Datefinalcultureresult, Dateresultstolab),
+         proxy_date_sample_in_lab = coalesce(ymd(Datesampleinlab), ymd(Datesamplesenttolab)),
+         proxy_date_cellculture_result = coalesce(ymd(Datefinalcultureresult), ymd(Dateresultstolab)),
          timeline_cellculture = proxy_date_cellculture_result - proxy_date_sample_in_lab
   )
 

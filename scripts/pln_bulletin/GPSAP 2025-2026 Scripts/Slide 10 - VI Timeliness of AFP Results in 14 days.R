@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP2025.mdb" 
+path_AFP <- "../data/dbs/AFP_2025_WK13.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -16,8 +16,8 @@ AFPdb <- DBI::dbConnect(odbc::odbc(),
 # load data in R =====
 # Retrieve all data from the AFP database
 AFPtables <- DBI::dbGetQuery(AFPdb, "SELECT * FROM POLIOLAB ORDER BY LabName, EpidNumber;", stringsAsFactors = FALSE) |>
-  tibble() |>  mutate(proxy_date_cellculture = coalesce(DateFinalCellCultureResults, DateFinalResultsSentNatLevel),
-                      proxy_date_itd_result = coalesce(DateFinalrRTPCRResults, DateFinalResultsSentReflabEPI)) #|>
+  tibble() |>  mutate(proxy_date_cellculture = coalesce(ymd(DateFinalCellCultureResults), ymd(DateFinalResultsSentNatLevel)),
+                      proxy_date_itd_result = coalesce(ymd(DateFinalrRTPCRResults), ymd(DateFinalResultsSentReflabEPI))) #|>
   
   # select samples collected in 2025 only
   #filter(substr(ICLabID, start = 5, stop = 6) == 24 )
