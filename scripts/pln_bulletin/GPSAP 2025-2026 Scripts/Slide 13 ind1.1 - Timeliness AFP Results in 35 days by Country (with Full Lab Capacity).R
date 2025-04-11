@@ -27,7 +27,7 @@ data_AFP <- seq_result_AFP |>
       CountryCode %in% c("BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
                          "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"
     ), .before = CountryCode ) |>
-  filter(CountryCode %in% c("NIE"))
+  filter(CountryCode %in% c("GHA", "SOA", "UGA", "NIE"))
 
 # Calcul des résumés par CountryCode pour l'annotation
 summary_data <- data_AFP |>
