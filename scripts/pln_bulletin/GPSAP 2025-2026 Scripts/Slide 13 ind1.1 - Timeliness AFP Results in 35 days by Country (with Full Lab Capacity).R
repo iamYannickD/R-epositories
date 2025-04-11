@@ -6,20 +6,19 @@ library("pacman")
 #RODBC to be able to work with microsoft access databases, allowing R to connect to Open Database Connectivity (ODBC) APIs
 p_load(tidyverse, RODBC, gt, gtExtras)
 
-seq_result_AFP <- read.csv("../data/data/All virus sequencing results.csv") |>
-  mutate(DATE_COLL = dmy(ONSET..COLLECTION)) |>
-  filter(SOURCE != "ENV" & (today() - DATE_COLL < 366)) |>
-  mutate(DATE_RECEIVED = dmy(DATE.RECEIVED)) |>
-  mutate(TAT = difftime(DATE_RECEIVED, DATE_COLL), 
-         TAT_days = as.numeric(TAT)) |>
-  tibble()
+seq_result_AFP <- read_csv("../data/data/All PV list_from 2024.csv") |>
+  #mutate(DATE_COLL = dmy(ONSET..COLLECTION)) |>
+  filter(SOURCE != "ENV") # & (today() - DATE_COLL < 366)) |>
+  # mutate(DATE_RECEIVED = dmy(DATE.RECEIVED)) |>
+  # mutate(TAT = difftime(DATE_RECEIVED, DATE_COLL), 
+  #        TAT_days = as.numeric(TAT)) |>
+  # tibble()
 
 # Préparation du jeu de données avec IST et CountryCode
 data_AFP <- seq_result_AFP |>
-  mutate(
-    CountryCode = substr(EPID.NUMBER, start = 1, stop = 3),
-    .before = COUNTRY
-  ) |>
+  # mutate(
+  #   CountryCode = substr(EPID.NUMBER, start = 1, stop = 3),
+  #   .before = COUNTRY) |>
   mutate(
     IST = case_when(
       CountryCode %in% c("ALG", "BEN", "BFA", "CIV", "GAM", "GHA", "GUB", "GUI", "LIB", "MAI", "MAU",
@@ -27,17 +26,15 @@ data_AFP <- seq_result_AFP |>
       CountryCode %in% c("ANG", "CAE", "CAF", "CHA", "EQG", "GAB", "CNG", "RDC") ~ "CENTRAL",
       CountryCode %in% c("BOT", "BUU", "COM", "ETH", "KEN", "LES", "MAD", "MAL", "MOZ", "NAM", "RSS", "RWA",
                          "SOA", "SWZ", "TAN", "UGA", "ZAM", "ZIM") ~ "ESA"
-    ),
-    .before = CountryCode
-  ) |>
-  filter(CountryCode %in% c("GHA", "SOA"))
+    ), .before = CountryCode ) |>
+  filter(CountryCode %in% c("NIE"))
 
 # Calcul des résumés par CountryCode pour l'annotation
 summary_data <- data_AFP |>
   group_by(CountryCode) |>
             summarise(
-              count_low = sum(TAT_days <= 35, na.rm = TRUE),
-              count_high = sum(TAT_days > 35, na.rm = TRUE),
+              count_low = sum(TAT <= 35, na.rm = TRUE),
+              count_high = sum(TAT > 35, na.rm = TRUE),
               total = n()
             ) |>
             mutate(
@@ -46,9 +43,10 @@ summary_data <- data_AFP |>
             )
 
 # Création du graphique
-Sequencing.results.countries.with.labs <- data_AFP |>
-            ggplot(aes(x = TAT_days)) +
-            geom_bar(aes(fill = TAT_days <= 35), color = "black", width = 1.5) +
+Sequencing.results.countries.with.labs <- data_AFP |> 
+            filter(!is.na(TAT)) |>
+            ggplot(aes(x = TAT)) +
+            geom_bar(aes(fill = TAT <= 35), color = "black", width = 1.5) +
             scale_fill_manual(
               values = c("TRUE" = "green", "FALSE" = "red"), 
               labels = c("TRUE" = "<= 35 jours", "FALSE" = "> 35 jours")
@@ -64,8 +62,8 @@ Sequencing.results.countries.with.labs <- data_AFP |>
               fill = "TAT (in days)"
             ) +
             scale_x_continuous(
-              breaks = seq(0, max(data_AFP$TAT_days, na.rm = TRUE) + 1, by = 15),
-              limits = c(0, max(data_AFP$TAT_days, na.rm = TRUE) + 10)
+              breaks = seq(0, max(data_AFP$TAT, na.rm = TRUE) + 1, by = 15),
+              limits = c(0, max(data_AFP$TAT, na.rm = TRUE) + 10)
             ) +
             #scale_y_continuous(
             #  breaks = seq(0, 5, by = 1)
