@@ -29,9 +29,7 @@ country_data <- read_csv("../data/data_sequences/Detections by countries and by 
     Month = month(Date, label = TRUE, abbr = TRUE)
   ) %>%
   mutate(CountryName = case_when(
-    CountryName == "COTE D'IVOIRE" ~ "Ivory Coast",
-    CountryName == "CENTRAL AFRICAN REPUBLIC" ~ "Central African Republic",
-    CountryName == "GAMBIA" ~ "The Gambia",
+    CountryName == "COTE D'IVOIRE" ~ "IVORY COAST",
     TRUE ~ CountryName
   ))
 
@@ -43,6 +41,11 @@ africa_continent <- ne_countries(continent = "Africa", scale = "medium", returnc
 
 africa_countries <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") %>%
   select(name, geometry) %>%
+  mutate(name = case_when(
+                      name == "Côte d'Ivoire" ~ "Ivory Coast",
+                      name == "Eq. Guinea" ~ "Equatorial Guinea",
+                      name == "Central African Rep."~ "Central African Republic",
+                      TRUE ~ name) ) |>
   mutate(name = str_to_upper(name)) %>%
   left_join(country_data, by = c("name" = "CountryName")) %>%
   mutate(Number = replace_na(Number, 0))
@@ -91,7 +94,7 @@ create_animation <- function() {
     # Enhanced epi curve plot
     epi_plot <- ggplot(current_monthly, aes(x = Date, y = Detections)) +
       geom_col(fill = "steelblue", width = 20) +
-      geom_text(aes(label = Detections), vjust = -0.3, color = "darkgreen", size = 3.5) +
+      geom_text(aes(label = Detections), vjust = -0.3, color = "black", size = 3.5) +
       geom_vline(xintercept = current_date, color = "red", alpha = 0.7, size = 1) +
       scale_x_date(date_breaks = "1 month", date_labels = "%b-%y") +
       labs(
@@ -132,7 +135,7 @@ create_animation <- function() {
       labs(fill = "Monthly Cases") +
       theme_void() +
       theme(
-        legend.position = "bottom",
+        #legend.position = "bottom",
         legend.key.width = unit(1.5, "cm"))
     
     # Combine plots
