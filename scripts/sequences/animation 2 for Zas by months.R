@@ -1,3 +1,7 @@
+# Install libraries
+install.packages(c("tidyverse", "lubridate", "rnaturalearth", "sf", 
+                   "gganimate", "magick", "cowplot", "gifski"))
+
 # Load required packages
 library(tidyverse)
 library(lubridate)
@@ -11,7 +15,7 @@ library(gifski)
 # Set output path
 output_path <- "../data/data_sequences/outputs/detection_animation.gif"
 
-# 1. Process monthly data -------------------------------------------------
+# 1. Data extraction and formatting
 monthly_data <- read_csv("../data/data_sequences/detections by months and years.csv", show_col_types = FALSE) |>
   mutate(
     Date = my(MonthYear),
@@ -21,7 +25,7 @@ monthly_data <- read_csv("../data/data_sequences/detections by months and years.
   arrange(Date) |>
   mutate(frame_time = row_number())
 
-# 2. Process country data -------------------------------------------------
+# 2. Data extraction and formatting
 country_data <- read_csv("../data/data_sequences/Detections by countries and by month - year.csv", show_col_types = FALSE) |>
   mutate(
     Date = my(MonthYear),
@@ -33,7 +37,7 @@ country_data <- read_csv("../data/data_sequences/Detections by countries and by 
     TRUE ~ CountryName
   ))
 
-# 3. Prepare map data -----------------------------------------------------
+# 3. Spatial ata extraction and formatting
 africa_continent <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") |>
   st_union() |>
   st_as_sf() |>
@@ -50,7 +54,7 @@ africa_countries <- ne_countries(continent = "Africa", scale = "medium", returnc
   left_join(country_data, by = c("name" = "CountryName")) |>
   mutate(Number = replace_na(Number, 0))
 
-# 4. Enhanced country counts ----------------------------------------------
+# 4. Country counts for dynamic view
 country_counts <- country_data |>
   group_by(MonthYear) |>
   summarise(
@@ -64,7 +68,7 @@ country_counts <- country_data |>
 monthly_data <- monthly_data |>
   left_join(country_counts, by = "Date")
 
-# 5. Enhanced animation function ------------------------------------------
+# 5. Animation function
 create_animation <- function() {
   if(!dir.exists(dirname(output_path))) {
     dir.create(dirname(output_path), recursive = TRUE)
