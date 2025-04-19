@@ -12,56 +12,56 @@ library(gifski)
 output_path <- "../data/data_sequences/outputs/detection_animation.gif"
 
 # 1. Process monthly data -------------------------------------------------
-monthly_data <- read_csv("../data/data_sequences/detections by months and years.csv", show_col_types = FALSE) %>%
+monthly_data <- read_csv("../data/data_sequences/detections by months and years.csv", show_col_types = FALSE) |>
   mutate(
     Date = my(MonthYear),
     Year = year(Date),
     Month = month(Date, label = TRUE, abbr = TRUE)
-  ) %>%
-  arrange(Date) %>%
+  ) |>
+  arrange(Date) |>
   mutate(frame_time = row_number())
 
 # 2. Process country data -------------------------------------------------
-country_data <- read_csv("../data/data_sequences/Detections by countries and by month - year.csv", show_col_types = FALSE) %>%
+country_data <- read_csv("../data/data_sequences/Detections by countries and by month - year.csv", show_col_types = FALSE) |>
   mutate(
     Date = my(MonthYear),
     Year = year(Date),
     Month = month(Date, label = TRUE, abbr = TRUE)
-  ) %>%
+  ) |>
   mutate(CountryName = case_when(
     CountryName == "COTE D'IVOIRE" ~ "IVORY COAST",
     TRUE ~ CountryName
   ))
 
 # 3. Prepare map data -----------------------------------------------------
-africa_continent <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") %>%
-  st_union() %>%
-  st_as_sf() %>%
+africa_continent <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") |>
+  st_union() |>
+  st_as_sf() |>
   mutate(name = "Africa")
 
-africa_countries <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") %>%
-  select(name, geometry) %>%
+africa_countries <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") |>
+  select(name, geometry) |>
   mutate(name = case_when(
                       name == "Côte d'Ivoire" ~ "Ivory Coast",
                       name == "Eq. Guinea" ~ "Equatorial Guinea",
                       name == "Central African Rep."~ "Central African Republic",
                       TRUE ~ name) ) |>
-  mutate(name = str_to_upper(name)) %>%
-  left_join(country_data, by = c("name" = "CountryName")) %>%
+  mutate(name = str_to_upper(name)) |>
+  left_join(country_data, by = c("name" = "CountryName")) |>
   mutate(Number = replace_na(Number, 0))
 
 # 4. Enhanced country counts ----------------------------------------------
-country_counts <- country_data %>%
-  group_by(MonthYear) %>%
+country_counts <- country_data |>
+  group_by(MonthYear) |>
   summarise(
     detecting_countries = n_distinct(CountryName[Number > 0], na.rm = TRUE),
     #total_detections = sum(Number, na.rm = TRUE),
     top_country = CountryName[which.max(Number)],
     top_detections = max(Number, na.rm = TRUE)
-  ) %>%
+  ) |>
   mutate(Date = my(MonthYear))
 
-monthly_data <- monthly_data %>%
+monthly_data <- monthly_data |>
   left_join(country_counts, by = "Date")
 
 # 5. Enhanced animation function ------------------------------------------
@@ -81,8 +81,8 @@ create_animation <- function() {
     current_top <- monthly_data[i, c("top_country", "top_detections")]
     
     # Prepare country data
-    current_countries <- africa_countries %>%
-      filter(floor_date(Date, "month") == floor_date(current_date, "month")) %>%
+    current_countries <- africa_countries |>
+      filter(floor_date(Date, "month") == floor_date(current_date, "month")) |>
       mutate(
         label = if_else(Number > 0, name, ""),
         is_top = name == current_top$top_country
@@ -148,8 +148,8 @@ create_animation <- function() {
   }
   
   # Create and save animation
-  image_join(all_frames) %>%
-    image_animate(fps = 4, optimize = TRUE) %>%
+  image_join(all_frames) |>
+    image_animate(fps = 1, optimize = TRUE) |>
     image_write(output_path)
 }
 
