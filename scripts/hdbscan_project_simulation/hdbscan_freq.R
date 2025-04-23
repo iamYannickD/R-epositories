@@ -1,6 +1,5 @@
 # GitHub Activity Simulator: HDBSCAN Project
 # Simulates development from 2024-09-06 to 2025-02-28
-# With peak activity between November and early December 2024
 
 library(lubridate)
 library(dplyr)
@@ -9,8 +8,6 @@ library(dplyr)
 start_date <- as.Date("2024-09-06")
 end_date <- as.Date("2025-02-28")
 repo_name <- "hdbscan-project"
-author_name <- "Your Name"
-author_email <- "your.email@example.com"
 peak_start <- as.Date("2024-11-01")
 peak_end <- as.Date("2024-12-10")
 
@@ -72,20 +69,25 @@ while (current_date <= end_date) {
   
   # Number of commits today
   if (in_peak) {
-    # Peak period: 4-10 commits per day
-    n_commits <- sample(4:10, 1, prob = c(0.1, 0.15, 0.2, 0.2, 0.15, 0.1, 0.05))
+    # Peak period: 4-10 commits per day (7 options)
+    n_commits <- sample(4:10, 1, prob = c(0.1, 0.15, 0.2, 0.2, 0.15, 0.1, 0.1))
   } else {
-    # Normal period: 0-5 commits per day
+    # Normal period: 0-5 commits per day (6 options)
     n_commits <- sample(0:5, 1, prob = c(0.3, 0.25, 0.2, 0.15, 0.07, 0.03))
   }
   
   if (n_commits > 0) {
     for (i in 1:n_commits) {
-      # Random time during working hours (longer hours during peak)
+      # Random time during working hours
       if (in_peak) {
-        hour <- sample(8:22, 1, prob = c(rep(0.02, 3), rep(0.05, 5), rep(0.1, 6), rep(0.05, 5), rep(0.02, 3))
+        # 8am-10pm during peak (15 hours)
+        hour <- sample(8:22, 1, prob = c(0.02, 0.02, 0.02,  # 8-10am
+                                         0.05, 0.05, 0.05, 0.05, 0.05,  # 11am-3pm
+                                         0.1, 0.1, 0.1, 0.1,  # 4-7pm
+                                         0.05, 0.05, 0.05))  # 8-10pm
       } else {
-        hour <- sample(9:18, 1, prob = c(0.05, 0.1, 0.15, 0.2, 0.2, 0.15, 0.1, 0.05, 0.02))
+        # 9am-6pm normally (10 hours)
+        hour <- sample(9:18, 1, prob = c(0.05, 0.1, 0.15, 0.2, 0.2, 0.15, 0.1, 0.05, 0.02, 0.02))
       }
       minute <- sample(0:59, 1)
       timestamp <- paste0(format(current_date, "%Y-%m-%d"), " ", hour, ":", minute, ":00")
@@ -200,3 +202,4 @@ cat("You can now push this to GitHub:\n")
 cat("  cd", normalizePath("."), "\n")
 cat("  git remote add origin YOUR_REPO_URL\n")
 cat("  git push -u origin main\n")
+
