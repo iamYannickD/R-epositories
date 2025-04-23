@@ -7,15 +7,15 @@ library(dplyr)
 # Configuration
 start_date <- as.Date("2024-09-06")
 end_date <- as.Date("2025-02-28")
-repo_dir <- "hdbscan_project"
+#repo_dir <- "hdbscan_project"
 busy_start <- as.Date("2024-11-01")
 busy_end <- as.Date("2024-12-05")  # Peak period: Nov 1 - Dec 5
 
-# Create repo
-if (!dir.exists(repo_dir)) {
-  dir.create(repo_dir)
-}
-setwd(repo_dir)
+# # Create repo
+# if (!dir.exists(repo_dir)) {
+#   dir.create(repo_dir)
+# }
+# setwd(repo_dir)
 system("git init")
 
 # Create initial files
@@ -130,5 +130,5 @@ system("git add README.md")
 system('git commit -m "Finalize project" --date="2025-02-28 16:30:00"')
 
 cat("Git history simulation complete!\n")
-cat("Repository created at:", normalizePath(repo_dir), "\n")
+cat("Repository created at:", normalizePath("../data/data-polio-statistics/"), "\n")
 
