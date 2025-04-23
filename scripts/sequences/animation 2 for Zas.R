@@ -16,34 +16,19 @@ library(gifski)
 output_path <- "../data/data_sequences/outputs/detection_animation.gif"
 
 # 1. Process monthly data -------------------------------------------------
-monthly_data <- read_csv("../data/data_sequences/detections by months and years.csv", show_col_types = FALSE)|>
+monthly_data <- read_csv("../data/data_sequences/detections by months and years.csv", show_col_types = FALSE) %>%
   mutate(
     Date = my(MonthYear),
     Year = year(Date),
     Month = month(Date, label = TRUE, abbr = TRUE)
-  )|>
-  arrange(Date)|>
+  ) %>%
+  arrange(Date) %>%
   # Create animation timeline
   mutate(frame_time = row_number())
 
 # 2. Process country data -------------------------------------------------
-country_data_old <- read_csv("../data/data_sequences/Number of detections by countries and by year.csv", show_col_types = FALSE)|>
-  rename(Year = Attribute)|>
-  # Harmonize country names with map data
-  mutate(CountryName = case_when(
-    CountryName == "COTE D'IVOIRE" ~ "Ivory Coast",
-    CountryName == "CENTRAL AFRICAN REPUBLIC" ~ "Central African Republic",
-    CountryName == "GAMBIA" ~ "The Gambia",
-    TRUE ~ CountryName
-  ))
-
-
-country_data <- read_csv("../data/data_sequences/Detections by countries and by month - year.csv", show_col_types = FALSE)|>
-  mutate(
-    Date = my(MonthYear),
-    Year = year(Date),
-    Month = month(Date, label = TRUE, abbr = TRUE)
-  ) |>
+country_data <- read_csv("../data/data_sequences/Number of detections by countries and by year.csv", show_col_types = FALSE) %>%
+  rename(Year = Attribute) %>%
   # Harmonize country names with map data
   mutate(CountryName = case_when(
     CountryName == "COTE D'IVOIRE" ~ "Ivory Coast",
@@ -53,10 +38,10 @@ country_data <- read_csv("../data/data_sequences/Detections by countries and by 
   ))
 
 # 3. Get Africa map data --------------------------------------------------
-africa <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf")|>
-  select(name, geometry)|> 
+africa <- ne_countries(continent = "Africa", scale = "medium", returnclass = "sf") %>%
+  select(name, geometry) %>% 
   mutate(name = str_to_upper(name)) |>
-  left_join(country_data, by = c("name" = "CountryName"))|>
+  left_join(country_data, by = c("name" = "CountryName")) %>%
   mutate(Number = replace_na(Number, 0))
 
 
@@ -70,24 +55,22 @@ create_animation <- function() {
   all_frames <- list()
   
   for(i in 1:nrow(monthly_data)) {
-    current_date <- monthly_data$Date[5]
-    current_year <- monthly_data$Year[5]
-    current_month <- monthly_data$Year[5]
+    current_date <- monthly_data$Date[i]
+    current_year <- monthly_data$Year[i]
     
     # Filter to current timeframe
     current_monthly <- monthly_data[1:i, ]
     
     # Get country data for current year
-    current_countries <- africa|>
-      filter(Year == current_year)|>
-      filter(Month == current_month)|>
+    current_countries <- africa %>%
+      filter(Year == current_year) %>%
       mutate(Number = replace_na(Number, 0))
     
     # Create epi curve with progress line
     epi_plot <- ggplot(current_monthly, aes(x = Date, y = Detections)) +
       geom_col(fill = "steelblue", width = 20) +
       geom_vline(xintercept = current_date, color = "red", alpha = 0.7, size = 1) +
-      scale_x_date(date_breaks = "1 months", date_labels = "%b-%y") + # 3 months to 1 month
+      scale_x_date(date_breaks = "3 months", date_labels = "%b-%y") +
       labs(title = paste("Detection Timeline:", format(current_date, "%b %Y")),
            x = NULL, y = "Detections") +
       theme_minimal() +
@@ -98,8 +81,8 @@ create_animation <- function() {
       geom_sf(aes(fill = Number)) +
       scale_fill_viridis_c(option = "magma", limits = c(0, 600)) +
       labs(title = "Country Detections") +
-      theme_void() #+
-      #theme(legend.position = "bottom")
+      theme_void() +
+      theme(legend.position = "bottom")
     
     # Combine plots vertically
     combined <- cowplot::plot_grid(epi_plot, map_plot, ncol = 1, rel_heights = c(1, 2))
@@ -111,7 +94,7 @@ create_animation <- function() {
   }
   
   # Create animation
-  animation <- magick::image_join(all_frames)|>
+  animation <- magick::image_join(all_frames) %>%
     magick::image_animate(fps = 4, optimize = TRUE)
   
   # Save to specified path
