@@ -8,7 +8,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_WK09.mdb" 
+path_AFP <- "../data/dbs/k/AFP_2025_W14.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -45,8 +45,8 @@ AFPtables_gt <-
             FinalITDResult == "8-NEV" ~ "NEV",
             FinalITDResult == "10-Mixture" ~ "Mixture",
             FinalITDResult == "12-PV1 SL Discordant" ~ "Mixture",
-            #FinalITDResult == "1-PV1 NSL" ~ "Type 1 Discordant",
-            #FinalITDResult == "3-PV3 NSL" ~ "Type 3 Discordant", 
+            FinalITDResult %in% c("1-PV1 NSL", "12-PV1 Discordant") ~ "Type 1 Discordant",
+            FinalITDResult %in% c("1-PV3 NSL", "PV3 Discordant") ~ "Type 3 Discordant",
             !is.na(FinalITDResult) ~ "check" # missed/unexpected results
         )) |>
   filter(!is.na(virus_cat)) |>
@@ -72,7 +72,7 @@ AFPtables_gt <-
         ITD_results = sum(is_itd, na.rm = TRUE),
         ITD_pending_7days = sum(is_itd_more_7days, na.rm = TRUE)
       ), by = c("LabName" = "LabName")) |>
-  select(Labs = LabName, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	#`Type 1 Discordant`, `Type 3 Discordant`,
+  select(Labs = LabName, Numb_Isolates = ITD_results,	`Sabin Type 1`,	`Sabin Type 3`,	`Type 1 Discordant`, `Type 3 Discordant`,
           PV2, nOPV2, NPEV, NEV, Mixture, Pending_Isolates = ITD_pending_7days) |> 
   ungroup() |>
   gt() |>
@@ -85,8 +85,8 @@ AFPtables_gt <-
     Numb_Isolates = "Number of Isolates",
     `Sabin Type 1` = "Sabin Type 1",
     `Sabin Type 3` = "Sabin Type 3",
-    #`Type 1 Discordant` = "Type 1 Discordant",
-    #`Type 3 Discordant` = "Type 3 Discordant",
+    `Type 1 Discordant` = "Type 1 Discordant",
+    `Type 3 Discordant` = "Type 3 Discordant",
     PV2 = "nOPV2-",
     nOPV2 = "nOPV2+",
     NPEV = "NPEV",
@@ -107,9 +107,9 @@ AFPtables_gt <-
     tab_spanner(
       label = md('**Sabin Like PV**'),
       columns = c(`Sabin Type 1`, `Sabin Type 3`) ) |>
-    # tab_spanner(
-    #   label = md('**Discordant**'),
-    #   columns = c(`Type 1 Discordant`)) |>
+    tab_spanner(
+      label = md('**Discordant**'),
+      columns = c(`Type 1 Discordant`, `Type 3 Discordant`)) |>
   tab_spanner(
     label = md('**PV2**'),
     columns = c(PV2, nOPV2)) |>
