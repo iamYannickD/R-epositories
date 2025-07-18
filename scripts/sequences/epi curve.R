@@ -22,28 +22,33 @@ combined <- bind_rows(AFP, ES)
 # Convertir les dates et grouper par mois
 combined <- combined %>%
   mutate(
-    COLLECTION_DATE = dmy(COLLECTION_DATE),        # Conversion en date
-    month = floor_date(COLLECTION_DATE, "month")   # Arrondi au mois
+    COLLECTION_DATE = dmy(COLLECTION_DATE),
+    month = floor_date(COLLECTION_DATE, "month")
   )
 
-# Réorganiser les données en format long pour ggplot
+# Réorganiser en format long
 df_long <- combined %>%
   pivot_longer(cols = c(PV1, PV2, PV3), names_to = "PolioType", values_to = "Cases") %>%
   group_by(source, month, PolioType) %>%
   summarise(Cases = sum(Cases, na.rm = TRUE), .groups = "drop")
 
-# Définir une palette de couleurs personnalisée
+# Palette de couleurs
 polio_colors <- c(
-  "PV1" = "#F8766D",  # Rouge
-  "PV2" = "#00BA38",  # Vert
-  "PV3" = "#E69F00"   # Jaune/orangé
+  "PV1" = "#F8766D",
+  "PV2" = "#00BA38",
+  "PV3" = "#E69F00"
 )
- 
-# Créer le graphique
+
+# Graphique
 ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
   geom_bar(stat = "identity", color = "black") +
   facet_wrap(~ source, ncol = 1, scales = "free_y") +
   scale_fill_manual(values = polio_colors) +
+  scale_x_date(
+    date_labels = "%b %Y",  # format mois abrégé + année (ex: Jan 2018)
+    date_breaks = "3 months",  # afficher tous les 2 mois
+    expand = c(0.01, 0.01)
+  ) +
   labs(
     x = NULL, y = "Number of cases",
     fill = "Polio type"
