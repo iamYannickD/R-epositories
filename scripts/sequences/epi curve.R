@@ -39,14 +39,17 @@ polio_colors <- c(
   "PV3" = "#E69F00"
 )
 
+# Déterminer les breaks tous les 2 mois entre les min et max dates
+tick_breaks <- seq(min(df_long$month), max(df_long$month), by = "4 months")
+
 # Graphique
 ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
   geom_bar(stat = "identity", color = "black") +
   facet_wrap(~ source, ncol = 1, scales = "free_y") +
   scale_fill_manual(values = polio_colors) +
   scale_x_date(
-    date_labels = "%b %Y",  # format mois abrégé + année (ex: Jan 2018)
-    date_breaks = "3 months",  # afficher tous les 2 mois
+    breaks = tick_breaks,  # les traits (ticks) seront uniquement ici
+    labels = scales::date_format("%b %Y"),
     expand = c(0.01, 0.01)
   ) +
   labs(
@@ -55,6 +58,10 @@ ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
   ) +
   theme_minimal(base_size = 14) +
   theme(
+    axis.line.x = element_line(linewidth = 0.5),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    strip.text = element_text(face = "bold")
+    axis.ticks.x = element_line(),  # active les traits sur X
+    strip.text = element_text(face = "bold"),
+    #panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
   )
