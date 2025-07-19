@@ -43,8 +43,9 @@ polio_colors <- c(
 tick_breaks <- seq(min(df_long$month), max(df_long$month), by = "4 months")
 
 # Graphique
-ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
-  geom_bar(stat = "identity", color = "black") +
+epicurve <- 
+  ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
+  geom_bar(stat = "identity", color = "black", linewidth = 0.1) +
   facet_wrap(~ source, ncol = 1, scales = "free_y") +
   scale_fill_manual(values = polio_colors) +
   scale_x_date(
@@ -52,6 +53,8 @@ ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
     labels = scales::date_format("%b %Y"),
     expand = c(0.01, 0.01)
   ) +
+  scale_y_continuous(expand = c(0, 0)) +  # Enlève l'espace sous les barres
+  geom_hline(yintercept = 0, color = "black") +  # Axe X visible à Y = 0
   labs(
     x = NULL, y = "Number of cases",
     fill = "Polio type"
@@ -63,5 +66,10 @@ ggplot(df_long, aes(x = month, y = Cases, fill = PolioType)) +
     axis.ticks.x = element_line(),  # active les traits sur X
     strip.text = element_text(face = "bold"),
     #panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
+    panel.grid.minor.x = element_blank(),
+    plot.background = element_rect(fill = "white")
   )
+
+epicurve
+
+ggsave("../data/data_sequences/analysis/outputs/epi.png", epicurve, width = 13, height = 8)
