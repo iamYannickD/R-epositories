@@ -70,7 +70,7 @@ EStimeliness <-
   geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
     values = c("Prop_ITD_7days" = "gold", "Prop_ITD_7days_positive" = "darkblue"),
-    labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive" = "Among positive samples")
+    labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive" = "Among positive samples by ITD")
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = " ") + #ES - ITD Results by Lab in 7 days
   theme_minimal() +
