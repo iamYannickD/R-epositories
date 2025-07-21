@@ -8,7 +8,7 @@ p_load(tidyverse, RODBC,gt, gtExtras)
 
 #Give the path to the ES database
 Specify_the_period <- "WEEK 1 - 7, 2025"
-path_ES_2025 = "../data/dbs/WK10_Environmental_Surveillance_Lab_DB_as of 08 March 2025.mdb"
+path_ES_2025 = "../data/dbs/2025_WK27_Environmental.mdb"
 
 # Connect to the Microsoft Access database ====
 ESdb2025 <- DBI::dbConnect(odbc::odbc(), 
@@ -69,7 +69,7 @@ EStimeliness <-
   ggplot() +
   geom_bar(aes(x = Labname, y = Values, fill = Proportions), stat = "identity", position = position_dodge(), width = .9, color = "black") +
   scale_fill_manual(
-    values = c("Prop_ITD_7days" = "gold", "Prop_ITD_7days_positive" = "darkblue"),
+    values = c("Prop_ITD_7days" = "#0070C2", "Prop_ITD_7days_positive" = "#FFC000"),
     labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive" = "Among positive samples by ITD")
   ) +
   labs(x = "Lab Name", y = "% Samples with results", fill = "", title = " ") + #ES - ITD Results by Lab in 7 days
