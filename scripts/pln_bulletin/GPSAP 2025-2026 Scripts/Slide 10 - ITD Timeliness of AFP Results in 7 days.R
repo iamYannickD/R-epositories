@@ -7,7 +7,7 @@ library("pacman")
 p_load(tidyverse, RODBC,gt, gtExtras, webshot, officer)
 
 #Give the path to the AFP database
-path_AFP <- "../data/dbs/AFP_2025_WK13.mdb" 
+path_AFP <- "../data/dbs/2025_WK27_AFP.mdb" 
 
 # Connect to the Microsoft Access database =====
 AFPdb <- DBI::dbConnect(odbc::odbc(), 
@@ -75,7 +75,7 @@ AFPtables |>
     ggplot() +
     geom_bar(aes(x = LabName, y = Value, fill = Metric), stat = "identity", position = position_dodge(), width = .9, color = "black") +
     scale_fill_manual(
-      values = c("Prop_ITD_7days" = "gold", "Prop_ITD_7days_positive_sample" = "darkblue"),
+      values = c("Prop_ITD_7days" = "#0070C2", "Prop_ITD_7days_positive_sample" = "#FFC000"),
       labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive_sample" = "Among positive samples by ITD")
       ) +
     labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "Timeliness ITD Results by Lab (7 days)") +
