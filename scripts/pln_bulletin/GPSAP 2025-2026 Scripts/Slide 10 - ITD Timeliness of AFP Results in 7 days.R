@@ -76,7 +76,7 @@ AFPtables |>
     geom_bar(aes(x = LabName, y = Value, fill = Metric), stat = "identity", position = position_dodge(), width = .9, color = "black") +
     scale_fill_manual(
       values = c("Prop_ITD_7days" = "gold", "Prop_ITD_7days_positive_sample" = "darkblue"),
-      labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive_sample" = "Among positive samples")
+      labels = c("Prop_ITD_7days" = "Among all samples (with results)", "Prop_ITD_7days_positive_sample" = "Among positive samples by ITD")
       ) +
     labs(x = "Lab Name", y = "% Samples with results", fill = "", title = "Timeliness ITD Results by Lab (7 days)") +
     theme_minimal() +
