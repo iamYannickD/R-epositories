@@ -10,7 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-01_to_2024-12-31_3m.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/Linelist_viruses_jan_to_june_2025.csv") |>
   # filter only samples with results 
   filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
@@ -24,7 +24,7 @@ load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-
                                          "MAURITANIE" = "MAURITANIA",
                                          "TANZANIA" = "United Republic of Tanzania",
                                          "COTE D'IVOIRE" = "Cote d Ivoire",
-                                         #"ESWATINI" = "SWAZILAND",
+                                         "ESWATINI" = "SWAZILAND",
                                          "TCHAD" = "CHAD"
                                          ))
       )
@@ -119,7 +119,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
     labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", str_to_title(cntry))) +
     theme_bw() +
-    theme(legend.position = "bottom")
+    theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
+    #theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
   
@@ -139,7 +140,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     )  +
     labs(x = "Longitude", y = "Latitude", title = paste0("Map and performance of ES sites in ", str_to_title(cntry))) +
     theme_bw() +
-    theme(legend.position = "bottom")
+    theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
+    #theme(legend.position = "bottom")
   
   ggsave(paste0("../data/data_dr/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
