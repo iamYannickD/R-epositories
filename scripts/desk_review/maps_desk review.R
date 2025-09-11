@@ -10,7 +10,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel)
 
 #load data
-load_es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_from_2024-01-01_to_2024-12-31_3m.csv") |>
+load_es_sites <- read_csv("../data/data_dr/es_sites/Linelist_viruses_jan_to_june_2025.csv") |>
   # filter only samples with results 
   filter(if_any(starts_with("EV_isolation_Rate"), ~ !is.na(.))) |>
   # as the end will change, i select columns that starts with a specific string
@@ -97,7 +97,7 @@ country <- admin0$ADM0_VIZ_N |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "Guinea-bissau"
+#cntry = "United Republic of Tanzania"
 
 #Generates all the maps in the for loop
 # Function to plot maps
@@ -108,13 +108,15 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     geom_sf(data = admin_by_country, fill = NA, color = "black", size = 1) +
     geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y), color = "black", fill = "blue", size = 1) +
     geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
-                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2, 
+                    force = 10, max.overlaps = Inf, max.time = 10 ) +
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
     labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", cntry)) +
-    theme_bw() #+
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
     #theme(legend.position = "bottom")
   
-  ggsave(paste0("../data/data_dr/outputs/ES_and_population/", risk_level, "/", cntry, "_pop.png"), plot1)
+  ggsave("../data/data_dr/outputs/ES_and_population/plot1Tan.png", plot1)
   
   plot2 <- ggplot() +
     geom_sf(data = admin1_by_country, fill = NA, color = "gray") +
@@ -122,7 +124,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y, size = 5, color = ev_rate),
                size = 1.5, stroke = 1) +
     geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
-                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2, 
+                    force = 10, max.overlaps = Inf, max.time = 10 ) +
     scale_color_manual(values = c("< 25" = "red", "25 - 49" = "yellow", ">= 50" = "green"), 
                        name = "EV Rate", 
                        breaks = c("< 25", "25 - 49", ">= 50"),
@@ -131,8 +134,11 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
                                   paste0(">= 50 (n = ", sum(es_by_country$ev_rate == ">= 50"), ")")),
     )  +
     labs(x = "Longitude", y = "Latitude", title = paste0("Map and performance of ES sites in ", cntry)) +
-    theme_bw() #+
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) #+ # Center ggplot title
     #theme(legend.position = "bottom")
+  
+  #ggsave("../data/data_dr/outputs/ES_and_population/plot2.png", plot2)
   
   ggsave(paste0("../data/data_dr/outputs/ES_sites/", risk_level, "/", cntry, ".png"), plot2)
 }
