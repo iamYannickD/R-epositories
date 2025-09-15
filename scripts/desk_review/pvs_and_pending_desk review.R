@@ -8,8 +8,8 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_oct_dec_2024 ES_2.csv") 
-masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
+viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_jan_to_june_2025.csv") 
+#masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # load administrative boundaries
 afro_Adm0 <- geojsonsf::geojson_sf("../data/data_dr/sf/admin0_geo.geojson") |>
@@ -59,7 +59,7 @@ for (cntry in countries) {
                             geom_sf(data = afro_Adm0_cntry, fill = NA, color = "black") +
                             geom_point(shape = 15, size = 2.5, stroke = 1, aes(x = Long_X, y = Lat_Y, color = Virus)) +
                             scale_color_manual(values = c("cVDPV1" = "#F067A6", "VDPV1" = "pink", "cVDPV2" = "#3ABB9C", "VDPV2" = "green4",
-                                                          "cVDPV3" = "#8ED8F8", "VDPV3" = "#8ED8F8", "PV2 Pending" = "gray")) +
+                                                          "cVDPV3" = "#8ED8F8", "VDPV3" = "#8ED8F8", "aVDPV2" = "purple", "PV2 Pending" = "gray")) +
                             labs(x = "Longitude", y = "Latitude", color = "Virus Type", 
                                  title = paste0("Map of all ", es_virus_cntry$Virus, " Isolated in ", str_to_title(afro_Adm0_cntry$ADM0_VIZ_N))) +
                             geom_text_repel(data = es_virus_cntry, 
