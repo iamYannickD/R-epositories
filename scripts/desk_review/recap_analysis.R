@@ -9,15 +9,20 @@ p_load(tidyverse, gt, gtExtras)
 es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_cummulative_by_quarters_2.csv") 
 
 # Classification of countries based on their level of risk
-Very_high_risk <- c("Chad", "Democratic Republic of Congo", "Madagascar", "Mozambique", "Niger", "Nigeria")
 
-High_risk	<- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Cote dIvoire", 
-               "Ethiopia", "Kenya", "Malawi", "Mali", "Zambia")
+#Very_high_risk <- c(  )
 
-Medium_high_risk <- c("Burundi", "Republic of Congo", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea Bissau", 
-                      "Liberia", "Mauritania", "Namibia", "Rwanda", "Senegal", "Sierra Leone", "South Sudan", "Tanzania", 
-                      "Togo", "Uganda", "Zimbabwe")
-Medium_Risk <- c("")
+High_risk <- c("Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", "Chad", "Democratic Republic of Congo",
+               "Ethiopia", "Guinea", "Kenya", "Madagascar", "Mali", "Mozambique", "Niger", "Nigeria", "South Sudan")
+
+Medium_risk <- c("Algeria", "Burundi", "Republic of Congo", "Cote dIvoire", "Equatorial Guinea", "Eritrea", "Gabon", "Gambia",
+                 "Guinea Bissau", "Liberia", "Mauritania", "Senegal", "Sierra Leone", "South Africa", "Togo", "Zambia", "Zimbabwe")
+                 
+Low_watch_list <- c("Botswana", "Ghana", "Malawi", "Namibia", "Rwanda", "Uganda", "Tanzania")
+
+Low_risk ("Cabo Verde", "Eswatini", "Lesotho", "Mauritius", "Seychelles")
+
+
 
 # Color Categories
 breaks <- c(0, 25, 50, 100)
@@ -25,17 +30,17 @@ colors <- c("red", "yellow", "darkgreen")
 
 # Create a tibble containing values in the list provided and their risk category
 risk_level_by_country <- tibble(
-  risk_level = c(rep(" Very High Risk", length(Very_high_risk)),
-                 rep("High Risk", length(High_risk)),
-                 rep("Medium High Risk", length(Medium_high_risk)),
-                 rep("Medium Risk", length(Medium_Risk))),
-  country = c(Very_high_risk, High_risk, Medium_high_risk, Medium_Risk) |> str_to_upper()
+  risk_level = c(rep("High Risk", length(High_risk)),
+                 rep("Medium Risk", length(Medium_risk)),
+                 rep("Low Risk (Watch List)", length(Low_watch_list)),
+                 rep("Low Risk", length(Low_risk))),
+  country = c(High_risk, Medium_risk, Low_watch_list, Low_risk) |> str_to_upper()
     ) |>
   mutate(
     country = str_replace_all(country, c("UNITED REPUBLIC OF TANZANIA" = "TANZANIA",
                                          "CÔTE D’IVOIRE" = "COTE D'IVOIRE",
                                          "GUINEA"  = "GUINEE",
-                                         #"MAURITANIA" = "MAURITANIE", 
+                                         "MAURITANIA" = "MAURITANIE", 
                                          "EQUATORIAL GUINEE" = "EQUATORIAL GUINEA" ))
   )
 
