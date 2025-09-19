@@ -104,7 +104,7 @@ country <- afroCountries$ADM0_NAME |>
   unique() |> sort()
 
 #indenting the initial value for the loop
-#cntry = "ZIMBABWE"
+#cntry = "ERITREA"
 
 #Generates all the maps in the for loop
 # Function to plot maps
@@ -115,7 +115,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     geom_sf(data = admin_by_country, fill = NA, color = "black", size = 1) +
     geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y), color = "black", fill = "blue", size = 1) +
     geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
-                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2,
+                    force = 10, max.overlaps = Inf, max.time = 10 ) +
     scale_fill_brewer(palette = "Reds", name = "Population < 15 Yrs") +
     labs(x = "Longitude", y = "Latitude", title = paste0("ES Site Locations and Population <15 yrs in ", str_to_title(cntry))) +
     theme_bw() +
@@ -130,7 +131,8 @@ plot_maps <- function(cntry, pop_by_country, admin1_by_country, admin_by_country
     geom_point(data = es_by_country, aes(x = Long_X, y = Lat_Y, size = 5, color = ev_rate),
                size = 1.5, stroke = 1) +
     geom_text_repel(data = es_by_country, aes(x = Long_X, y = Lat_Y, label = Sitename, fontface = "bold"),
-                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2) +
+                    label.r = 0.015, label.size = 0.01, color = "black", bg.color = "white", bg.r = 0.15, size = 2,
+                    force = 10, max.overlaps = Inf, max.time = 10 ) +
     scale_color_manual(values = c("< 25" = "red", "25 - 49" = "yellow", ">= 50" = "green"), 
                        name = "EV Rate", 
                        breaks = c("< 25", "25 - 49", ">= 50"),
