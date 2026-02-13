@@ -8,7 +8,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_jan_to_june_2025.csv") 
+viruses_isolated <- read_csv("../data/data_dr/viruses/Linelist_viruses_july_to_dec_2025v2.csv") 
 #masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # load administrative boundaries
