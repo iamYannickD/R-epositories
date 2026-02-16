@@ -8,7 +8,7 @@ library("pacman")
 p_load(tidyverse, sf, geojsonsf, ggspatial, ggrepel, raster)
 
 #load dataset
-viruses_isolated <- read_csv("../data/data_dr/viruses/TAN_linelist_viruses_jan_to_june_2025.csv") 
+viruses_isolated <- read_csv("../data/data_dr/viruses/TAN_linelist_viruses_jan_to_june_2023.csv") 
 #masterlist <- read_csv("../data/data_dr/es_sites/ES_Sites_Masterlist.csv")
 
 # load administrative boundaries
@@ -64,7 +64,8 @@ for (cntry in countries) {
                                  title = paste0("Map of all ", es_virus_cntry$Virus, " Isolated in ", str_to_title(afro_Adm0_cntry$ADM0_VIZ_N))) +
                             geom_text_repel(data = es_virus_cntry, 
                                             aes(x = Long_X, y = Lat_Y, label = `ES Site Name`,
-                                                fontface = "bold", point.size = 10), 
+                                                fontface = "bold", point.size = 10, 
+                                                force = 10, max.overlaps = Inf, max.time = 10), 
                                             label.r = 0.015, label.size = 0.01, 
                                             color = "black", bg.color = "white", bg.r = 0.15, size = 2, point.size = 2,
                                             box.padding = 0.8, max.overlaps = Inf, force = 1, force_pull =  1, 
