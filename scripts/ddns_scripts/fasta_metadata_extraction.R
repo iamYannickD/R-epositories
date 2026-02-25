@@ -10,15 +10,12 @@ library("pacman")
 p_load(tidyverse, openxlsx)
 
 # INPUT:
-input_folders <- c(
-  "../../data/data_sequences/vp1-sequences/",
-  "PATH/TO/FOLDER2")
+input_folders <- c("../data/data_sequences/vp1-sequences/minion/", "PATH/TO/FOLDER2")
 
 # Locate all FASTA files
 fasta_files <- unlist(
   lapply(input_folders, function(dir) {
-    list.files(dir, pattern = "\\.(fasta|fa)$", recursive = TRUE, full.names = TRUE)
-  })
+    list.files(dir, pattern = "\\.(fasta|fa)$", recursive = TRUE, full.names = TRUE) })
 )
 
 if (length(fasta_files) == 0) {
@@ -73,30 +70,37 @@ parse_fasta <- function(fasta_file) {
   )
 }
 
-# ---- 4. PROCESS ALL FASTA FILES ----
+# 4. PROCESS ALL FASTA FILES
 parsed <- map(fasta_files, parse_fasta)
 
-# ---- 5. METADATA TABLE ----
-metadata_list <- unlist(map(parsed, "metadata"), recursive = FALSE)
+# 5. METADATA TABLE
+metadata_list <- purrr::map(parsed, "metadata") |> purrr::flatten() ##
 
 metadata_df <- bind_rows(metadata_list)
 
+#
+# Identify metadata columns automatically
+meta_cols <- setdiff(colnames(metadata_df), c("sequence_name", "source_fasta"))
+#
+
 # Rename metadata columns
-num_meta_cols <- ncol(metadata_df) - 2
-colnames(metadata_df)[1:num_meta_cols] <- paste0("metadata_field_", seq_len(num_meta_cols))
+num_meta_cols <- setdiff(colnames(metadata_df), c("sequence_name", "source_fasta")) #ncol(metadata_df) - 2
+
+colnames(metadata_df)[colnames(metadata_df) %in% meta_cols] <- paste0("metadata_field_", seq_along(meta_cols))
+#colnames(metadata_df)[1:num_meta_cols] <- paste0("metadata_field_", seq_len(num_meta_cols))
 
 # Reorder columns
-metadata_df <- metadata_df %>%
-  select(sequence_name, source_fasta, everything())
+metadata_df <- metadata_df |> relocate(sequence_name, source_fasta)
+  #select(sequence_name, source_fasta, everything())
 
-# ---- 6. MERGED FASTA ----
+# 6. MERGED FASTA
 merged_fasta <- unlist(map(parsed, "fasta"))
 
-# ---- 7. OUTPUT FILES ----
+# 7. OUTPUT FILES
 today <- format(Sys.Date(), "%Y-%m-%d")
 
-metadata_output <- paste0("FASTA_Metadata_", today, ".xlsx")
-fasta_output <- paste0("Merged_Sequences_", today, ".fasta")
+metadata_output <- paste0("../data/data_sequences/vp1-sequences/output_minion/FASTA_Metadata_", today, ".xlsx")
+fasta_output <- paste0("../data/data_sequences/vp1-sequences/output_minion/Merged_Sequences_", today, ".fasta")
 
 write.xlsx(metadata_df, metadata_output)
 writeLines(merged_fasta, fasta_output)
@@ -104,3 +108,4 @@ writeLines(merged_fasta, fasta_output)
 cat(" Outputs generated successfully:\n")
 cat(" - Excel metadata:", metadata_output, "\n")
 cat(" - Merged FASTA :", fasta_output, "\n")
+
