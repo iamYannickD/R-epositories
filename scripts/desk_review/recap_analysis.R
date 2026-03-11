@@ -6,7 +6,8 @@ library("pacman")
 p_load(tidyverse, gt, gtExtras)
 
 # load data
-es_sites <- read_csv("../data/data_dr/es_sites/ES_performance_cummulative_by_quarters_2.csv") 
+AFRO <- read_csv("../data/data_sequences/ddns/MAD - Cummulative DDNS Results as of January 31.csv") 
+PSC <- read_csv("../data/data_sequences/ddns/Madagascar_imported_tables.csv") 
 
 # Classification of countries based on their level of risk
 
