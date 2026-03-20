@@ -105,8 +105,7 @@ run_level_summary <-
 qc_cols <- c("RunQC", "SampleQC", "DDNSclassification")
 
 qc_available <- qc_cols[
-  qc_cols %in% colnames(afro) & qc_cols %in% colnames(psc)
-]
+  qc_cols %in% colnames(afro) & qc_cols %in% colnames(psc) ]
 
 if(length(qc_available) > 0){
   
